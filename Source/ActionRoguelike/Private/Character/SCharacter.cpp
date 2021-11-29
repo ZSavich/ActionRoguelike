@@ -7,6 +7,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Projectile/SMagicProjectile.h"
+#include "Components/SInteractionComponent.h"
 
 ASCharacter::ASCharacter()
 {
@@ -17,6 +18,8 @@ ASCharacter::ASCharacter()
 
     SpringArmComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
     SpringArmComp->bUsePawnControlRotation = true;
+    SpringArmComp->TargetArmLength = 200.f;
+    SpringArmComp->SocketOffset = FVector(0.f, 50.f, 60.f);
     SpringArmComp->SetupAttachment(GetRootComponent());
 
     CameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
@@ -88,8 +91,13 @@ void ASCharacter::MoveRight(const float Amount)
 
 void ASCharacter::PrimaryAttack()
 {
-    if(!MagicProjectileClass) return;
+    PlayAnimMontage(AttackMontage);
+    GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, 0.2);
+}
 
+void ASCharacter::PrimaryAttack_TimeElapsed()
+{
+    if(!MagicProjectileClass) return;
     const FTransform SpawnTransform = FTransform(GetControlRotation(), GetMesh()->GetSocketLocation(MuzzleSocketName));
     
     FActorSpawnParameters SpawnParams;
@@ -97,7 +105,7 @@ void ASCharacter::PrimaryAttack()
     SpawnParams.Owner = this;
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
     
-    const auto MagicProjectile = GetWorld()->SpawnActor<ASMagicProjectile>(MagicProjectileClass, SpawnTransform, SpawnParams);
+    GetWorld()->SpawnActor<ASMagicProjectile>(MagicProjectileClass, SpawnTransform, SpawnParams);
 }
 
 void ASCharacter::DrawDebugOrientVectors() const

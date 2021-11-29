@@ -3,15 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SGameplayInterface.h"
-#include "Components/SInteractionComponent.h"
 #include "GameFramework/Character.h"
 #include "SCharacter.generated.h"
 
 class USpringArmComponent;
 class UCameraComponent;
 class ASMagicProjectile;
-class ISGameplayInterface;
+class USInteractionComponent;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASCharacter : public ACharacter
@@ -25,14 +23,19 @@ protected:
     UPROPERTY(VisibleAnywhere, Category="Camera")
     UCameraComponent* CameraComp;
 
-    UPROPERTY(EditDefaultsOnly, Category="Projectile")
+    UPROPERTY(EditDefaultsOnly, Category="Attack")
     TSubclassOf<ASMagicProjectile> MagicProjectileClass;
 
-    UPROPERTY(EditDefaultsOnly, Category="Projectile")
+    UPROPERTY(EditDefaultsOnly, Category="Sockets")
     FName MuzzleSocketName;
 
-    UPROPERTY(VisibleAnywhere, Category="Components")
+    UPROPERTY(VisibleAnywhere, Category="Interaction")
     USInteractionComponent* InteractionComp;
+
+    UPROPERTY(EditDefaultsOnly, Category="Attack")
+    UAnimMontage* AttackMontage;
+
+    FTimerHandle TimerHandle_PrimaryAttack;
     
 public:
 	ASCharacter();
@@ -45,6 +48,8 @@ protected:
 
     void PrimaryAttack();
 
+    void PrimaryAttack_TimeElapsed();
+    
     void PrimaryInteract();
     
     /** Debug Functions **/
