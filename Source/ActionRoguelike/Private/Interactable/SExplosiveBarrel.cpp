@@ -2,26 +2,34 @@
 
 
 #include "Interactable/SExplosiveBarrel.h"
+#include "PhysicsEngine/RadialForceComponent.h"
 
-// Sets default values
 ASExplosiveBarrel::ASExplosiveBarrel()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+ 	PrimaryActorTick.bCanEverTick = false;
 
+    MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+    MeshComp->SetCollisionProfileName("OverlapAllDynamic");
+    MeshComp->SetupAttachment(GetRootComponent());
+
+    RadialForceComp = CreateDefaultSubobject<URadialForceComponent>(TEXT("RadialForce"));
+    RadialForceComp->Falloff = RIF_Linear;
+    RadialForceComp->SetAutoActivate(false);
+    RadialForceComp->Radius = 500.f;
+    RadialForceComp->ImpulseStrength = 2000.f;
+    RadialForceComp->bImpulseVelChange = true;
+    RadialForceComp->SetupAttachment(GetRootComponent());
 }
 
-// Called when the game starts or when spawned
 void ASExplosiveBarrel::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
-// Called every frame
-void ASExplosiveBarrel::Tick(float DeltaTime)
+void ASExplosiveBarrel::NotifyActorBeginOverlap(AActor* OtherActor)
 {
-	Super::Tick(DeltaTime);
+    Super::NotifyActorBeginOverlap(OtherActor);
 
+    RadialForceComp->FireImpulse();
 }
 

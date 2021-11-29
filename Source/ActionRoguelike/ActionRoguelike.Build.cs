@@ -19,6 +19,10 @@ public class ActionRoguelike : ModuleRules
 		PublicIncludePaths.AddRange(new string[]
 		{
 			"ActionRoguelike/Public/Character",
+			"ActionRoguelike/Public/Projectile",
+			"ActionRoguelike/Public/Interactable",
+			"ActionRoguelike/Public/Interfaces",
+			"ActionRoguelike/Public/Components",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

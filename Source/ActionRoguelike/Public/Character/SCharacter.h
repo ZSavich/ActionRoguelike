@@ -3,39 +3,56 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SGameplayInterface.h"
+#include "Components/SInteractionComponent.h"
 #include "GameFramework/Character.h"
 #include "SCharacter.generated.h"
 
 class USpringArmComponent;
 class UCameraComponent;
+class ASMagicProjectile;
+class ISGameplayInterface;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASCharacter : public ACharacter
 {
 	GENERATED_BODY()
+    
+protected:
+    UPROPERTY(VisibleAnywhere, Category="Camera")
+    USpringArmComponent* SpringArmComp;
 
+    UPROPERTY(VisibleAnywhere, Category="Camera")
+    UCameraComponent* CameraComp;
+
+    UPROPERTY(EditDefaultsOnly, Category="Projectile")
+    TSubclassOf<ASMagicProjectile> MagicProjectileClass;
+
+    UPROPERTY(EditDefaultsOnly, Category="Projectile")
+    FName MuzzleSocketName;
+
+    UPROPERTY(VisibleAnywhere, Category="Components")
+    USInteractionComponent* InteractionComp;
+    
 public:
-	// Sets default values for this character's properties
 	ASCharacter();
 
 protected:
-    UPROPERTY(VisibleAnywhere)
-    USpringArmComponent* SpringArmComp;
-
-    UPROPERTY(VisibleAnywhere)
-    UCameraComponent* CameraComp;
-    
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
     void MoveForward(const float Amount);
     void MoveRight(const float Amount);
 
+    void PrimaryAttack();
+
+    void PrimaryInteract();
+    
+    /** Debug Functions **/
+    void DrawDebugOrientVectors() const;
+
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 };
