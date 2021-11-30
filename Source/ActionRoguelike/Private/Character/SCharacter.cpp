@@ -103,9 +103,13 @@ void ASCharacter::PrimaryAttack_TimeElapsed()
     FActorSpawnParameters SpawnParams;
     SpawnParams.Instigator = this;
     SpawnParams.Owner = this;
+    
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
     
-    GetWorld()->SpawnActor<ASMagicProjectile>(MagicProjectileClass, SpawnTransform, SpawnParams);
+    const auto Projectile = GetWorld()->SpawnActor<ASMagicProjectile>(MagicProjectileClass, SpawnTransform, SpawnParams);
+
+    // Fixing the bug when The Projectile hit The Owner
+    MoveIgnoreActorAdd(Projectile);
 }
 
 void ASCharacter::DrawDebugOrientVectors() const

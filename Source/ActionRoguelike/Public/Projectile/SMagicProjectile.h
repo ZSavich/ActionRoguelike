@@ -15,14 +15,17 @@ class ACTIONROGUELIKE_API ASMagicProjectile : public AActor
 	GENERATED_BODY()
 
 protected:
-    UPROPERTY(EditDefaultsOnly, Category="Components")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Collision")
     USphereComponent* SphereComp;
 
-    UPROPERTY(EditDefaultsOnly, Category="Components")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Components")
     UProjectileMovementComponent* MovementComp;
 
-    UPROPERTY(EditDefaultsOnly, Category="Components")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Effects")
     UParticleSystemComponent* EffectComp;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Effects")
+    UParticleSystem* ExplosionEffect;
     
 public:	
 	ASMagicProjectile();

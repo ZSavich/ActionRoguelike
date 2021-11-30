@@ -16,7 +16,7 @@ protected:
     UPROPERTY(VisibleAnywhere, Category="Mesh")
     UStaticMeshComponent* BaseMesh;
 
-    UPROPERTY(VisibleAnywhere, Category="Mesh")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Mesh")
     UStaticMeshComponent* LidMesh;
 
     UPROPERTY(EditAnywhere, Category="Interact")

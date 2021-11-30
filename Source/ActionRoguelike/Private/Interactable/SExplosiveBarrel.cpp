@@ -26,10 +26,10 @@ void ASExplosiveBarrel::BeginPlay()
 	Super::BeginPlay();
 }
 
-void ASExplosiveBarrel::NotifyActorBeginOverlap(AActor* OtherActor)
+void ASExplosiveBarrel::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved,
+    FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {
-    Super::NotifyActorBeginOverlap(OtherActor);
+    Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
 
     RadialForceComp->FireImpulse();
 }
-

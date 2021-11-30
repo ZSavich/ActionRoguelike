@@ -9,11 +9,10 @@
 ASMagicProjectile::ASMagicProjectile()
 {
 	PrimaryActorTick.bCanEverTick = false;
-
     SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
     SphereComp->SetCollisionProfileName("Projectile");
     SetRootComponent(SphereComp);
-
+    
     EffectComp = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ParticleEffect"));
     EffectComp->SetupAttachment(GetRootComponent());
     
@@ -26,4 +25,6 @@ ASMagicProjectile::ASMagicProjectile()
 void ASMagicProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+    
+    SphereComp->IgnoreActorWhenMoving(GetInstigator(), true);
 }

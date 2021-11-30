@@ -17,7 +17,7 @@ protected:
     UPROPERTY(VisibleAnywhere, Category="Components")
     UStaticMeshComponent* MeshComp;
 
-    UPROPERTY(VisibleAnywhere, Category="Components")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
     URadialForceComponent* RadialForceComp;
 	
 public:	
@@ -26,5 +26,5 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-    virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+    virtual void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
 };
