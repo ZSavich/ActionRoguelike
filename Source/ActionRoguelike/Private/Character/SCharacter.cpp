@@ -55,6 +55,8 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
     PlayerInputComponent->BindAction("PrimaryAttack", IE_Pressed, this, &ASCharacter::PrimaryAttack);
     PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
     PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ASCharacter::PrimaryInteract);
+    PlayerInputComponent->BindAction("BlackholeProjectile", IE_Pressed, this, &ASCharacter::BlackholeProjectile);
+    PlayerInputComponent->BindAction("TeleportProjectile", IE_Pressed, this, &ASCharacter::TeleportProjectile);
 }
 
 void ASCharacter::PrimaryInteract()
@@ -92,15 +94,49 @@ void ASCharacter::MoveRight(const float Amount)
 
 void ASCharacter::PrimaryAttack()
 {
+    if(GetWorldTimerManager().IsTimerActive(TimerHandle_PrimaryAttack)) return;
+    
     PlayAnimMontage(AttackMontage);
-    GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, 0.2);
+    GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, 0.2f);
+}
+
+void ASCharacter::BlackholeProjectile()
+{
+    if(GetWorldTimerManager().IsTimerActive(TimerHandle_PrimaryAttack)) return;
+    
+    PlayAnimMontage(AttackMontage);
+    GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::BlackholeProjectile_TimeElapsed, 0.2f);
+}
+
+void ASCharacter::TeleportProjectile()
+{
+    if(GetWorldTimerManager().IsTimerActive(TimerHandle_PrimaryAttack)) return;
+
+    PlayAnimMontage(AttackMontage);
+    GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::TeleportProjectile_TimeElapsed, 0.2f);
 }
 
 void ASCharacter::PrimaryAttack_TimeElapsed()
 {
     ensure(MagicProjectileClass);
-   
-    /** LineTrace  **/
+    SpawnProjectile(MagicProjectileClass);
+}
+
+void ASCharacter::BlackholeProjectile_TimeElapsed()
+{
+    ensure(BlackholeProjectileClass);
+    SpawnProjectile(BlackholeProjectileClass);
+}
+
+void ASCharacter::TeleportProjectile_TimeElapsed()
+{
+    ensure(TeleportProjectileClass);
+    SpawnProjectile(TeleportProjectileClass);
+}
+
+void ASCharacter::SpawnProjectile(const TSubclassOf<ASMagicProjectile> ProjectileClass)
+{
+    /** LineTrace **/
     /** It helps to find the Rotation for Projectile **/
     
     FVector ViewPointLocation;
@@ -140,7 +176,7 @@ void ASCharacter::PrimaryAttack_TimeElapsed()
     
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
     
-    const auto Projectile = GetWorld()->SpawnActor<ASMagicProjectile>(MagicProjectileClass, SpawnTransform, SpawnParams);
+    const auto Projectile = GetWorld()->SpawnActor<ASMagicProjectile>(ProjectileClass, SpawnTransform, SpawnParams);
 
     // Fixing the bug when The Projectile hit The Owner
     MoveIgnoreActorAdd(Projectile);

@@ -23,9 +23,15 @@ protected:
     UPROPERTY(VisibleAnywhere, Category="Camera")
     UCameraComponent* CameraComp;
 
-    UPROPERTY(EditDefaultsOnly, Category="Attack")
+    UPROPERTY(EditDefaultsOnly, Category="Projectiles")
     TSubclassOf<ASMagicProjectile> MagicProjectileClass;
 
+    UPROPERTY(EditDefaultsOnly, Category="Projectiles")
+    TSubclassOf<ASMagicProjectile> BlackholeProjectileClass;
+
+    UPROPERTY(EditDefaultsOnly, Category="Projectiles")
+    TSubclassOf<ASMagicProjectile> TeleportProjectileClass;
+    
     UPROPERTY(EditDefaultsOnly, Category="Sockets")
     FName MuzzleSocketName;
 
@@ -49,9 +55,16 @@ protected:
     void MoveForward(const float Amount);
     void MoveRight(const float Amount);
 
+    void SpawnProjectile(const TSubclassOf<ASMagicProjectile> ProjectileClass);
+    
     void PrimaryAttack();
-
     void PrimaryAttack_TimeElapsed();
+
+    void BlackholeProjectile();
+    void BlackholeProjectile_TimeElapsed();
+
+    void TeleportProjectile();
+    void TeleportProjectile_TimeElapsed();
     
     void PrimaryInteract();
     
