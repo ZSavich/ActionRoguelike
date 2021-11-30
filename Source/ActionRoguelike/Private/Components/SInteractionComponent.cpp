@@ -11,7 +11,7 @@ USInteractionComponent::USInteractionComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
     InteractionRadius = 15.f;
-    DrawDebugInformation = false;
+    bDrawDebugInformation = false;
 }
 
 void USInteractionComponent::BeginPlay()
@@ -62,13 +62,13 @@ void USInteractionComponent::PrimaryInteract() const
         {
             ISGameplayInterface::Execute_Interact(HitActor, Owner);
 
-            if(DrawDebugInformation)
+            if(bDrawDebugInformation)
                 DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, InteractionRadius,32, LineColor, false, 5.f, 0.f, 2.f);
             
             break;
         }
     }
-    if(DrawDebugInformation)
+    if(bDrawDebugInformation)
         DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 5.f, 0.f, 2.f);
 }
 

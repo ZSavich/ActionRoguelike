@@ -28,6 +28,7 @@ ASCharacter::ASCharacter()
     InteractionComp = CreateDefaultSubobject<USInteractionComponent>(TEXT("InteractionComponent"));
 
     MuzzleSocketName = "Muzzle_01";
+    bDrawDebugInformation = false;
 }
 
 void ASCharacter::BeginPlay()
@@ -97,8 +98,41 @@ void ASCharacter::PrimaryAttack()
 
 void ASCharacter::PrimaryAttack_TimeElapsed()
 {
-    if(!MagicProjectileClass) return;
-    const FTransform SpawnTransform = FTransform(GetControlRotation(), GetMesh()->GetSocketLocation(MuzzleSocketName));
+    ensure(MagicProjectileClass);
+   
+    /** LineTrace  **/
+    /** It helps to find the Rotation for Projectile **/
+    
+    FVector ViewPointLocation;
+    FRotator ViewPointRotation;
+    GetController()->GetPlayerViewPoint(ViewPointLocation, ViewPointRotation);
+
+    const auto StartTraceVector = ViewPointLocation;
+    auto EndTraceVector = ViewPointLocation + (ViewPointRotation.Vector() * 2000.f);
+
+    FCollisionQueryParams CollisionQueryParams;
+    CollisionQueryParams.AddIgnoredActor(this);
+    
+    FHitResult HitResult;
+    GetWorld()->LineTraceSingleByObjectType(HitResult, StartTraceVector, EndTraceVector, {}, CollisionQueryParams);
+
+    if(HitResult.bBlockingHit)
+    {
+        EndTraceVector = HitResult.ImpactPoint;
+    }
+    
+    if(bDrawDebugInformation)
+    {
+        DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.f, 32, FColor::Green, false, 5.f, 0.f, 1.f);
+        DrawDebugLine(GetWorld(), StartTraceVector, EndTraceVector, FColor::Green, false, 5.f,0.f,1.f);
+    }
+    
+    /** End LineTrace **/
+    
+    const auto SpawnLocation = GetMesh()->GetSocketLocation(MuzzleSocketName);
+    const auto SpawnRotation = FRotationMatrix::MakeFromX(EndTraceVector-SpawnLocation).Rotator();
+
+    const auto SpawnTransform = FTransform(SpawnRotation, SpawnLocation);
     
     FActorSpawnParameters SpawnParams;
     SpawnParams.Instigator = this;

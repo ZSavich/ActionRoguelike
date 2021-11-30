@@ -14,17 +14,19 @@ class ACTIONROGUELIKE_API ASExplosiveBarrel : public AActor
 	GENERATED_BODY()
 
 protected:
-    UPROPERTY(VisibleAnywhere, Category="Components")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
     UStaticMeshComponent* MeshComp;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
     URadialForceComponent* RadialForceComp;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="Debug")
+    bool bDrawDebugInformation;
 	
 public:	
 	ASExplosiveBarrel();
 
 protected:
 	virtual void BeginPlay() override;
-
     virtual void NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
 };

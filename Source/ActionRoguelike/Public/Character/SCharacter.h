@@ -35,6 +35,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category="Attack")
     UAnimMontage* AttackMontage;
 
+    UPROPERTY(EditDefaultsOnly, Category="Debug")
+    bool bDrawDebugInformation;
+
     FTimerHandle TimerHandle_PrimaryAttack;
     
 public:
