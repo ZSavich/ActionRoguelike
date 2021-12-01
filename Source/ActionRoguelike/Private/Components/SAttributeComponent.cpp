@@ -10,9 +10,9 @@ USAttributeComponent::USAttributeComponent()
 }
 
 bool USAttributeComponent::ApplyHealthChange(const float Delta)
-{
-    if(Delta == 0) return false;
-
-    CurrentHealth = FMath::Clamp(CurrentHealth - Delta, 0.f, MaxHealth);
+{    
+    CurrentHealth = FMath::Clamp(CurrentHealth - Delta, 0.f, CurrentHealth);
+    OnHealthChanged.Broadcast(nullptr, this, CurrentHealth,Delta);
+    
     return true;
 }

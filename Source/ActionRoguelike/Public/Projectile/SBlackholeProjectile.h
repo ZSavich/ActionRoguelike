@@ -16,9 +16,6 @@ class ACTIONROGUELIKE_API ASBlackholeProjectile : public ASBaseProjectile
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
     URadialForceComponent* RadialForceComp;
-    
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Props")
-    float LifeTime;
 
 public:
     ASBlackholeProjectile();

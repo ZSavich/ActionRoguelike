@@ -23,8 +23,6 @@ ASBlackholeProjectile::ASBlackholeProjectile()
     RadialForceComp->Radius = 750.f;
     RadialForceComp->ForceStrength = -1000000.f;
     RadialForceComp->SetupAttachment(SphereComp);
-
-    LifeTime = 5.f;
 }
 
 void ASBlackholeProjectile::BeginPlay()
