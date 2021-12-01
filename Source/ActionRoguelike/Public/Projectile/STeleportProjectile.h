@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Projectile/SMagicProjectile.h"
+#include "Projectile/SBaseProjectile.h"
 #include "STeleportProjectile.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ACTIONROGUELIKE_API ASTeleportProjectile : public ASMagicProjectile
+class ACTIONROGUELIKE_API ASTeleportProjectile : public ASBaseProjectile
 {
 	GENERATED_BODY()
 

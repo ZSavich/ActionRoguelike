@@ -8,8 +8,9 @@
 
 class USpringArmComponent;
 class UCameraComponent;
-class ASMagicProjectile;
+class ASBaseProjectile;
 class USInteractionComponent;
+class USAttributeComponent;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASCharacter : public ACharacter
@@ -17,28 +18,31 @@ class ACTIONROGUELIKE_API ASCharacter : public ACharacter
 	GENERATED_BODY()
     
 protected:
-    UPROPERTY(VisibleAnywhere, Category="Camera")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera")
     USpringArmComponent* SpringArmComp;
 
-    UPROPERTY(VisibleAnywhere, Category="Camera")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera")
     UCameraComponent* CameraComp;
 
-    UPROPERTY(EditDefaultsOnly, Category="Projectiles")
-    TSubclassOf<ASMagicProjectile> MagicProjectileClass;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
+    USInteractionComponent* InteractionComp;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
+    USAttributeComponent* AttributeComp;
 
     UPROPERTY(EditDefaultsOnly, Category="Projectiles")
-    TSubclassOf<ASMagicProjectile> BlackholeProjectileClass;
+    TSubclassOf<ASBaseProjectile> MagicProjectileClass;
 
     UPROPERTY(EditDefaultsOnly, Category="Projectiles")
-    TSubclassOf<ASMagicProjectile> TeleportProjectileClass;
+    TSubclassOf<ASBaseProjectile> BlackholeProjectileClass;
+
+    UPROPERTY(EditDefaultsOnly, Category="Projectiles")
+    TSubclassOf<ASBaseProjectile> TeleportProjectileClass;
     
     UPROPERTY(EditDefaultsOnly, Category="Sockets")
     FName MuzzleSocketName;
 
-    UPROPERTY(VisibleAnywhere, Category="Interaction")
-    USInteractionComponent* InteractionComp;
-
-    UPROPERTY(EditDefaultsOnly, Category="Attack")
+    UPROPERTY(EditDefaultsOnly, Category="Animations")
     UAnimMontage* AttackMontage;
 
     UPROPERTY(EditDefaultsOnly, Category="Debug")
@@ -55,7 +59,7 @@ protected:
     void MoveForward(const float Amount);
     void MoveRight(const float Amount);
 
-    void SpawnProjectile(const TSubclassOf<ASMagicProjectile> ProjectileClass);
+    void SpawnProjectile(const TSubclassOf<ASBaseProjectile> ProjectileClass);
     
     void PrimaryAttack();
     void PrimaryAttack_TimeElapsed();

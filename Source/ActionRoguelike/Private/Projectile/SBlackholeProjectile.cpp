@@ -32,7 +32,6 @@ void ASBlackholeProjectile::BeginPlay()
     Super::BeginPlay();
 
     SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ASBlackholeProjectile::OnProjectileBeginOverlap);
-    SetLifeSpan(5.f);
 }
 
 void ASBlackholeProjectile::OnProjectileBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,

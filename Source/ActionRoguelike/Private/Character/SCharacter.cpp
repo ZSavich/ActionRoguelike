@@ -6,8 +6,9 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Projectile/SMagicProjectile.h"
+#include "SBaseProjectile.h"
 #include "Components/SInteractionComponent.h"
+#include "SAttributeComponent.h"
 
 ASCharacter::ASCharacter()
 {
@@ -26,6 +27,8 @@ ASCharacter::ASCharacter()
     CameraComp->SetupAttachment(SpringArmComp);
 
     InteractionComp = CreateDefaultSubobject<USInteractionComponent>(TEXT("InteractionComponent"));
+
+    AttributeComp = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComponent"));
 
     MuzzleSocketName = "Muzzle_01";
     bDrawDebugInformation = false;
@@ -118,23 +121,23 @@ void ASCharacter::TeleportProjectile()
 
 void ASCharacter::PrimaryAttack_TimeElapsed()
 {
-    ensure(MagicProjectileClass);
+    if(!ensure(MagicProjectileClass)) return;
     SpawnProjectile(MagicProjectileClass);
 }
 
 void ASCharacter::BlackholeProjectile_TimeElapsed()
 {
-    ensure(BlackholeProjectileClass);
+    if(!ensure(BlackholeProjectileClass)) return;
     SpawnProjectile(BlackholeProjectileClass);
 }
 
 void ASCharacter::TeleportProjectile_TimeElapsed()
 {
-    ensure(TeleportProjectileClass);
+    if(!ensure(TeleportProjectileClass)) return;
     SpawnProjectile(TeleportProjectileClass);
 }
 
-void ASCharacter::SpawnProjectile(const TSubclassOf<ASMagicProjectile> ProjectileClass)
+void ASCharacter::SpawnProjectile(const TSubclassOf<ASBaseProjectile> ProjectileClass)
 {
     /** LineTrace **/
     /** It helps to find the Rotation for Projectile **/
@@ -176,7 +179,7 @@ void ASCharacter::SpawnProjectile(const TSubclassOf<ASMagicProjectile> Projectil
     
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
     
-    const auto Projectile = GetWorld()->SpawnActor<ASMagicProjectile>(ProjectileClass, SpawnTransform, SpawnParams);
+    const auto Projectile = GetWorld()->SpawnActor<ASBaseProjectile>(ProjectileClass, SpawnTransform, SpawnParams);
 
     // Fixing the bug when The Projectile hit The Owner
     MoveIgnoreActorAdd(Projectile);
