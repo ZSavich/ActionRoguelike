@@ -11,7 +11,7 @@ USAttributeComponent::USAttributeComponent()
 
 bool USAttributeComponent::ApplyHealthChange(const float Delta)
 {    
-    CurrentHealth = FMath::Clamp(CurrentHealth - Delta, 0.f, CurrentHealth);
+    CurrentHealth = FMath::Clamp(CurrentHealth + Delta, 0.f, CurrentHealth);
     OnHealthChanged.Broadcast(nullptr, this, CurrentHealth,Delta);
     
     return true;

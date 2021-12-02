@@ -19,13 +19,12 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Health")
     float MaxHealth;
-
-    UPROPERTY(BlueprintAssignable)
-    FOnHealthChanged OnHealthChanged;
     
 public:	
 	USAttributeComponent();
-
+    
+    UPROPERTY(BlueprintAssignable)
+    FOnHealthChanged OnHealthChanged;
 
 public:
     UFUNCTION(BlueprintCallable)
