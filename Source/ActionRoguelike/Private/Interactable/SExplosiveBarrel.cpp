@@ -31,6 +31,7 @@ void ASExplosiveBarrel::BeginPlay()
 	Super::BeginPlay();
 }
 
+
 void ASExplosiveBarrel::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, bool bSelfMoved,
     FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
 {

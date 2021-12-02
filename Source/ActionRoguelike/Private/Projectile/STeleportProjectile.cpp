@@ -9,32 +9,40 @@
 
 ASTeleportProjectile::ASTeleportProjectile()
 {
+    ExplosiveDelay = 0.2f;
+    TeleportDelay = 0.2f;
 }
 
 void ASTeleportProjectile::BeginPlay()
 {
     Super::BeginPlay();
-    GetWorldTimerManager().SetTimer(TimerHandle_Explodes, this, &ASTeleportProjectile::Explodes, 0.2f);
+    GetWorldTimerManager().SetTimer(TimerHandle_Explodes, this, &ASTeleportProjectile::Explodes, ExplosiveDelay);
 }
 
 void ASTeleportProjectile::Explodes()
 {
-    ensure(ExplosionEffect);
+    if(!ensure(ExplosionEffect)) return;
     
-    if(GetWorldTimerManager().IsTimerActive(TimerHandle_Explodes))
-    {
-        GetWorldTimerManager().ClearTimer(TimerHandle_Explodes);
-    }
+    GetWorldTimerManager().ClearTimer(TimerHandle_Explodes);
     
     EffectComp->Deactivate();
-    MovementComp->Deactivate();
-    UGameplayStatics::SpawnEmitterAtLocation(GetWorld(),ExplosionEffect, GetActorLocation());
+    MovementComp->StopMovementImmediately();
+    UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionEffect, GetActorLocation());
 
-    GetWorldTimerManager().SetTimer(TimerHandle_Teleport, this, &ASTeleportProjectile::Teleport, 0.2f);
+    GetWorldTimerManager().SetTimer(TimerHandle_Teleport, this, &ASTeleportProjectile::Teleport, TeleportDelay);
 }
 
 void ASTeleportProjectile::Teleport()
 {
-    GetInstigator()->SetActorLocation(GetActorLocation());
+    const auto InstigatorPawn = GetInstigator(); 
+    if(!InstigatorPawn) return;
+
+    InstigatorPawn->TeleportTo(GetActorLocation(), InstigatorPawn->GetActorRotation());
     Destroy();
+}
+
+void ASTeleportProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+    int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+    Explodes();
 }

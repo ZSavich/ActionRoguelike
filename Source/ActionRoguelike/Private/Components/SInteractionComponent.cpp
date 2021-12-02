@@ -8,21 +8,10 @@
 
 USInteractionComponent::USInteractionComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
-
     InteractionRadius = 15.f;
     bDrawDebugInformation = false;
 }
 
-void USInteractionComponent::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
-void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
 
 void USInteractionComponent::PrimaryInteract() const
 {
@@ -30,9 +19,9 @@ void USInteractionComponent::PrimaryInteract() const
     
     FVector EyeLocation;
     FRotator EyeRotation;
-    Owner->GetActorEyesViewPoint(EyeLocation, EyeRotation);
+    Owner->Controller->GetPlayerViewPoint(EyeLocation, EyeRotation);
     
-    const FVector End = EyeLocation + (EyeRotation.Vector() * 250.f);
+    const FVector End = EyeLocation + (EyeRotation.Vector() * 500.f);
 
     FCollisionObjectQueryParams ObjectQueryParams;
     ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);

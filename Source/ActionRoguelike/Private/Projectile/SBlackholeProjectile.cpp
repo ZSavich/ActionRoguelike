@@ -18,22 +18,16 @@ ASBlackholeProjectile::ASBlackholeProjectile()
 
     RadialForceComp = CreateDefaultSubobject<URadialForceComponent>(TEXT("RadialForce"));
     RadialForceComp->RemoveObjectTypeToAffect(UEngineTypes::ConvertToObjectType(ECC_Pawn));
-    RadialForceComp->Falloff = ERadialImpulseFalloff::RIF_Linear;
+    RadialForceComp->Falloff = RIF_Linear;
     RadialForceComp->ImpulseStrength = 0.f;
     RadialForceComp->Radius = 750.f;
     RadialForceComp->ForceStrength = -1000000.f;
     RadialForceComp->SetupAttachment(SphereComp);
 }
 
-void ASBlackholeProjectile::BeginPlay()
-{
-    Super::BeginPlay();
-
-    SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ASBlackholeProjectile::OnProjectileBeginOverlap);
-}
-
-void ASBlackholeProjectile::OnProjectileBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+void ASBlackholeProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
     UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+    if(!OtherComp->IsSimulatingPhysics()) return;
     OtherActor->Destroy();
 }

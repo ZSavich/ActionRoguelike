@@ -9,7 +9,8 @@
 class USphereComponent;
 class UProjectileMovementComponent;
 
-UCLASS()
+// Abstract - Marks that this class can't be spawned in the world
+UCLASS(ABSTRACT)
 class ACTIONROGUELIKE_API ASBaseProjectile : public AActor
 {
 	GENERATED_BODY()
@@ -22,10 +23,22 @@ protected:
     UProjectileMovementComponent* MovementComp;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Effects")
+    TSubclassOf<UCameraShakeBase> CameraShake;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Effects")
     UParticleSystemComponent* EffectComp;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Effects")
     UParticleSystem* ExplosionEffect;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Effects")
+    UParticleSystem* MuzzleFlashEffect;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Audio")
+    UAudioComponent* FlightSound;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Audio")
+    USoundBase* ImpactSound;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Projectile")
     float LifeSpan;
@@ -36,4 +49,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+    virtual void SpawnImpactEffects();
+    
+    UFUNCTION()
+    virtual void OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 };

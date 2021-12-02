@@ -9,10 +9,20 @@ USAttributeComponent::USAttributeComponent()
     CurrentHealth = MaxHealth;
 }
 
+bool USAttributeComponent::IsAlive() const
+{
+    return CurrentHealth > 0.f; 
+}
+
 bool USAttributeComponent::ApplyHealthChange(const float Delta)
-{    
-    CurrentHealth = FMath::Clamp(CurrentHealth + Delta, 0.f, CurrentHealth);
-    OnHealthChanged.Broadcast(nullptr, this, CurrentHealth,Delta);
+{
+    if(CurrentHealth == MaxHealth && Delta >= 0.f)
+    {
+        OnHealthChanged.Broadcast(nullptr, this, CurrentHealth,Delta);
+        return false;
+    }
     
+    CurrentHealth = FMath::Clamp(CurrentHealth + Delta, 0.f, MaxHealth);
+    OnHealthChanged.Broadcast(nullptr, this, CurrentHealth, Delta);
     return true;
 }

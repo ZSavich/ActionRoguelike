@@ -9,6 +9,7 @@
 #include "SBaseProjectile.h"
 #include "Components/SInteractionComponent.h"
 #include "SAttributeComponent.h"
+#include "Components/CapsuleComponent.h"
 
 ASCharacter::ASCharacter()
 {
@@ -60,6 +61,13 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
     PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ASCharacter::PrimaryInteract);
     PlayerInputComponent->BindAction("BlackholeProjectile", IE_Pressed, this, &ASCharacter::BlackholeProjectile);
     PlayerInputComponent->BindAction("TeleportProjectile", IE_Pressed, this, &ASCharacter::TeleportProjectile);
+}
+
+void ASCharacter::PostInitializeComponents()
+{
+    Super::PostInitializeComponents();
+
+    AttributeComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 }
 
 void ASCharacter::PrimaryInteract()
@@ -141,7 +149,7 @@ void ASCharacter::SpawnProjectile(const TSubclassOf<ASBaseProjectile> Projectile
 {
     /** LineTrace **/
     /** It helps to find the Rotation for Projectile **/
-    
+
     FVector ViewPointLocation;
     FRotator ViewPointRotation;
     GetController()->GetPlayerViewPoint(ViewPointLocation, ViewPointRotation);
@@ -183,6 +191,29 @@ void ASCharacter::SpawnProjectile(const TSubclassOf<ASBaseProjectile> Projectile
 
     // Fixing the bug when The Projectile hit The Owner
     MoveIgnoreActorAdd(Projectile);
+}
+
+void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* AttributeComponent, float CurrentHealth, float Delta)
+{
+    if(CurrentHealth <= 0.f)
+    {
+        const auto PC = GetController<APlayerController>();
+        DisableInput(PC);
+        GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+        SetLifeSpan(10.f);
+        return;
+    }
+    /** Set Flash Material when get damage **/
+    if(Delta < 0.f)
+    {
+        const auto MaterialsNum = GetMesh()->GetMaterials().Num(); 
+        for(int i = 0; i < MaterialsNum; i++)
+        {
+            const auto MI = GetMesh()->CreateAndSetMaterialInstanceDynamicFromMaterial(i,GetMesh()->GetMaterial(i));
+            MI->SetScalarParameterValue("TimeToHit", GetWorld()->TimeSeconds);
+        }
+    }
+    /** **/
 }
 
 void ASCharacter::DrawDebugOrientVectors() const

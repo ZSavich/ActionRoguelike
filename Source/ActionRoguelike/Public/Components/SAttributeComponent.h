@@ -26,9 +26,11 @@ public:
     UPROPERTY(BlueprintAssignable)
     FOnHealthChanged OnHealthChanged;
 
-public:
     UFUNCTION(BlueprintCallable)
     bool ApplyHealthChange(const float Delta);
-
+    
+    UFUNCTION(BlueprintCallable)
+    bool IsAlive() const;
+    
     FORCEINLINE float GetCurrentHealth() const { return CurrentHealth; }
 };

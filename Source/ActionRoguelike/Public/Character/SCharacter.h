@@ -38,9 +38,6 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, Category="Projectiles")
     TSubclassOf<ASBaseProjectile> TeleportProjectileClass;
-    
-    UPROPERTY(EditDefaultsOnly, Category="Sockets")
-    FName MuzzleSocketName;
 
     UPROPERTY(EditDefaultsOnly, Category="Animations")
     UAnimMontage* AttackMontage;
@@ -51,10 +48,16 @@ protected:
     FTimerHandle TimerHandle_PrimaryAttack;
     
 public:
-	ASCharacter();
+    ASCharacter();
+    
+    UPROPERTY(EditDefaultsOnly, Category="Sockets")
+    FName MuzzleSocketName;
 
 protected:
 	virtual void BeginPlay() override;
+
+    UFUNCTION()
+    void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* AttributeComponent, float CurrentHealth, float Delta);
 
     void MoveForward(const float Amount);
     void MoveRight(const float Amount);
@@ -77,7 +80,6 @@ protected:
 
 public:	
 	virtual void Tick(float DeltaTime) override;
-
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+    virtual void PostInitializeComponents() override;
 };
