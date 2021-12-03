@@ -14,6 +14,7 @@ ASBaseProjectile::ASBaseProjectile()
 {
     SphereComp = CreateDefaultSubobject<USphereComponent>(TEXT("Collision"));
     SphereComp->OnComponentBeginOverlap.AddDynamic(this, &ASBaseProjectile::OnActorOverlap);
+    SphereComp->IgnoreActorWhenMoving(GetInstigator(),true);
     SphereComp->SetCollisionProfileName("Projectile");
     SetRootComponent(SphereComp);
     

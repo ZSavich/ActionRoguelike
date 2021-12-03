@@ -28,6 +28,8 @@ public class ActionRoguelike : ModuleRules
 			"ActionRoguelike/Public/Enemies",
 			"ActionRoguelike/Public/Components",
 			"ActionRoguelike/Public/AI",
+			"ActionRoguelike/Public/AI/Services",
+			"ActionRoguelike/Public/AI/Tasks",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

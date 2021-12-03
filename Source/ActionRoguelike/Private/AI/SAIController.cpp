@@ -10,11 +10,14 @@ void ASAIController::BeginPlay()
 {
     Super::BeginPlay();
 
-    ensure(BehaviorTree);
+    if(!ensureMsgf(BehaviorTree, TEXT("Behavior Tree is nullptr! Please select it in the Player Controller"))) return;
     RunBehaviorTree(BehaviorTree);
 
+    
+    /*
+     * Bad way to find Target Actor
     const auto TargetPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
     if(!TargetPawn) return;
-    
     GetBlackboardComponent()->SetValueAsObject("TargetActor", TargetPawn);
+    */
 }

@@ -6,15 +6,22 @@
 #include "GameFramework/Character.h"
 #include "SAICharacter.generated.h"
 
+class UPawnSensingComponent;
+
 UCLASS()
 class ACTIONROGUELIKE_API ASAICharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-public:
-	ASAICharacter();
-
 protected:
-	virtual void BeginPlay() override;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
+    UPawnSensingComponent* PawnSensingComp;
+    
+public:
+    ASAICharacter();
 
+    UFUNCTION()
+    void OnPawnSeen(APawn* TargetPawn);
+
+    virtual void PostInitializeComponents() override;
 };
