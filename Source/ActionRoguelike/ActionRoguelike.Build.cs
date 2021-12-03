@@ -13,7 +13,9 @@ public class ActionRoguelike : ModuleRules
 			"Core", 
 			"CoreUObject", 
 			"Engine", 
-			"InputCore"
+			"InputCore",
+			"AIModule",
+			"GameplayTasks",
 		});
 		
 		PublicIncludePaths.AddRange(new string[]
@@ -21,8 +23,11 @@ public class ActionRoguelike : ModuleRules
 			"ActionRoguelike/Public/Character",
 			"ActionRoguelike/Public/Projectile",
 			"ActionRoguelike/Public/Interactable",
+			"ActionRoguelike/Public/Interactable/Pickups",
 			"ActionRoguelike/Public/Interfaces",
+			"ActionRoguelike/Public/Enemies",
 			"ActionRoguelike/Public/Components",
+			"ActionRoguelike/Public/AI",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
