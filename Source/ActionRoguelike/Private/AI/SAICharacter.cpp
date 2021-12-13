@@ -7,16 +7,27 @@
 #include "SCharacter.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Perception/PawnSensingComponent.h"
+#include "SAttributeComponent.h"
 
 ASAICharacter::ASAICharacter()
 {
     PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComponent"));
+    AttributeComp = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComponent"));
 }
 
 void ASAICharacter::PostInitializeComponents()
 {
     Super::PostInitializeComponents();
+    if(!ensure(PawnSensingComp) || !ensure(AttributeComp)) return;
+    
     PawnSensingComp->OnSeePawn.AddDynamic(this, &ASAICharacter::OnPawnSeen);
+    AttributeComp->OnDead.AddDynamic(this, &ASAICharacter::OnDeadHandle);
+}
+
+void ASAICharacter::OnDeadHandle(AActor* InstigatorActor, AActor* VictimActor)
+{
+    // TODO: Death Animation && Disable AI && Destroy 
+    SetLifeSpan(5.f);
 }
 
 void ASAICharacter::OnPawnSeen(APawn* TargetPawn)

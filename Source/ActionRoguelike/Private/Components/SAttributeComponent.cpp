@@ -24,5 +24,11 @@ bool USAttributeComponent::ApplyHealthChange(const float Delta)
     
     CurrentHealth = FMath::Clamp(CurrentHealth + Delta, 0.f, MaxHealth);
     OnHealthChanged.Broadcast(nullptr, this, CurrentHealth, Delta);
+
+    if(!IsAlive())
+    {
+        OnDead.Broadcast(nullptr, GetOwner());
+    }
+    
     return true;
 }
