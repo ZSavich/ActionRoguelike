@@ -17,9 +17,13 @@ protected:
     TSubclassOf<AActor> ProjectileClass;
 
     UPROPERTY(EditAnywhere, Category="AI")
-    FName MuzzleSocketName = "Muzzle_01";
+    FName MuzzleSocketName;
+
+    UPROPERTY(EditAnywhere, Category="AI")
+    float MaxBulletSpread;
     
 public:
+    USBTTask_RangedAttack();
     
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 };

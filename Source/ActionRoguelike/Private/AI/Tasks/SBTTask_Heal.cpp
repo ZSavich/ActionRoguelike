@@ -12,9 +12,9 @@ EBTNodeResult::Type USBTTask_Heal::ExecuteTask(UBehaviorTreeComponent& OwnerComp
     const auto Owner = OwnerComp.GetAIOwner()->GetPawn();
     if(!Owner) return EBTNodeResult::Failed;
 
-    const auto AttributeComp = Owner->FindComponentByClass<USAttributeComponent>();
+    const auto AttributeComp = USAttributeComponent::GetAttributes(Owner);
     if(!AttributeComp || !AttributeComp->IsAlive()) return EBTNodeResult::Failed;
     
-    const auto Result = AttributeComp->ApplyHealthChange(HealAmount);
+    const auto Result = AttributeComp->ApplyHealthChange(nullptr, HealAmount);
     return Result ? EBTNodeResult::Succeeded : EBTNodeResult::Failed;
 }

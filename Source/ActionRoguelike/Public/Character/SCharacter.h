@@ -45,6 +45,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category="Debug")
     bool bDrawDebugInformation;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Effects")
+    FName TimeToHitParamName;
+
     FTimerHandle TimerHandle_PrimaryAttack;
     
 public:

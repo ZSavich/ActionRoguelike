@@ -4,8 +4,15 @@
 #include "AI/Tasks/SBTTask_RangedAttack.h"
 
 #include "AIController.h"
+#include "SAttributeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/Character.h"
+
+USBTTask_RangedAttack::USBTTask_RangedAttack()
+{
+    MuzzleSocketName = "Muzzle_01";
+    MaxBulletSpread = 5.f;
+}
 
 EBTNodeResult::Type USBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
@@ -14,7 +21,7 @@ EBTNodeResult::Type USBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent& O
     if(!ensure(ProjectileClass)) return EBTNodeResult::Failed;
     
     const auto TargetActor = Cast<AActor>(OwnerComp.GetBlackboardComponent()->GetValueAsObject("TargetActor"));
-    if(!TargetActor) return EBTNodeResult::Failed;
+    if(!TargetActor || !USAttributeComponent::IsActorAlive(TargetActor)) return EBTNodeResult::Failed;
 
     const auto AIController = OwnerComp.GetAIOwner();
     if(!ensure(AIController)) return EBTNodeResult::Failed;
@@ -25,10 +32,14 @@ EBTNodeResult::Type USBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent& O
     const auto MuzzleLocation = AICharacter->GetMesh()->GetSocketLocation(MuzzleSocketName);
     
     const auto Direction = TargetActor->GetActorLocation() - MuzzleLocation;
-    const auto MuzzleRotation = Direction.Rotation();
+    auto MuzzleRotation = Direction.Rotation();
 
+    MuzzleRotation.Yaw += FMath::RandRange(-MaxBulletSpread, MaxBulletSpread);
+    MuzzleRotation.Pitch += FMath::RandRange(0.f, MaxBulletSpread);
+    
     FActorSpawnParameters SpawnParams;
     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+    SpawnParams.Instigator = AICharacter;
     
     const auto ProjectileActor = GetWorld()->SpawnActor<AActor>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParams);
 

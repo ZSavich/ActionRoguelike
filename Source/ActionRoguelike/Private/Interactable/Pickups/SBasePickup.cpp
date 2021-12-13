@@ -16,7 +16,7 @@ ASBasePickup::ASBasePickup()
     InactivateTime = 5.f;
 }
 
-void ASBasePickup::Activate(const APawn* InstigatorActor)
+void ASBasePickup::Activate(AActor* InstigatorActor)
 {
     if(GetWorldTimerManager().IsTimerActive(TimerHandle_Respawn)) return;
     if(!Effect(InstigatorActor)) return;

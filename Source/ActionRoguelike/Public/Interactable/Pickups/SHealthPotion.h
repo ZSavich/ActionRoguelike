@@ -20,5 +20,5 @@ public:
     ASHealthPotion();
     
 protected:
-    virtual bool Effect(const APawn* InstigatorActor) override;
+    virtual bool Effect(AActor* InstigatorActor) override;
 };

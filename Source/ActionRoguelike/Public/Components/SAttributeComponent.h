@@ -21,7 +21,13 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Health")
     float MaxHealth;
     
-public:	
+public:
+    UFUNCTION(BlueprintCallable, Category="Attributes")
+    static USAttributeComponent* GetAttributes(AActor* Actor);
+
+    UFUNCTION(BlueprintCallable, Category="Attributes", meta = (DisplayName = "IsAlive"))
+    static bool IsActorAlive(AActor* Actor);
+    
 	USAttributeComponent();
     
     UPROPERTY(BlueprintAssignable)
@@ -31,7 +37,7 @@ public:
     FOnDead OnDead;
 
     UFUNCTION(BlueprintCallable)
-    bool ApplyHealthChange(const float Delta);
+    bool ApplyHealthChange(AActor* InstigatorActor, const float Delta);
     
     UFUNCTION(BlueprintCallable)
     bool IsAlive() const;

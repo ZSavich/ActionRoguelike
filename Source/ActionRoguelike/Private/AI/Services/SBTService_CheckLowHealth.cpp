@@ -14,7 +14,7 @@ void USBTService_CheckLowHealth::TickNode(UBehaviorTreeComponent& OwnerComp, uin
     const auto Owner = OwnerComp.GetAIOwner()->GetPawn();
     if(!Owner) return;
     
-    const auto AttributeComp = Owner->FindComponentByClass<USAttributeComponent>();
+    const auto AttributeComp = USAttributeComponent::GetAttributes(Owner);
     if(!AttributeComp) return;
 
     const auto Result = AttributeComp->GetCurrentHealth() < MinHealth;

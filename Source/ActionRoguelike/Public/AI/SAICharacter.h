@@ -15,6 +15,9 @@ class ACTIONROGUELIKE_API ASAICharacter : public ACharacter
 	GENERATED_BODY()
 
 protected:
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Effects")
+    FName TimeToHitParamName;
+    
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
     UPawnSensingComponent* PawnSensingComp;
     
@@ -27,10 +30,15 @@ public:
 protected:
     UFUNCTION()
     void OnDeadHandle(AActor* InstigatorActor, AActor* VictimActor);
+
+    void SetTargetActor(AActor* NewTarget);
     
 public:
     virtual void PostInitializeComponents() override;
     
     UFUNCTION()
     void OnPawnSeen(APawn* TargetPawn);
+    
+    UFUNCTION()
+    void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwnerAttributeComp, float CurrentHealth, float Delta);
 };

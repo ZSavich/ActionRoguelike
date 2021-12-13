@@ -31,6 +31,7 @@ ASCharacter::ASCharacter()
 
     AttributeComp = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComponent"));
 
+    TimeToHitParamName = "TimeToHit";
     MuzzleSocketName = "Muzzle_01";
     bDrawDebugInformation = false;
 }
@@ -210,7 +211,7 @@ void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent*
         for(int i = 0; i < MaterialsNum; i++)
         {
             const auto MI = GetMesh()->CreateAndSetMaterialInstanceDynamicFromMaterial(i,GetMesh()->GetMaterial(i));
-            MI->SetScalarParameterValue("TimeToHit", GetWorld()->TimeSeconds);
+            MI->SetScalarParameterValue(TimeToHitParamName, GetWorld()->TimeSeconds);
         }
     }
     /** **/

@@ -10,11 +10,11 @@ ASHealthPotion::ASHealthPotion()
     HealCount = 25.f;
 }
 
-bool ASHealthPotion::Effect(const APawn* InstigatorActor)
+bool ASHealthPotion::Effect(AActor* InstigatorActor)
 {
-    const auto AttributeComponent = InstigatorActor->FindComponentByClass<USAttributeComponent>();
+    const auto AttributeComponent = USAttributeComponent::GetAttributes(InstigatorActor);
     if(!AttributeComponent) return false;
 
-    const auto HealResult = AttributeComponent->ApplyHealthChange(HealCount);
+    const auto HealResult = AttributeComponent->ApplyHealthChange(this, HealCount);
     return HealResult;
 }

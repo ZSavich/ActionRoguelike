@@ -26,8 +26,8 @@ public:
 
 protected:    
     UFUNCTION(BlueprintCallable)
-    virtual void Activate(const APawn* InstigatorActor);
-    virtual bool Effect(const APawn* InstigatorActor) {return false;}
+    virtual void Activate(AActor* InstigatorActor);
+    virtual bool Effect(AActor* InstigatorActor) {return false;}
     virtual void Respawn();
 
     virtual void Interact_Implementation(APawn* InstigatorPawn) override;

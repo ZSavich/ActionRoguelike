@@ -29,7 +29,7 @@ void ASGameMode::SpawnBotsTimerElapsed()
     for(TActorIterator<ASAICharacter> It(GetWorld()); It; ++It)
     {
         const auto Bot = *It;
-        const auto AttributeComp = Bot->FindComponentByClass<USAttributeComponent>();
+        const auto AttributeComp = USAttributeComponent::GetAttributes(Bot);
         if(AttributeComp && AttributeComp->IsAlive()) BotsAlive++;
     }
 

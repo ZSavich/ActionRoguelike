@@ -16,10 +16,10 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
 {
     if(OtherActor)
     {
-        const auto AttributeComp = OtherActor->FindComponentByClass<USAttributeComponent>();
+        const auto AttributeComp = USAttributeComponent::GetAttributes(OtherActor);
         if(AttributeComp)
         {
-            AttributeComp->ApplyHealthChange(-DamageAmount);
+            AttributeComp->ApplyHealthChange(GetInstigator(), -DamageAmount);
         }
     }
     
