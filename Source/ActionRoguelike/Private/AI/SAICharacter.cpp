@@ -70,10 +70,7 @@ void ASAICharacter::OnDeadHandle(AActor* InstigatorActor, AActor* VictimActor)
         AIController->GetBrainComponent()->StopLogic("Killed");
 
     if(ActiveHealthBar)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("ActiveHealthBar"));
         ActiveHealthBar->RemoveFromParent();
-    }
     
     GetMesh()->SetAllBodiesSimulatePhysics(true);
     GetMesh()->SetCollisionProfileName("Ragdoll");

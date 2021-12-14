@@ -32,11 +32,15 @@ protected:
 
 public:
     ASGameMode();
-    virtual void StartPlay() override;
 
 protected:
     void SpawnBotsTimerElapsed();
-
     void OnQueryCompleted(const TSharedPtr<FEnvQueryResult> QueryResult) const;
+
+public:
+    virtual void StartPlay() override;
+
+    UFUNCTION(Exec)
+    void KillAll();
 	
 };

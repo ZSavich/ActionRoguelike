@@ -15,6 +15,12 @@ bool USAttributeComponent::IsAlive() const
     return CurrentHealth > 0.f; 
 }
 
+void USAttributeComponent::Kill(AActor* InstigatorActor)
+{
+    if(IsAlive())
+        ApplyHealthChange(InstigatorActor, -MaxHealth);
+}
+
 bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, const float Delta)
 {
     if(!IsAlive()) return false;

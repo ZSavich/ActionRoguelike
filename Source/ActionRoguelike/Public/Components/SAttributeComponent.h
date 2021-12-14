@@ -41,6 +41,9 @@ public:
     
     UFUNCTION(BlueprintCallable)
     bool IsAlive() const;
+
+    UFUNCTION(BlueprintCallable)
+    void Kill(AActor* InstigatorActor);
     
     FORCEINLINE float GetCurrentHealth() const { return CurrentHealth; }
     FORCEINLINE float GetHealthByPercent() const { return CurrentHealth / MaxHealth; }

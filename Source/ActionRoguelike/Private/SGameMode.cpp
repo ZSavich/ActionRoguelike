@@ -21,6 +21,16 @@ void ASGameMode::StartPlay()
     GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ASGameMode::SpawnBotsTimerElapsed, SpawnTimerInterval, true, 0.f);
 }
 
+void ASGameMode::KillAll()
+{
+    for(TActorIterator<ASAICharacter> It(GetWorld()); It; ++It)
+    {
+        const auto AttributeComp = USAttributeComponent::GetAttributes(*It);
+        if(AttributeComp && AttributeComp->IsAlive())
+            AttributeComp->Kill(this); // @fix: Add Player's Pointer
+    }
+}
+
 void ASGameMode::SpawnBotsTimerElapsed()
 {
     const float MaxBotsCount = DifficultyCurve->GetFloatValue(GetWorld()->GetTimeSeconds());

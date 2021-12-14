@@ -71,6 +71,12 @@ void ASCharacter::PostInitializeComponents()
     AttributeComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 }
 
+void ASCharacter::HealSelf(float Amount /* = 100 */)
+{
+    if(AttributeComp->IsAlive())
+        AttributeComp->ApplyHealthChange(this, Amount);
+}
+
 void ASCharacter::PrimaryInteract()
 {
     if(!InteractionComp) return;
