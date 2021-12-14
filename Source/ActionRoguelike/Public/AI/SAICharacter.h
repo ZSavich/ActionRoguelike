@@ -8,6 +8,7 @@
 
 class UPawnSensingComponent;
 class USAttributeComponent;
+class USWorldUserWidget;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASAICharacter : public ACharacter
@@ -23,6 +24,12 @@ protected:
     
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
     USAttributeComponent* AttributeComp;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widgets")
+    TSubclassOf<USWorldUserWidget> HealthBarWidgetClass;
+
+    UPROPERTY()
+    USWorldUserWidget* ActiveHealthBar;
     
 public:
     ASAICharacter();

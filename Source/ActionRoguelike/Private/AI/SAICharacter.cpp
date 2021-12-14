@@ -9,7 +9,10 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Perception/PawnSensingComponent.h"
 #include "SAttributeComponent.h"
+#include "Blueprint/UserWidget.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/Image.h"
+#include "UMG/SWorldUserWidget.h"
 
 ASAICharacter::ASAICharacter()
 {
@@ -41,13 +44,36 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
 
         GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
     }
+
+    if(!ActiveHealthBar)
+    {
+        ActiveHealthBar = CreateWidget<USWorldUserWidget>(GetWorld(), HealthBarWidgetClass);
+        if(ActiveHealthBar)
+        {
+            ActiveHealthBar->AttachedActor = this;
+            ActiveHealthBar->AddToViewport();
+        }
+    }
+    if(ActiveHealthBar)
+    {
+        const auto HealthPercent = AttributeComp->GetHealthByPercent();
+        const auto DynMaterial = ActiveHealthBar->HealthBarImage->GetDynamicMaterial();
+        if(DynMaterial)
+            DynMaterial->SetScalarParameterValue("HealthPercent", HealthPercent);
+    }
 }
 
 void ASAICharacter::OnDeadHandle(AActor* InstigatorActor, AActor* VictimActor)
-{
+{    
     const auto AIController = GetController<ASAIController>();
     if(AIController)
         AIController->GetBrainComponent()->StopLogic("Killed");
+
+    if(ActiveHealthBar)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("ActiveHealthBar"));
+        ActiveHealthBar->RemoveFromParent();
+    }
     
     GetMesh()->SetAllBodiesSimulatePhysics(true);
     GetMesh()->SetCollisionProfileName("Ragdoll");

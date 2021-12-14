@@ -43,4 +43,5 @@ public:
     bool IsAlive() const;
     
     FORCEINLINE float GetCurrentHealth() const { return CurrentHealth; }
+    FORCEINLINE float GetHealthByPercent() const { return CurrentHealth / MaxHealth; }
 };
