@@ -8,6 +8,7 @@
 ASHealthPotion::ASHealthPotion()
 {
     HealCount = 25.f;
+    CreditsForInteract = -15.f;
 }
 
 bool ASHealthPotion::Effect(AActor* InstigatorActor)

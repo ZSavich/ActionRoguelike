@@ -19,6 +19,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Pickup")
     float InactivateTime;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Pickup")
+    float CreditsForInteract;
+
     FTimerHandle TimerHandle_Respawn;
     
 public:	

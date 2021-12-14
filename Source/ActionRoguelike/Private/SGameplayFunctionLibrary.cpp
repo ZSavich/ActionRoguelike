@@ -18,10 +18,8 @@ bool USGameplayFunctionLibrary::ApplyDirectionalDamage(UPrimitiveComponent* Comp
 {
     if(!ApplyDamage(DamagedActor, BaseDamage, DamageCauser)) return false;
     
-    UE_LOG(LogTemp, Warning, TEXT("USGameplayFunctionLibrary  ApplyDirectionalDamage 1"));
     if(HitResult.BoneName.IsValid() && Component && Component->IsSimulatingPhysics(HitResult.BoneName))
     {
-        UE_LOG(LogTemp, Warning, TEXT("USGameplayFunctionLibrary  ApplyDirectionalDamage 2"));
         const auto ImpulseMagnitude = 300000.f;
         const auto ImpulseVector = -HitResult.ImpactNormal * ImpulseMagnitude;
         Component->AddImpulse(ImpulseVector, HitResult.BoneName);

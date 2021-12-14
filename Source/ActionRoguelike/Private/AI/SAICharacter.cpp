@@ -25,6 +25,7 @@ ASAICharacter::ASAICharacter()
     AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
 
     TimeToHitParamName = "TimeToHit";
+    DeathCredits = 10.f;
 }
 
 void ASAICharacter::PostInitializeComponents()

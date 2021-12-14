@@ -6,6 +6,7 @@
 #include "EngineUtils.h"
 #include "SAttributeComponent.h"
 #include "SCharacter.h"
+#include "SPlayerState.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "Templates/SharedPointer.h"
 
@@ -21,6 +22,7 @@ void ASGameMode::StartPlay()
     Super::StartPlay();
     if(!ensure(MinionClass) || !ensure(SpawnBotQuery) || !ensure(DifficultyCurve)) return;
 
+    SpawnPickups();
     GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ASGameMode::SpawnBotsTimerElapsed, SpawnTimerInterval, true, 0.f);
 }
 
@@ -49,6 +51,19 @@ void ASGameMode::OnActorKilled(AActor* VictimActor, AActor* InstigatorActor)
         GetWorldTimerManager().SetTimer(TimerHandle_RespawnPlayer, TimerDelegate_RespawnPlayer, RespawnDelay, false);
         return;
     }
+
+    const auto InstigatorPlayer = Cast<ASCharacter>(InstigatorActor);
+    const auto VictimBot = Cast<ASAICharacter>(VictimActor);
+    if(InstigatorPlayer && VictimBot)
+    {
+        const auto PS = InstigatorPlayer->GetPlayerState<ASPlayerState>();
+        if(PS)
+        {
+            const auto GrantCredits = VictimBot->GetDeathCredits();
+            PS->AddCredits(GrantCredits);
+        }
+        return;
+    }
 }
 
 void ASGameMode::SpawnBotsTimerElapsed()
@@ -67,11 +82,11 @@ void ASGameMode::SpawnBotsTimerElapsed()
 
     if(BotsAlive < MaxBotsCount)
     {
-        FEnvQueryRequest(SpawnBotQuery, this).Execute(EEnvQueryRunMode::RandomBest5Pct, this, &ASGameMode::OnQueryCompleted);
+        FEnvQueryRequest(SpawnBotQuery, this).Execute(EEnvQueryRunMode::RandomBest5Pct, this, &ASGameMode::OnSpawnBotQueryCompleted);
     }
 }
 
-void ASGameMode::OnQueryCompleted(const TSharedPtr<FEnvQueryResult> QueryResult) const
+void ASGameMode::OnSpawnBotQueryCompleted(const TSharedPtr<FEnvQueryResult> QueryResult) const
 {
     if(!QueryResult->IsSuccessful()) return;
 
@@ -84,10 +99,47 @@ void ASGameMode::OnQueryCompleted(const TSharedPtr<FEnvQueryResult> QueryResult)
     }
 }
 
+void ASGameMode::OnSpawnPickupQueryCompleted(const TSharedPtr<FEnvQueryResult> QueryResult) const
+{
+    if(!QueryResult->IsSuccessful()) return;
+    
+    TArray<FVector> SpawnLocations;
+    QueryResult->GetAllAsLocations(SpawnLocations);
+    uint8 SpawnsCounter = SpawnLocations.Num() - 1;
+    
+    FActorSpawnParameters SpawnParams;
+    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+    
+    for(const auto& Pickup : Pickups)
+    {
+        for(uint8 i = 0; i < Pickup.Value; ++i)
+        {
+            const auto RandomPoint = FMath::RandRange(0, SpawnsCounter);
+
+            if(!SpawnLocations.IsValidIndex(RandomPoint)) return;
+
+            const auto SpawnOffset = FVector(0.f,0.f, 100.f);
+
+            const auto Result = GetWorld()->SpawnActor<ASBasePickup>(Pickup.Key, SpawnLocations[RandomPoint] + SpawnOffset, FRotator::ZeroRotator, SpawnParams);
+        }
+    }
+}
+
 void ASGameMode::RespawnPlayer(AController* Controller)
 {
     if(!Controller) return;
 
     Controller->UnPossess();
     RestartPlayer(Controller);
+}
+
+void ASGameMode::SpawnPickups()
+{
+    if(!Pickups.Num() || !SpawnPickupQuery)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Wrong params in Game Mode for Pickups."));
+        return;
+    }
+
+    FEnvQueryRequest(SpawnPickupQuery).Execute(EEnvQueryRunMode::RandomBest25Pct,this, &ASGameMode::OnSpawnPickupQueryCompleted);
 }

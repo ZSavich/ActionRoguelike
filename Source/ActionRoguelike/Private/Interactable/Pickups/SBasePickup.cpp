@@ -4,6 +4,7 @@
 #include "Interactable/Pickups/SBasePickup.h"
 
 #include "SCharacter.h"
+#include "SPlayerState.h"
 
 ASBasePickup::ASBasePickup()
 {
@@ -14,12 +15,23 @@ ASBasePickup::ASBasePickup()
     SetRootComponent(Mesh);
 
     InactivateTime = 5.f;
+
+    CreditsForInteract = 0;
 }
 
 void ASBasePickup::Activate(AActor* InstigatorActor)
 {
     if(GetWorldTimerManager().IsTimerActive(TimerHandle_Respawn)) return;
+
+    const auto InstigatorPawn = Cast<APawn>(InstigatorActor);
+    
+    const auto PS = InstigatorPawn->GetPlayerState<ASPlayerState>();
+    if(!PS) return;
+    const auto bIsEnough = PS->CheckEnoughCredits(CreditsForInteract);
+    if(!bIsEnough) return;
+    
     if(!Effect(InstigatorActor)) return;
+    PS->AddCredits(CreditsForInteract);
     
     SetActorHiddenInGame(true);
     Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);

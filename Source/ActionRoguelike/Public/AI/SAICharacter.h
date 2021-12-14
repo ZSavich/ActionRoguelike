@@ -28,6 +28,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widgets")
     TSubclassOf<USWorldUserWidget> HealthBarWidgetClass;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Credits")
+    float DeathCredits;
+    
     UPROPERTY()
     USWorldUserWidget* ActiveHealthBar;
     
@@ -48,4 +51,6 @@ public:
     
     UFUNCTION()
     void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwnerAttributeComp, float CurrentHealth, float Delta);
+
+    FORCEINLINE float GetDeathCredits() const { return DeathCredits; }
 };

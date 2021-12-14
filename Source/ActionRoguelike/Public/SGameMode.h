@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "SAICharacter.h"
+#include "SBasePickup.h"
 #include "GameFramework/GameModeBase.h"
 #include "SGameMode.generated.h"
 
@@ -27,6 +28,13 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Enemies")
     float SpawnTimerInterval;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Pickups")
+    TMap<TSubclassOf<ASBasePickup>, uint8> Pickups;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Pickups")
+    UEnvQuery* SpawnPickupQuery;
+    
     
     FTimerHandle TimerHandle_SpawnBots;
 
@@ -35,8 +43,10 @@ public:
 
 protected:
     void SpawnBotsTimerElapsed();
-    void OnQueryCompleted(const TSharedPtr<FEnvQueryResult> QueryResult) const;
+    void OnSpawnBotQueryCompleted(const TSharedPtr<FEnvQueryResult> QueryResult) const;
+    void OnSpawnPickupQueryCompleted(const TSharedPtr<FEnvQueryResult> QueryResult) const;
     void RespawnPlayer(AController* Controller);
+    void SpawnPickups();
 
 public:
     virtual void StartPlay() override;
