@@ -6,12 +6,12 @@
 #include "DrawDebugHelpers.h"
 #include "SGameplayInterface.h"
 
+static TAutoConsoleVariable<bool> CVarDrawDebugInteraction(TEXT("su.DrawDebugInteraction"), false, TEXT("Draw lines and spheres to debug the interaction component."), ECVF_Cheat);
+
 USInteractionComponent::USInteractionComponent()
 {
     InteractionRadius = 15.f;
-    bDrawDebugInformation = false;
 }
-
 
 void USInteractionComponent::PrimaryInteract() const
 {
@@ -51,13 +51,13 @@ void USInteractionComponent::PrimaryInteract() const
         {
             ISGameplayInterface::Execute_Interact(HitActor, Owner);
 
-            if(bDrawDebugInformation)
+            if(CVarDrawDebugInteraction.GetValueOnGameThread())
                 DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, InteractionRadius,32, LineColor, false, 5.f, 0.f, 2.f);
             
             break;
         }
     }
-    if(bDrawDebugInformation)
+    if(CVarDrawDebugInteraction.GetValueOnGameThread())
         DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 5.f, 0.f, 2.f);
 }
 

@@ -16,9 +16,6 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category="Interaction")
     float InteractionRadius;
 
-    UPROPERTY(EditDefaultsOnly, Category="Debug")
-    bool bDrawDebugInformation;
-
 public:	
 	USInteractionComponent();
     

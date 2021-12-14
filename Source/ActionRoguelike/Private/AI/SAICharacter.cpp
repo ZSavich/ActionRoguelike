@@ -16,6 +16,9 @@
 
 ASAICharacter::ASAICharacter()
 {
+    GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Ignore);
+    GetMesh()->SetGenerateOverlapEvents(true);
+    
     PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComponent"));
     AttributeComp = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComponent"));
     
@@ -71,8 +74,9 @@ void ASAICharacter::OnDeadHandle(AActor* InstigatorActor, AActor* VictimActor)
 
     if(ActiveHealthBar)
         ActiveHealthBar->RemoveFromParent();
-    
+
     GetMesh()->SetAllBodiesSimulatePhysics(true);
+    GetMesh()->SetSimulatePhysics(true);
     GetMesh()->SetCollisionProfileName("Ragdoll");
 
     GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);

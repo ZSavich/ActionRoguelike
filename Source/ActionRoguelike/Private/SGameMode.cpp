@@ -5,8 +5,11 @@
 
 #include "EngineUtils.h"
 #include "SAttributeComponent.h"
+#include "SCharacter.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "Templates/SharedPointer.h"
+
+static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("su.SpawnBots"), true, TEXT("Do need to spawn bots?"), ECVF_Cheat);
 
 ASGameMode::ASGameMode()
 {
@@ -31,8 +34,27 @@ void ASGameMode::KillAll()
     }
 }
 
+void ASGameMode::OnActorKilled(AActor* VictimActor, AActor* InstigatorActor)
+{
+    if(!VictimActor) return;
+    
+    const auto VictimPlayer = Cast<ASCharacter>(VictimActor);
+    if(VictimPlayer)
+    {
+        FTimerHandle TimerHandle_RespawnPlayer;
+        FTimerDelegate TimerDelegate_RespawnPlayer;
+        TimerDelegate_RespawnPlayer.BindUObject(this, &ASGameMode::RespawnPlayer, VictimPlayer->GetController());
+
+        const auto RespawnDelay = 5.f;
+        GetWorldTimerManager().SetTimer(TimerHandle_RespawnPlayer, TimerDelegate_RespawnPlayer, RespawnDelay, false);
+        return;
+    }
+}
+
 void ASGameMode::SpawnBotsTimerElapsed()
 {
+    if(!CVarSpawnBots.GetValueOnGameThread()) return;
+    
     const float MaxBotsCount = DifficultyCurve->GetFloatValue(GetWorld()->GetTimeSeconds());
 
     float BotsAlive = 0;
@@ -60,4 +82,12 @@ void ASGameMode::OnQueryCompleted(const TSharedPtr<FEnvQueryResult> QueryResult)
     {
         GetWorld()->SpawnActor<ASAICharacter>(MinionClass, SpawnLocations[0], FRotator::ZeroRotator);   
     }
+}
+
+void ASGameMode::RespawnPlayer(AController* Controller)
+{
+    if(!Controller) return;
+
+    Controller->UnPossess();
+    RestartPlayer(Controller);
 }

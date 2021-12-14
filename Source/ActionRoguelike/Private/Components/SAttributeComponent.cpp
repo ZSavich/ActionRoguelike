@@ -2,7 +2,9 @@
 
 
 #include "Components/SAttributeComponent.h"
+#include "SGameMode.h"
 
+static TAutoConsoleVariable<float> CVarDamageMultiplier(TEXT("su.DamageMultiplier"), 1.f, TEXT("Multiplies damage by the specified amount."), ECVF_Cheat);
 
 USAttributeComponent::USAttributeComponent()
 {
@@ -23,16 +25,17 @@ void USAttributeComponent::Kill(AActor* InstigatorActor)
 
 bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, const float Delta)
 {
-    if(!IsAlive()) return false;
+    if(!IsAlive() || !GetOwner()->CanBeDamaged()) return false;
     
     if(CurrentHealth == MaxHealth && Delta >= 0.f)
     {
-        OnHealthChanged.Broadcast(InstigatorActor, this, CurrentHealth,Delta);
+        OnHealthChanged.Broadcast(InstigatorActor, this, CurrentHealth, 0.f);
         return false;
     }
 
     const auto OldHealth = CurrentHealth;
-    CurrentHealth = FMath::Clamp(CurrentHealth + Delta, 0.f, MaxHealth);
+    const auto MultiDelta = CVarDamageMultiplier.GetValueOnGameThread() * Delta;
+    CurrentHealth = FMath::Clamp(CurrentHealth + MultiDelta, 0.f, MaxHealth);
     const auto ActualDelta = CurrentHealth - OldHealth;
     
     OnHealthChanged.Broadcast(InstigatorActor, this, CurrentHealth, ActualDelta);
@@ -40,6 +43,9 @@ bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, const floa
     if(!IsAlive())
     {
         OnDead.Broadcast(InstigatorActor, GetOwner());
+        const auto GM = GetWorld()->GetAuthGameMode<ASGameMode>();
+        if(GM)
+            GM->OnActorKilled(GetOwner(), InstigatorActor);
     }
     
     return true;

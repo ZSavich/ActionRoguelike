@@ -36,11 +36,13 @@ public:
 protected:
     void SpawnBotsTimerElapsed();
     void OnQueryCompleted(const TSharedPtr<FEnvQueryResult> QueryResult) const;
+    void RespawnPlayer(AController* Controller);
 
 public:
     virtual void StartPlay() override;
 
     UFUNCTION(Exec)
     void KillAll();
-	
+
+    void OnActorKilled(AActor* VictimActor, AActor* InstigatorActor);
 };
