@@ -20,9 +20,9 @@ bool USGameplayFunctionLibrary::ApplyDirectionalDamage(UPrimitiveComponent* Comp
     
     if(HitResult.BoneName.IsValid() && Component && Component->IsSimulatingPhysics(HitResult.BoneName))
     {
-        const auto ImpulseMagnitude = 300000.f;
-        const auto ImpulseVector = -HitResult.ImpactNormal * ImpulseMagnitude;
-        Component->AddImpulse(ImpulseVector, HitResult.BoneName);
+        constexpr auto Magnitude = 300000.f;
+        const auto Direction = (HitResult.TraceEnd - HitResult.TraceStart).GetSafeNormal();
+        Component->AddImpulse(Direction * Magnitude, HitResult.BoneName);
     }
     return true;
 }

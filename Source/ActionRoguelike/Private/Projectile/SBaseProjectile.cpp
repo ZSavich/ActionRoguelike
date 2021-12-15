@@ -47,7 +47,7 @@ void ASBaseProjectile::BeginPlay()
         const auto SCharacter = GetInstigator<ASCharacter>();
         if(SCharacter)
         {
-            UGameplayStatics::SpawnEmitterAttached(MuzzleFlashEffect, SCharacter->GetMesh(), SCharacter->MuzzleSocketName);
+            UGameplayStatics::SpawnEmitterAttached(MuzzleFlashEffect, SCharacter->GetMesh(), MuzzleSocketName);
         }
     }
     

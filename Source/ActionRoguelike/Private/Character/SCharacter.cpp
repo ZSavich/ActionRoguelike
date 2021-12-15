@@ -3,18 +3,16 @@
 
 #include "Character/SCharacter.h"
 #include "DrawDebugHelpers.h"
+#include "SActionComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "SBaseProjectile.h"
 #include "Components/SInteractionComponent.h"
 #include "SAttributeComponent.h"
 #include "Components/CapsuleComponent.h"
 
 ASCharacter::ASCharacter()
 {
- 	PrimaryActorTick.bCanEverTick = true;
-
     bUseControllerRotationYaw = false;
     GetCharacterMovement()->bOrientRotationToMovement = true;
 
@@ -31,21 +29,9 @@ ASCharacter::ASCharacter()
 
     AttributeComp = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComponent"));
 
+    ActionComp = CreateDefaultSubobject<USActionComponent>(TEXT("ActionComponent"));
+
     TimeToHitParamName = "TimeToHit";
-    MuzzleSocketName = "Muzzle_01";
-    bDrawDebugInformation = false;
-}
-
-void ASCharacter::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
-void ASCharacter::Tick(float DeltaTime)
-{
-    Super::Tick(DeltaTime);
-    
-    // DrawDebugOrientVectors();
 }
 
 void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -62,6 +48,9 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
     PlayerInputComponent->BindAction("PrimaryInteract", IE_Pressed, this, &ASCharacter::PrimaryInteract);
     PlayerInputComponent->BindAction("BlackholeProjectile", IE_Pressed, this, &ASCharacter::BlackholeProjectile);
     PlayerInputComponent->BindAction("TeleportProjectile", IE_Pressed, this, &ASCharacter::TeleportProjectile);
+
+    PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ASCharacter::SprintStart);
+    PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ASCharacter::SprintStop);
 }
 
 void ASCharacter::PostInitializeComponents()
@@ -75,6 +64,11 @@ void ASCharacter::HealSelf(float Amount /* = 100 */)
 {
     if(AttributeComp->IsAlive())
         AttributeComp->ApplyHealthChange(this, Amount);
+}
+
+FVector ASCharacter::GetPawnViewLocation() const
+{
+    return CameraComp->GetComponentLocation();
 }
 
 void ASCharacter::PrimaryInteract()
@@ -110,94 +104,29 @@ void ASCharacter::MoveRight(const float Amount)
     AddMovementInput(RightVector, Amount);
 }
 
+void ASCharacter::SprintStart()
+{
+    ActionComp->StartActionByName(this, "Sprint");
+}
+
+void ASCharacter::SprintStop()
+{
+    ActionComp->StopActionByName(this, "Sprint");
+}
+
 void ASCharacter::PrimaryAttack()
 {
-    if(GetWorldTimerManager().IsTimerActive(TimerHandle_PrimaryAttack)) return;
-    
-    PlayAnimMontage(AttackMontage);
-    GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, 0.2f);
+    ActionComp->StartActionByName(this, "PrimaryAttack");
 }
 
 void ASCharacter::BlackholeProjectile()
 {
-    if(GetWorldTimerManager().IsTimerActive(TimerHandle_PrimaryAttack)) return;
-    
-    PlayAnimMontage(AttackMontage);
-    GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::BlackholeProjectile_TimeElapsed, 0.2f);
+    ActionComp->StartActionByName(this, "BlackholeProjectile");
 }
 
 void ASCharacter::TeleportProjectile()
 {
-    if(GetWorldTimerManager().IsTimerActive(TimerHandle_PrimaryAttack)) return;
-
-    PlayAnimMontage(AttackMontage);
-    GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::TeleportProjectile_TimeElapsed, 0.2f);
-}
-
-void ASCharacter::PrimaryAttack_TimeElapsed()
-{
-    if(!ensure(MagicProjectileClass)) return;
-    SpawnProjectile(MagicProjectileClass);
-}
-
-void ASCharacter::BlackholeProjectile_TimeElapsed()
-{
-    if(!ensure(BlackholeProjectileClass)) return;
-    SpawnProjectile(BlackholeProjectileClass);
-}
-
-void ASCharacter::TeleportProjectile_TimeElapsed()
-{
-    if(!ensure(TeleportProjectileClass)) return;
-    SpawnProjectile(TeleportProjectileClass);
-}
-
-void ASCharacter::SpawnProjectile(const TSubclassOf<ASBaseProjectile> ProjectileClass)
-{
-    /** LineTrace **/
-    /** It helps to find the Rotation for Projectile **/
-
-    FVector ViewPointLocation;
-    FRotator ViewPointRotation;
-    GetController()->GetPlayerViewPoint(ViewPointLocation, ViewPointRotation);
-
-    const auto StartTraceVector = ViewPointLocation;
-    auto EndTraceVector = ViewPointLocation + (ViewPointRotation.Vector() * 2000.f);
-
-    FCollisionQueryParams CollisionQueryParams;
-    CollisionQueryParams.AddIgnoredActor(this);
-    
-    FHitResult HitResult;
-    GetWorld()->LineTraceSingleByObjectType(HitResult, StartTraceVector, EndTraceVector, {}, CollisionQueryParams);
-
-    if(HitResult.bBlockingHit)
-    {
-        EndTraceVector = HitResult.ImpactPoint;
-    }
-    
-    if(bDrawDebugInformation)
-    {
-        DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.f, 32, FColor::Green, false, 5.f, 0.f, 1.f);
-        DrawDebugLine(GetWorld(), StartTraceVector, EndTraceVector, FColor::Green, false, 5.f,0.f,1.f);
-    }
-    
-    /** End LineTrace **/
-    
-    const auto SpawnLocation = GetMesh()->GetSocketLocation(MuzzleSocketName);
-    const auto SpawnRotation = FRotationMatrix::MakeFromX(EndTraceVector-SpawnLocation).Rotator();
-
-    const auto SpawnTransform = FTransform(SpawnRotation, SpawnLocation);
-    
-    FActorSpawnParameters SpawnParams;
-    SpawnParams.Instigator = this;
-    SpawnParams.Owner = this;
-    
-    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-    
-    const auto Projectile = GetWorld()->SpawnActor<ASBaseProjectile>(ProjectileClass, SpawnTransform, SpawnParams);
-
-    // Fixing the bug when The Projectile hit The Owner
-    MoveIgnoreActorAdd(Projectile);
+    ActionComp->StartActionByName(this, "TeleportProjectile");
 }
 
 void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* AttributeComponent, float CurrentHealth, float Delta)

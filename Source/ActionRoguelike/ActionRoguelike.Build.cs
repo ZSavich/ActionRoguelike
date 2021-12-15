@@ -30,6 +30,7 @@ public class ActionRoguelike : ModuleRules
 			"ActionRoguelike/Public/AI",
 			"ActionRoguelike/Public/AI/Services",
 			"ActionRoguelike/Public/AI/Tasks",
+			"ActionRoguelike/Public/Actions",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

@@ -8,9 +8,9 @@
 
 class USpringArmComponent;
 class UCameraComponent;
-class ASBaseProjectile;
 class USInteractionComponent;
 class USAttributeComponent;
+class USActionComponent;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASCharacter : public ACharacter
@@ -30,34 +30,16 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
     USAttributeComponent* AttributeComp;
 
-    UPROPERTY(EditDefaultsOnly, Category="Projectiles")
-    TSubclassOf<ASBaseProjectile> MagicProjectileClass;
-
-    UPROPERTY(EditDefaultsOnly, Category="Projectiles")
-    TSubclassOf<ASBaseProjectile> BlackholeProjectileClass;
-
-    UPROPERTY(EditDefaultsOnly, Category="Projectiles")
-    TSubclassOf<ASBaseProjectile> TeleportProjectileClass;
-
-    UPROPERTY(EditDefaultsOnly, Category="Animations")
-    UAnimMontage* AttackMontage;
-
-    UPROPERTY(EditDefaultsOnly, Category="Debug")
-    bool bDrawDebugInformation;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
+    USActionComponent* ActionComp;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Effects")
     FName TimeToHitParamName;
-
-    FTimerHandle TimerHandle_PrimaryAttack;
     
 public:
     ASCharacter();
-    
-    UPROPERTY(EditDefaultsOnly, Category="Sockets")
-    FName MuzzleSocketName;
 
 protected:
-	virtual void BeginPlay() override;
 
     UFUNCTION()
     void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* AttributeComponent, float CurrentHealth, float Delta);
@@ -65,16 +47,12 @@ protected:
     void MoveForward(const float Amount);
     void MoveRight(const float Amount);
 
-    void SpawnProjectile(const TSubclassOf<ASBaseProjectile> ProjectileClass);
-    
+    void SprintStart();
+    void SprintStop();
+
     void PrimaryAttack();
-    void PrimaryAttack_TimeElapsed();
-
     void BlackholeProjectile();
-    void BlackholeProjectile_TimeElapsed();
-
     void TeleportProjectile();
-    void TeleportProjectile_TimeElapsed();
     
     void PrimaryInteract();
     
@@ -82,10 +60,11 @@ protected:
     void DrawDebugOrientVectors() const;
 
 public:	
-	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
     virtual void PostInitializeComponents() override;
     
     UFUNCTION(Exec)
     void HealSelf(float Amount = 100);
+
+    virtual FVector GetPawnViewLocation() const override;
 };

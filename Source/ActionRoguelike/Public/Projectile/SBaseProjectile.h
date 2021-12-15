@@ -46,6 +46,8 @@ protected:
 public:	
 	ASBaseProjectile();
 
+    FName MuzzleSocketName;
+
 protected:
 	virtual void BeginPlay() override;
 
