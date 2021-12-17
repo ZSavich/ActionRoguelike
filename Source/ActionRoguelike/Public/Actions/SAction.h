@@ -3,24 +3,43 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "UObject/NoExportTypes.h"
+#include "GameplayTagContainer.h"
 #include "SAction.generated.h"
 
+class USActionComponent;
 
 UCLASS(Blueprintable)
 class ACTIONROGUELIKE_API USAction : public UObject
 {
 	GENERATED_BODY()
 
+protected:
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Tags")
+    FGameplayTagContainer GrandsTags;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Tags")
+    FGameplayTagContainer BlockedTags;
+
+    bool bIsRunning;
+
 public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ActionDescription")
     FName ActionName;
+
+protected:
+    USActionComponent* GetOwningComponent() const;
+
+public:
+    virtual UWorld* GetWorld() const override;
     
     UFUNCTION(BlueprintNativeEvent)
     void StartAction(AActor* InstigatorActor);
 
-    UFUNCTION(BlueprintNativeEvent)
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
     void StopAction(AActor* InstigatorActor);
 
-    virtual UWorld* GetWorld() const override;
+    UFUNCTION(BlueprintNativeEvent)
+    bool CanStart();
+    
+    FORCEINLINE bool IsRunning() const { return bIsRunning; }
 };

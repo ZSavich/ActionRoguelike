@@ -3,9 +3,10 @@
 
 #include "Projectile/SMagicProjectile.h"
 
-#include "SAttributeComponent.h"
+#include "SActionComponent.h"
 #include "SGameplayFunctionLibrary.h"
 #include "Components/SphereComponent.h"
+#include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 ASMagicProjectile::ASMagicProjectile()
@@ -15,9 +16,19 @@ ASMagicProjectile::ASMagicProjectile()
 
 void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
 {
-    if(USGameplayFunctionLibrary::ApplyDirectionalDamage(OtherComp, OtherActor, DamageAmount, GetInstigator(), SweepResult))
-        SpawnImpactEffects();
+    const auto ActionComp = OtherActor->FindComponentByClass<USActionComponent>();
+    if(ActionComp && ActionComp->ActiveGameplayTags.HasTag(ParryTagName))
+    {
+        MovementComp->Velocity = -MovementComp->Velocity;
+        SetInstigator(Cast<APawn>(OtherActor));
+        return;
+    }
     
+    if(USGameplayFunctionLibrary::ApplyDirectionalDamage(OtherComp, OtherActor, DamageAmount, GetInstigator(), SweepResult))
+    {
+        SpawnImpactEffects();
+    }
+        
     Super::OnActorOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 }
 

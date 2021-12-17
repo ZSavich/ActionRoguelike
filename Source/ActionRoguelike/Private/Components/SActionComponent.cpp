@@ -23,6 +23,9 @@ void USActionComponent::BeginPlay()
 void USActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+    const FString DebugMsg = GetNameSafe(GetOwner()) + " : " + ActiveGameplayTags.ToStringSimple(); 
+    GEngine->AddOnScreenDebugMessage(0, 0.f, FColor::Green, DebugMsg);
 }
 
 void USActionComponent::AddAction(TSubclassOf<USAction> ActionClass)
@@ -41,10 +44,13 @@ bool USActionComponent::StartActionByName(AActor* InstigatorActor, const FName& 
     
     for(const auto Action : Actions)
     {
-        if(Action->ActionName == ActionName)
+        if(Action && Action->ActionName == ActionName)
         {
-            Action->StartAction(InstigatorActor);
-            return true;
+            if(Action->CanStart())
+            {
+                Action->StartAction(InstigatorActor);
+                return true;
+            }
         }
     }
     return false;

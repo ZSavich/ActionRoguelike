@@ -16,6 +16,7 @@ public class ActionRoguelike : ModuleRules
 			"InputCore",
 			"AIModule",
 			"GameplayTasks",
+			"GameplayTags",
 		});
 		
 		PublicIncludePaths.AddRange(new string[]

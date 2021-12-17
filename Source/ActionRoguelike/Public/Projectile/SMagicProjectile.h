@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "SBaseProjectile.h"
 #include "SMagicProjectile.generated.h"
 
@@ -14,6 +15,9 @@ class ACTIONROGUELIKE_API ASMagicProjectile : public ASBaseProjectile
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Damage")
     float DamageAmount;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Tags")
+    FGameplayTag ParryTagName;
 
 public:	
 	ASMagicProjectile();
