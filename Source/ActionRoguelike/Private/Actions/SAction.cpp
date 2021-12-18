@@ -4,6 +4,13 @@
 #include "Actions/SAction.h"
 #include "SActionComponent.h"
 
+
+USAction::USAction()
+{
+    bAutoStart = false;
+    bIsRunning = false;
+}
+
 void USAction::StartAction_Implementation(AActor* InstigatorActor)
 {
     UE_LOG(LogTemp, Display, TEXT("Startup Action: %s"), *GetNameSafe(this));

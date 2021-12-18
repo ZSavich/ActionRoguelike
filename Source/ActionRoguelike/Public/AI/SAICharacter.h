@@ -8,6 +8,7 @@
 
 class UPawnSensingComponent;
 class USAttributeComponent;
+class USActionComponent;
 class USWorldUserWidget;
 
 UCLASS()
@@ -24,6 +25,9 @@ protected:
     
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
     USAttributeComponent* AttributeComp;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components")
+    USActionComponent* ActionComp;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widgets")
     TSubclassOf<USWorldUserWidget> HealthBarWidgetClass;

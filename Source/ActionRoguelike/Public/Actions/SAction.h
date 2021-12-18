@@ -23,10 +23,16 @@ protected:
     bool bIsRunning;
 
 public:
+    USAction();
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="ActionDescription")
     FName ActionName;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Tags")
+    bool bAutoStart;
+
 protected:
+    UFUNCTION(BlueprintCallable)
     USActionComponent* GetOwningComponent() const;
 
 public:

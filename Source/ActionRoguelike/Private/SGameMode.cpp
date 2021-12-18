@@ -121,6 +121,8 @@ void ASGameMode::OnSpawnPickupQueryCompleted(const TSharedPtr<FEnvQueryResult> Q
             const auto SpawnOffset = FVector(0.f,0.f, 100.f);
 
             const auto Result = GetWorld()->SpawnActor<ASBasePickup>(Pickup.Key, SpawnLocations[RandomPoint] + SpawnOffset, FRotator::ZeroRotator, SpawnParams);
+            SpawnLocations.RemoveAt(RandomPoint);
+            SpawnsCounter--;
         }
     }
 }

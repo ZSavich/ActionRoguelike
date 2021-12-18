@@ -7,6 +7,8 @@
 #include "SBaseProjectile.h"
 #include "SMagicProjectile.generated.h"
 
+class USActionEffect;
+
 UCLASS()
 class ACTIONROGUELIKE_API ASMagicProjectile : public ASBaseProjectile
 {
@@ -18,6 +20,9 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Tags")
     FGameplayTag ParryTagName;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Actions")
+    TSubclassOf<USActionEffect> BurningActionClass;
 
 public:	
 	ASMagicProjectile();

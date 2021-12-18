@@ -4,6 +4,7 @@
 #include "Projectile/SMagicProjectile.h"
 
 #include "SActionComponent.h"
+#include "SActionEffect.h"
 #include "SGameplayFunctionLibrary.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
@@ -27,6 +28,16 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
     if(USGameplayFunctionLibrary::ApplyDirectionalDamage(OtherComp, OtherActor, DamageAmount, GetInstigator(), SweepResult))
     {
         SpawnImpactEffects();
+        if(ensure(BurningActionClass))
+        {
+            const auto TargetActionComp = OtherActor->FindComponentByClass<USActionComponent>();
+            if(TargetActionComp)
+            {
+                TargetActionComp->AddAction(GetInstigator(),BurningActionClass);
+            }
+        }
+        
+            
     }
         
     Super::OnActorOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);

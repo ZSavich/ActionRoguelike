@@ -16,7 +16,7 @@ void USActionComponent::BeginPlay()
 
     for(const auto ActionClass : ActionClasses)
     {
-        AddAction(ActionClass);
+        AddAction(GetOwner(), ActionClass);
     }
 }
 
@@ -28,7 +28,7 @@ void USActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
     GEngine->AddOnScreenDebugMessage(0, 0.f, FColor::Green, DebugMsg);
 }
 
-void USActionComponent::AddAction(TSubclassOf<USAction> ActionClass)
+void USActionComponent::AddAction(AActor* InstigatorActor , TSubclassOf<USAction> ActionClass)
 {
     if(!ensure(ActionClass)) return;
 
@@ -36,6 +36,15 @@ void USActionComponent::AddAction(TSubclassOf<USAction> ActionClass)
     if(!ensure(ActionInstance)) return;
 
     Actions.Add(ActionInstance);
+
+    if(ActionInstance->bAutoStart)
+        ActionInstance->StartAction(InstigatorActor);
+}
+
+void USActionComponent::RemoveAction(USAction* Action)
+{
+    if(!ensure(Action) || !Actions.Find(Action)) return;
+    Actions.Remove(Action);
 }
 
 bool USActionComponent::StartActionByName(AActor* InstigatorActor, const FName& ActionName)
@@ -60,7 +69,7 @@ bool USActionComponent::StopActionByName(AActor* InstigatorActor, const FName& A
 {
     for(const auto Action : Actions)
     {
-        if(Action && Action->ActionName == ActionName)
+        if(Action && Action->ActionName == ActionName && Action->IsRunning())
         {
             Action->StopAction(InstigatorActor);
             return true;
