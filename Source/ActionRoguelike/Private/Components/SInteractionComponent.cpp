@@ -10,10 +10,20 @@ static TAutoConsoleVariable<bool> CVarDrawDebugInteraction(TEXT("su.DrawDebugInt
 
 USInteractionComponent::USInteractionComponent()
 {
-    InteractionRadius = 15.f;
+    PrimaryComponentTick.bCanEverTick = true;
+    
+    TraceRadius = 30.f;
+    TraceDistance = 500.f;
+    CollisionChannel = ECC_WorldDynamic;
 }
 
-void USInteractionComponent::PrimaryInteract() const
+void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+    FindBestInteractable();
+}
+
+void USInteractionComponent::FindBestInteractable()
 {
     APawn* Owner = GetOwner<APawn>();
     
@@ -21,10 +31,10 @@ void USInteractionComponent::PrimaryInteract() const
     FRotator EyeRotation;
     Owner->Controller->GetPlayerViewPoint(EyeLocation, EyeRotation);
     
-    const FVector End = EyeLocation + (EyeRotation.Vector() * 500.f);
+    const FVector End = EyeLocation + (EyeRotation.Vector() * TraceDistance);
 
     FCollisionObjectQueryParams ObjectQueryParams;
-    ObjectQueryParams.AddObjectTypesToQuery(ECC_WorldDynamic);
+    ObjectQueryParams.AddObjectTypesToQuery(CollisionChannel);
 
     /*
      *  Way 1. A bad way for consoles where you need to be less accurate (LineTrace has 1px thickness)
@@ -37,7 +47,9 @@ void USInteractionComponent::PrimaryInteract() const
     /** Way 2. Best way because it has interaction radius **/
     
     FCollisionShape CollisionShape;
-    CollisionShape.SetSphere(InteractionRadius);
+    CollisionShape.SetSphere(TraceRadius);
+
+    FocusedActor = nullptr;
     
     TArray<FHitResult> HitResults;
     const auto bIsBlocking = GetWorld()->SweepMultiByObjectType(HitResults, EyeLocation, End, FQuat::Identity, ObjectQueryParams, CollisionShape);
@@ -49,15 +61,46 @@ void USInteractionComponent::PrimaryInteract() const
         const auto HitActor = HitResult.GetActor();
         if(HitActor && HitActor->Implements<USGameplayInterface>())
         {
-            ISGameplayInterface::Execute_Interact(HitActor, Owner);
-
-            if(CVarDrawDebugInteraction.GetValueOnGameThread())
-                DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, InteractionRadius,32, LineColor, false, 5.f, 0.f, 2.f);
-            
+            FocusedActor = HitActor;
             break;
         }
     }
+
+    if(FocusedActor)
+    {
+        if(!DefaultWidgetInstance && ensure(DefaultWidgetClass))
+        {
+            DefaultWidgetInstance = CreateWidget<USWorldUserWidget>(GetWorld(), DefaultWidgetClass);
+        }
+        if(DefaultWidgetInstance)
+        {
+            DefaultWidgetInstance->AttachedActor = FocusedActor;
+            if(!DefaultWidgetInstance->IsInViewport())
+            {
+                DefaultWidgetInstance->AddToViewport();
+            }
+        }
+    }
+    else
+    {
+        if(DefaultWidgetInstance)
+        {
+            DefaultWidgetInstance->RemoveFromParent();
+        }
+    }
+    
     if(CVarDrawDebugInteraction.GetValueOnGameThread())
         DrawDebugLine(GetWorld(), EyeLocation, End, LineColor, false, 5.f, 0.f, 2.f);
 }
 
+
+void USInteractionComponent::PrimaryInteract() const
+{
+    if(!FocusedActor)
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, "No Focus Actor to interact.");
+        return;
+    }
+    
+    ISGameplayInterface::Execute_Interact(FocusedActor, GetOwner<APawn>());
+}

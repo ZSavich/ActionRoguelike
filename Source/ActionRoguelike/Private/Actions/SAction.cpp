@@ -50,7 +50,7 @@ bool USAction::CanStart_Implementation()
     if(IsRunning()) return false;
 
     const auto OwnerComp = GetOwningComponent();
-    if (OwnerComp->ActiveGameplayTags.HasAny(BlockedTags))
+    if (OwnerComp && OwnerComp->ActiveGameplayTags.HasAny(BlockedTags))
     {
         const FString DebugMsg = "Blocked Tag: " + ActionName.ToString();
         GEngine->AddOnScreenDebugMessage(1, 1.f, FColor::Red, DebugMsg);

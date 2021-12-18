@@ -15,8 +15,6 @@ class ACTIONROGUELIKE_API USWorldUserWidget : public UUserWidget
 	GENERATED_BODY()
 	
 protected:
-	UPROPERTY(meta = (BindWidget))
-    USizeBox* ParentSizeBox;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="UMG")
     FVector2D WorldOffset;
@@ -26,7 +24,7 @@ protected:
 public:
     UPROPERTY()
     AActor* AttachedActor;
-
-    UPROPERTY(meta = (BindWidget))
-    UImage* HealthBarImage;
+    
+	UPROPERTY(meta = (BindWidget))
+    USizeBox* ParentSizeBox;
 };

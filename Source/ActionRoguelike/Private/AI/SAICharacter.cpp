@@ -13,6 +13,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/Image.h"
+#include "Components/SizeBox.h"
 #include "UMG/SWorldUserWidget.h"
 
 ASAICharacter::ASAICharacter()
@@ -50,7 +51,7 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
 
         GetMesh()->SetScalarParameterValueOnMaterials(TimeToHitParamName, GetWorld()->TimeSeconds);
     }
-
+    
     if(!ActiveHealthBar)
     {
         ActiveHealthBar = CreateWidget<USWorldUserWidget>(GetWorld(), HealthBarWidgetClass);
@@ -60,13 +61,15 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
             ActiveHealthBar->AddToViewport();
         }
     }
+    /*
+    
     if(ActiveHealthBar)
     {
         const auto HealthPercent = AttributeComp->GetHealthByPercent();
-        const auto DynMaterial = ActiveHealthBar->HealthBarImage->GetDynamicMaterial();
+        const auto DynMaterial = ActiveHealthBar->ParentSizeBox->GetDynamicMaterial();
         if(DynMaterial)
             DynMaterial->SetScalarParameterValue("HealthPercent", HealthPercent);
-    }
+    }*/
 }
 
 void ASAICharacter::OnDeadHandle(AActor* InstigatorActor, AActor* VictimActor)

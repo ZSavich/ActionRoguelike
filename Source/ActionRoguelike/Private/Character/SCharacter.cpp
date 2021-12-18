@@ -56,7 +56,7 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 void ASCharacter::PostInitializeComponents()
 {
     Super::PostInitializeComponents();
-
+    
     AttributeComp->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 }
 
