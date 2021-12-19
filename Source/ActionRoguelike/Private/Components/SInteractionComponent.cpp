@@ -26,10 +26,15 @@ void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 void USInteractionComponent::FindBestInteractable()
 {
     APawn* Owner = GetOwner<APawn>();
+    if(!Owner) return;
+
+    const auto Controller = Owner->Controller;
+    if(!Controller) return;
     
     FVector EyeLocation;
     FRotator EyeRotation;
-    Owner->Controller->GetPlayerViewPoint(EyeLocation, EyeRotation);
+    
+    Controller->GetPlayerViewPoint(EyeLocation, EyeRotation);
     
     const FVector End = EyeLocation + (EyeRotation.Vector() * TraceDistance);
 

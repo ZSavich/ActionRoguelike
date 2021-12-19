@@ -22,7 +22,7 @@ protected:
     virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 public:
-    UPROPERTY()
+    UPROPERTY(BlueprintReadOnly)
     AActor* AttachedActor;
     
 	UPROPERTY(meta = (BindWidget))

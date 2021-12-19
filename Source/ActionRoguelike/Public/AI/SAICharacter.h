@@ -32,11 +32,17 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widgets")
     TSubclassOf<USWorldUserWidget> HealthBarWidgetClass;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Widgets")
+    TSubclassOf<USWorldUserWidget> PlayerSpottedWidgetClass;
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Credits")
     float DeathCredits;
     
     UPROPERTY()
     USWorldUserWidget* ActiveHealthBar;
+
+    UPROPERTY()
+    USWorldUserWidget* ActivePlayerSpotted;
     
 public:
     ASAICharacter();

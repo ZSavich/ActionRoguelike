@@ -26,6 +26,8 @@ void USAction::StopAction_Implementation(AActor* InstigatorActor)
     UE_LOG(LogTemp, Display, TEXT("Endup Action: %s"), *GetNameSafe(this));
 
     const auto OwnerComp = GetOwningComponent();
+    if(!OwnerComp) return;
+    
     OwnerComp->ActiveGameplayTags.RemoveTags(GrandsTags);
 
     bIsRunning = false;

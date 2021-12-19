@@ -7,6 +7,7 @@
 #include "SAttributeComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChanged, AActor*, InstigatorActor, USAttributeComponent*, AttributeComp, float, CurrentHealth, float, Delta);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnRageChanged, USAttributeComponent*, AttributeComp, float, CurrentRage, float, Delta);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDead, AActor*, InstigatorActor, AActor*, VictimActor);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -20,6 +21,18 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Health")
     float MaxHealth;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Rage")
+    bool bRageActivate;
+    
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Rage", meta = (EditCondition = "bRageActivate"))
+    float CurrentRage;
+    
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Rage", meta = (EditCondition = "bRageActivate"))
+    float MaxRage;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Rage", meta = (EditCondition = "bRageActivate"))
+    float RageMultiply;
     
 public:
     UFUNCTION(BlueprintCallable, Category="Attributes")
@@ -34,10 +47,16 @@ public:
     FOnHealthChanged OnHealthChanged;
 
     UPROPERTY(BlueprintAssignable)
+    FOnRageChanged OnRageChanged;
+
+    UPROPERTY(BlueprintAssignable)
     FOnDead OnDead;
 
     UFUNCTION(BlueprintCallable)
     bool ApplyHealthChange(AActor* InstigatorActor, const float Delta);
+
+    UFUNCTION(BlueprintCallable)
+    bool ApplyRageChange(const float Delta);
     
     UFUNCTION(BlueprintCallable)
     bool IsAlive() const;

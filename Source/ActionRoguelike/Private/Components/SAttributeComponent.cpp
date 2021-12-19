@@ -10,6 +10,11 @@ USAttributeComponent::USAttributeComponent()
 {
     MaxHealth = 100.f;
     CurrentHealth = MaxHealth;
+
+    bRageActivate = false;
+    MaxRage = 100.f;
+    CurrentRage = 25.f;
+    RageMultiply = 1.0f;
 }
 
 bool USAttributeComponent::IsAlive() const
@@ -37,6 +42,9 @@ bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, const floa
     const auto MultiDelta = CVarDamageMultiplier.GetValueOnGameThread() * Delta;
     CurrentHealth = FMath::Clamp(CurrentHealth + MultiDelta, 0.f, MaxHealth);
     const auto ActualDelta = CurrentHealth - OldHealth;
+
+    if(bRageActivate)
+        ApplyRageChange(-ActualDelta);
     
     OnHealthChanged.Broadcast(InstigatorActor, this, CurrentHealth, ActualDelta);
 
@@ -47,7 +55,6 @@ bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, const floa
         if(GM)
             GM->OnActorKilled(GetOwner(), InstigatorActor);
     }
-    
     return true;
 }
 
@@ -68,5 +75,18 @@ bool USAttributeComponent::IsActorAlive(AActor* Actor)
     const auto AttributeComp = GetAttributes(Actor);
     if(!AttributeComp || !AttributeComp->IsAlive()) return false;
 
+    return true;
+}
+
+bool USAttributeComponent::ApplyRageChange(const float Delta)
+{
+    if(!IsAlive() || CurrentRage == MaxRage && Delta > 0.f) return false;
+
+    const auto RageDelta = Delta * RageMultiply;
+
+    if(CurrentRage + RageDelta < 0.f) return false;
+    CurrentRage = FMath::Clamp(CurrentRage + RageDelta, 0.f, MaxRage);
+    
+    OnRageChanged.Broadcast(this, CurrentRage, RageDelta);
     return true;
 }

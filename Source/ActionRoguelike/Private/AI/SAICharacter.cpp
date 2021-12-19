@@ -98,6 +98,20 @@ void ASAICharacter::SetTargetActor(AActor* NewTarget)
     const auto AIController = GetController<ASAIController>();
     if(!AIController) return;
 
+    if(!AIController->GetBlackboardComponent()->GetValueAsObject("TargetActor"))
+    {
+        if(ActivePlayerSpotted)
+            ActivePlayerSpotted->RemoveFromParent();
+
+        ActivePlayerSpotted = CreateWidget<USWorldUserWidget>(GetWorld(), PlayerSpottedWidgetClass);
+        if(ActivePlayerSpotted)
+        {
+            ActivePlayerSpotted->AttachedActor = this;
+            if(!ActivePlayerSpotted->IsInViewport())
+                ActivePlayerSpotted->AddToViewport();
+        }
+    }
+    
     AIController->GetBlackboardComponent()->SetValueAsObject("TargetActor", NewTarget);
 }
 
