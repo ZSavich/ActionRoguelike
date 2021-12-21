@@ -20,7 +20,11 @@ USInteractionComponent::USInteractionComponent()
 void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-    FindBestInteractable();
+
+    if(GetOwner<APawn>()->IsLocallyControlled())
+    {
+        FindBestInteractable();
+    }
 }
 
 void USInteractionComponent::FindBestInteractable()
@@ -99,13 +103,18 @@ void USInteractionComponent::FindBestInteractable()
 }
 
 
-void USInteractionComponent::PrimaryInteract() const
+void USInteractionComponent::PrimaryInteract()
 {
-    if(!FocusedActor)
+    ServerInteract(FocusedActor);
+}
+
+void USInteractionComponent::ServerInteract_Implementation(AActor* ActorInteract)
+{
+    if(!ActorInteract)
     {
         GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Red, "No Focus Actor to interact.");
         return;
     }
     
-    ISGameplayInterface::Execute_Interact(FocusedActor, GetOwner<APawn>());
+    ISGameplayInterface::Execute_Interact(ActorInteract, GetOwner<APawn>());
 }

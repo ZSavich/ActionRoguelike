@@ -10,7 +10,7 @@
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "Templates/SharedPointer.h"
 
-static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("su.SpawnBots"), true, TEXT("Do need to spawn bots?"), ECVF_Cheat);
+static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("su.SpawnBots"), false, TEXT("Do need to spawn bots?"), ECVF_Cheat);
 
 ASGameMode::ASGameMode()
 {

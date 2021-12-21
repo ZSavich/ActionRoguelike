@@ -3,6 +3,8 @@
 
 #include "Interactable/SItemChest.h"
 
+#include "Net/UnrealNetwork.h"
+
 ASItemChest::ASItemChest()
 {
  	PrimaryActorTick.bCanEverTick = true;
@@ -14,23 +16,27 @@ ASItemChest::ASItemChest()
     LidMesh->SetupAttachment(GetRootComponent());
 
     TargetRotation = 110.f;
+    SetReplicates(true);
 }
 
 
 void ASItemChest::Interact_Implementation(APawn* InstigatorPawn)
 {
-    LidMesh->SetRelativeRotation(FRotator(TargetRotation, 0.f, 0.f));
+    bLidOpened = !bLidOpened;
+    OnRep_LidOpened();
 }
 
-void ASItemChest::BeginPlay()
+
+void ASItemChest::OnRep_LidOpened()
 {
-	Super::BeginPlay();
-	
+    const float TogglePitch = bLidOpened ? TargetRotation : 0.f;
+    LidMesh->SetRelativeRotation(FRotator(TogglePitch, 0.f, 0.f));
 }
 
-void ASItemChest::Tick(float DeltaTime)
+void ASItemChest::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
 {
-	Super::Tick(DeltaTime);
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
+    DOREPLIFETIME(ASItemChest, bLidOpened);
 }
 

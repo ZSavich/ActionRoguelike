@@ -13,7 +13,7 @@ class ACTIONROGUELIKE_API USInteractionComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-protected:
+protected:    
     UPROPERTY(EditDefaultsOnly, Category="Trace")
     float TraceRadius;
 
@@ -36,8 +36,11 @@ protected:
 public:	
 	USInteractionComponent();
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-    void PrimaryInteract() const;
+    void PrimaryInteract();
 
 protected:
     void FindBestInteractable();
+    
+    UFUNCTION(Server, Reliable)
+    void ServerInteract(AActor* ActorInteract);
 };

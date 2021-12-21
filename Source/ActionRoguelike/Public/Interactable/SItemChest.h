@@ -21,16 +21,17 @@ protected:
 
     UPROPERTY(EditAnywhere, Category="Interact")
     float TargetRotation;
+
+    UPROPERTY(ReplicatedUsing="OnRep_LidOpened", BlueprintReadOnly) // RepNotify
+    bool bLidOpened;
 	
 public:	
 	ASItemChest();
 
-    virtual void Interact_Implementation(APawn* InstigatorPawn) override;
-
 protected:
-	virtual void BeginPlay() override;
+    UFUNCTION()
+    void OnRep_LidOpened();
 
 public:	
-	virtual void Tick(float DeltaTime) override;
-
+    virtual void Interact_Implementation(APawn* InstigatorPawn) override;
 };
