@@ -16,10 +16,10 @@ class ACTIONROGUELIKE_API USAttributeComponent : public UActorComponent
 	GENERATED_BODY()
     
 protected:
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Health")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category="Health")
     float CurrentHealth;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Health")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category="Health")
     float MaxHealth;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Rage")
@@ -66,4 +66,7 @@ public:
     
     FORCEINLINE float GetCurrentHealth() const { return CurrentHealth; }
     FORCEINLINE float GetHealthByPercent() const { return CurrentHealth / MaxHealth; }
+
+    UFUNCTION(NetMulticast, Reliable)
+    void MulticastHealthChanged(AActor* InstigatorActor, float Health, float Delta);
 };

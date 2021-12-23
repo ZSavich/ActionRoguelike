@@ -18,6 +18,8 @@ void USAction_ProjectileAttack::StartAction_Implementation(AActor* InstigatorAct
 {
     Super::StartAction_Implementation(InstigatorActor);
 
+    if(!GetWorld()) return;
+    
     const auto Character = Cast<ACharacter>(InstigatorActor);
     if(!Character) return;
     
@@ -33,7 +35,7 @@ void USAction_ProjectileAttack::StartAction_Implementation(AActor* InstigatorAct
 
 void USAction_ProjectileAttack::ProjectileAttack_TimeElapsed(ACharacter* InstigatorCharacter)
 {
-    if(!ensure(ProjectileClass)) return;
+    if(!ensure(ProjectileClass) || !GetWorld()) return;
 
     /** LineTrace **/
     /** It helps to find the Rotation for Projectile **/
@@ -68,7 +70,7 @@ void USAction_ProjectileAttack::ProjectileAttack_TimeElapsed(ACharacter* Instiga
     const auto SpawnRotation = FRotationMatrix::MakeFromX(EndTraceVector-SpawnLocation).Rotator();
 
     const auto SpawnTransform = FTransform(SpawnRotation, SpawnLocation);
-    
+
     auto Projectile = GetWorld()->SpawnActorDeferred<ASBaseProjectile>(ProjectileClass, SpawnTransform, InstigatorCharacter, InstigatorCharacter, ESpawnActorCollisionHandlingMethod::AlwaysSpawn);
     Projectile->MuzzleSocketName = MuzzleSocketName;
 

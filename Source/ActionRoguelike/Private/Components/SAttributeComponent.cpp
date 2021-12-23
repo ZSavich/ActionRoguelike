@@ -3,6 +3,7 @@
 
 #include "Components/SAttributeComponent.h"
 #include "SGameMode.h"
+#include "Net/UnrealNetwork.h"
 
 static TAutoConsoleVariable<float> CVarDamageMultiplier(TEXT("su.DamageMultiplier"), 1.f, TEXT("Multiplies damage by the specified amount."), ECVF_Cheat);
 
@@ -15,6 +16,8 @@ USAttributeComponent::USAttributeComponent()
     MaxRage = 100.f;
     CurrentRage = 25.f;
     RageMultiply = 1.0f;
+
+    SetIsReplicatedByDefault(true);
 }
 
 bool USAttributeComponent::IsAlive() const
@@ -27,6 +30,7 @@ void USAttributeComponent::Kill(AActor* InstigatorActor)
     if(IsAlive())
         ApplyHealthChange(InstigatorActor, -MaxHealth);
 }
+
 
 bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, const float Delta)
 {
@@ -46,7 +50,7 @@ bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, const floa
     if(bRageActivate)
         ApplyRageChange(-ActualDelta);
     
-    OnHealthChanged.Broadcast(InstigatorActor, this, CurrentHealth, ActualDelta);
+    MulticastHealthChanged(InstigatorActor, CurrentHealth, ActualDelta);
 
     if(!IsAlive())
     {
@@ -89,4 +93,17 @@ bool USAttributeComponent::ApplyRageChange(const float Delta)
     
     OnRageChanged.Broadcast(this, CurrentRage, RageDelta);
     return true;
+}
+
+void USAttributeComponent::MulticastHealthChanged_Implementation(AActor* InstigatorActor, float Health, float Delta)
+{
+    OnHealthChanged.Broadcast(InstigatorActor, this, CurrentHealth, Delta);   
+}
+
+void USAttributeComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(USAttributeComponent, CurrentHealth);
+    DOREPLIFETIME(USAttributeComponent, MaxHealth);
 }

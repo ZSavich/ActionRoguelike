@@ -9,6 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/SInteractionComponent.h"
 #include "SAttributeComponent.h"
+#include "SPlayerController.h"
 #include "Components/CapsuleComponent.h"
 
 ASCharacter::ASCharacter()
@@ -133,7 +134,7 @@ void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent*
 {
     if(CurrentHealth <= 0.f)
     {
-        const auto PC = GetController<APlayerController>();
+        const auto PC = GetController<ASPlayerController>();
         DisableInput(PC);
         GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
         SetLifeSpan(10.f);

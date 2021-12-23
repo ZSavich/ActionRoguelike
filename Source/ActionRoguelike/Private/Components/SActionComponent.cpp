@@ -8,17 +8,19 @@
 USActionComponent::USActionComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+    SetIsReplicatedByDefault(true);
 }
 
 void USActionComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
+    
     for(const auto ActionClass : ActionClasses)
     {
         AddAction(GetOwner(), ActionClass);
     }
 }
+
 
 void USActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -57,6 +59,10 @@ bool USActionComponent::StartActionByName(AActor* InstigatorActor, const FName& 
         {
             if(Action->CanStart())
             {
+                if(GetOwner()->GetLocalRole() != ROLE_Authority)
+                {
+                    ServerStartAction(InstigatorActor, ActionName);
+                }
                 Action->StartAction(InstigatorActor);
                 return true;
             }
@@ -78,3 +84,7 @@ bool USActionComponent::StopActionByName(AActor* InstigatorActor, const FName& A
     return false;
 }
 
+void USActionComponent::ServerStartAction_Implementation(AActor* InstigatorActor, FName Action)
+{
+    StartActionByName(InstigatorActor, Action);
+}

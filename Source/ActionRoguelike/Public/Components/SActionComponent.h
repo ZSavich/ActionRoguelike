@@ -17,7 +17,8 @@ class ACTIONROGUELIKE_API USActionComponent : public UActorComponent
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Actions")
     TArray<TSubclassOf<USAction>> ActionClasses;
-    
+
+    UPROPERTY(VisibleAnywhere)
     TArray<USAction*> Actions;
     
 public:	
@@ -29,6 +30,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+    UFUNCTION(Server, Reliable)
+    void ServerStartAction(AActor* InstigatorActor, FName Action);
 
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;

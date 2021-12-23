@@ -31,6 +31,7 @@ ASBaseProjectile::ASBaseProjectile()
     FlightSound->SetupAttachment(GetRootComponent());
 
     LifeSpan = 10.f;
+    SetReplicates(true);
 }
 
 void ASBaseProjectile::BeginPlay()

@@ -14,8 +14,9 @@ ASBasePickup::ASBasePickup()
     Mesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
     SetRootComponent(Mesh);
 
-    InactivateTime = 5.f;
+    SetReplicates(true);
 
+    InactivateTime = 5.f;
     CreditsForInteract = 0;
 }
 

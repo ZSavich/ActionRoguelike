@@ -36,7 +36,7 @@ void USAction::StopAction_Implementation(AActor* InstigatorActor)
 UWorld* USAction::GetWorld() const
 {
     // Outer is sets when creating action via NewObject<T>
-    const auto Comp = Cast<UActorComponent>(GetOuter());
+    const auto Comp = GetOwningComponent();
     if(!Comp) return nullptr;
 
     return Comp->GetWorld();
@@ -44,6 +44,7 @@ UWorld* USAction::GetWorld() const
 
 USActionComponent* USAction::GetOwningComponent() const
 {
+    if(!GetOuter()) return nullptr;
     return Cast<USActionComponent>(GetOuter());
 }
 
