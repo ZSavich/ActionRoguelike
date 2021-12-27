@@ -20,8 +20,12 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Tags")
     FGameplayTagContainer BlockedTags;
 
+    UPROPERTY(ReplicatedUsing="OnRep_IsRunning")
     bool bIsRunning;
 
+    UPROPERTY(Replicated)
+    USActionComponent* ActionComp;
+    
 public:
     USAction();
 
@@ -36,6 +40,8 @@ protected:
     USActionComponent* GetOwningComponent() const;
 
 public:
+    void Initialize(USActionComponent* NewActionComp);
+    
     virtual UWorld* GetWorld() const override;
     
     UFUNCTION(BlueprintNativeEvent)
@@ -46,6 +52,11 @@ public:
 
     UFUNCTION(BlueprintNativeEvent)
     bool CanStart();
+    
+    UFUNCTION()
+    void OnRep_IsRunning();
+
+    virtual bool IsSupportedForNetworking() const override {return true;}
     
     FORCEINLINE bool IsRunning() const { return bIsRunning; }
 };

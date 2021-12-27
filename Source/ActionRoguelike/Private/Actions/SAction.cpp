@@ -3,6 +3,8 @@
 
 #include "Actions/SAction.h"
 #include "SActionComponent.h"
+#include "ActionRoguelike/ActionRoguelike.h"
+#include "Net/UnrealNetwork.h"
 
 
 USAction::USAction()
@@ -11,41 +13,51 @@ USAction::USAction()
     bIsRunning = false;
 }
 
+void USAction::Initialize(USActionComponent* NewActionComp)
+{
+    ActionComp = NewActionComp;
+}
+
 void USAction::StartAction_Implementation(AActor* InstigatorActor)
 {
-    UE_LOG(LogTemp, Display, TEXT("Startup Action: %s"), *GetNameSafe(this));
+    //UE_LOG(LogTemp, Display, TEXT("Startup Action: %s"), *GetNameSafe(this));
+    LogOnScreen(this, FString::Printf(TEXT("Started: %s"), *ActionName.ToString()), FColor::Green);
 
-    const auto OwnerComp = GetOwningComponent();
-    OwnerComp->ActiveGameplayTags.AppendTags(GrandsTags);
-
+    if(GrandsTags.IsValid())
+    {
+        const auto OwnerComp = GetOwningComponent();
+        if(OwnerComp)
+            OwnerComp->ActiveGameplayTags.AppendTags(GrandsTags);
+    }
+    
     bIsRunning = true;
 }
 
 void USAction::StopAction_Implementation(AActor* InstigatorActor)
 {
-    UE_LOG(LogTemp, Display, TEXT("Endup Action: %s"), *GetNameSafe(this));
-
-    const auto OwnerComp = GetOwningComponent();
-    if(!OwnerComp) return;
+    //UE_LOG(LogTemp, Display, TEXT("Endup Action: %s"), *GetNameSafe(this));
+    LogOnScreen(this, FString::Printf(TEXT("Stopped: %s"), *ActionName.ToString()), FColor::White);
     
-    OwnerComp->ActiveGameplayTags.RemoveTags(GrandsTags);
-
+    const auto OwnerComp = GetOwningComponent();
+    if(OwnerComp)
+        OwnerComp->ActiveGameplayTags.RemoveTags(GrandsTags);
+    
     bIsRunning = false;
 }
 
 UWorld* USAction::GetWorld() const
 {
     // Outer is sets when creating action via NewObject<T>
-    const auto Comp = GetOwningComponent();
-    if(!Comp) return nullptr;
-
-    return Comp->GetWorld();
+    /*const auto Comp = GetOwningComponent();
+    if(!Comp) return nullptr;*/
+    
+    AActor* Actor = Cast<AActor>(GetOuter());
+    return Actor ? Actor->GetWorld() : nullptr;
 }
 
 USActionComponent* USAction::GetOwningComponent() const
 {
-    if(!GetOuter()) return nullptr;
-    return Cast<USActionComponent>(GetOuter());
+    return ActionComp;
 }
 
 bool USAction::CanStart_Implementation()
@@ -62,3 +74,20 @@ bool USAction::CanStart_Implementation()
 
     return true;
 }
+
+void USAction::OnRep_IsRunning()
+{
+    if(bIsRunning)
+        StartAction(nullptr);
+    else
+        StopAction(nullptr);
+}
+
+void USAction::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(USAction, bIsRunning);
+    DOREPLIFETIME(USAction, ActionComp);
+}
+

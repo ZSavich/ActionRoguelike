@@ -4,6 +4,9 @@
 #include "Components/SActionComponent.h"
 
 #include "SAction.h"
+#include "ActionRoguelike/ActionRoguelike.h"
+#include "Engine/ActorChannel.h"
+#include "Net/UnrealNetwork.h"
 
 USActionComponent::USActionComponent()
 {
@@ -14,10 +17,13 @@ USActionComponent::USActionComponent()
 void USActionComponent::BeginPlay()
 {
 	Super::BeginPlay();
-    
-    for(const auto ActionClass : ActionClasses)
+
+    if(GetOwner()->GetLocalRole() == ROLE_Authority)
     {
-        AddAction(GetOwner(), ActionClass);
+        for(const auto ActionClass : ActionClasses)
+        {
+            AddAction(GetOwner(), ActionClass);
+        }
     }
 }
 
@@ -26,17 +32,32 @@ void USActionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-    const FString DebugMsg = GetNameSafe(GetOwner()) + " : " + ActiveGameplayTags.ToStringSimple(); 
-    GEngine->AddOnScreenDebugMessage(0, 0.f, FColor::Green, DebugMsg);
+    //const FString DebugMsg = GetNameSafe(GetOwner()) + " : " + ActiveGameplayTags.ToStringSimple(); 
+    //GEngine->AddOnScreenDebugMessage(0, 0.f, FColor::Green, DebugMsg);
+
+    
+    
+    for(auto Action: Actions)
+    {
+        FColor TextColor = Action->IsRunning() ? FColor::Blue : FColor::White;
+        FString ActionMsg = FString::Printf(TEXT("[%s] Action: %s : IsRunning %s : Outer %s"),
+            *GetNameSafe(GetOwner()),
+            *Action->ActionName.ToString(),
+            Action->IsRunning() ? TEXT("True") : TEXT("False"),
+            *GetNameSafe(Action->GetOuter()));
+        LogOnScreen(this, ActionMsg, TextColor, 0.f);
+    }
 }
 
 void USActionComponent::AddAction(AActor* InstigatorActor , TSubclassOf<USAction> ActionClass)
 {
     if(!ensure(ActionClass)) return;
 
-    const auto ActionInstance = NewObject<USAction>(this, ActionClass);
+    const auto ActionInstance = NewObject<USAction>(GetOwner(), ActionClass);
+    
     if(!ensure(ActionInstance)) return;
-
+    
+    ActionInstance->Initialize(this);
     Actions.Add(ActionInstance);
 
     if(ActionInstance->bAutoStart)
@@ -87,4 +108,22 @@ bool USActionComponent::StopActionByName(AActor* InstigatorActor, const FName& A
 void USActionComponent::ServerStartAction_Implementation(AActor* InstigatorActor, FName Action)
 {
     StartActionByName(InstigatorActor, Action);
+}
+
+bool USActionComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
+{
+    bool Result = Super::ReplicateSubobjects(Channel, Bunch, RepFlags);
+
+    for(const auto Action: Actions)
+        if(Action)
+            Result |= Channel->ReplicateSubobject(Action, *Bunch, *RepFlags);
+        
+    return Result;
+}
+
+void USActionComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    DOREPLIFETIME(USActionComponent, Actions);
 }

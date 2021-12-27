@@ -18,7 +18,7 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Actions")
     TArray<TSubclassOf<USAction>> ActionClasses;
 
-    UPROPERTY(VisibleAnywhere)
+    UPROPERTY(Replicated, VisibleAnywhere)
     TArray<USAction*> Actions;
     
 public:	
@@ -45,4 +45,6 @@ public:
     bool StartActionByName(AActor* InstigatorActor, const FName& ActionName);
     UFUNCTION(BlueprintCallable)
     bool StopActionByName(AActor* InstigatorActor, const FName& ActionName);
+
+    virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 };
