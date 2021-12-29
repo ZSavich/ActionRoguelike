@@ -42,6 +42,7 @@ void ASAICharacter::PostInitializeComponents()
     
 }
 
+
 void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwnerAttributeComp, float CurrentHealth, float Delta)
 {
     if(Delta < 0)
@@ -103,7 +104,7 @@ void ASAICharacter::SetTargetActor(AActor* NewTarget)
         if(ActivePlayerSpotted)
             ActivePlayerSpotted->RemoveFromParent();
 
-        ActivePlayerSpotted = CreateWidget<USWorldUserWidget>(GetWorld(), PlayerSpottedWidgetClass);
+        
         if(ActivePlayerSpotted)
         {
             ActivePlayerSpotted->AttachedActor = this;
@@ -118,4 +119,15 @@ void ASAICharacter::SetTargetActor(AActor* NewTarget)
 void ASAICharacter::OnPawnSeen(APawn* TargetPawn)
 {
     SetTargetActor(TargetPawn);
+    MulticastPawnSeen(TargetPawn);
+}
+
+void ASAICharacter::MulticastPawnSeen_Implementation(APawn* TargetPawn)
+{
+    ActivePlayerSpotted = CreateWidget<USWorldUserWidget>(GetWorld(), PlayerSpottedWidgetClass);
+    if(ActivePlayerSpotted)
+    {
+        ActivePlayerSpotted->AttachedActor = this;
+        ActivePlayerSpotted->AddToViewport(10);
+    }
 }

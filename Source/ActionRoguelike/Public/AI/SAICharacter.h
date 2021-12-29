@@ -58,6 +58,9 @@ public:
     
     UFUNCTION()
     void OnPawnSeen(APawn* TargetPawn);
+
+    UFUNCTION(NetMulticast, Reliable)
+    void MulticastPawnSeen(APawn* TargetPawn);
     
     UFUNCTION()
     void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwnerAttributeComp, float CurrentHealth, float Delta);

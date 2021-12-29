@@ -6,12 +6,16 @@
 #include "GameFramework/PlayerController.h"
 #include "SPlayerController.generated.h"
 
-/**
- * 
- */
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnPawnChanged, APawn*, Pawn);
+
 UCLASS()
 class ACTIONROGUELIKE_API ASPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-	
+
+public:
+    UPROPERTY(BlueprintAssignable)
+    FOnPawnChanged OnPawnChanged;
+
+    virtual void SetPawn(APawn* InPawn) override;   
 };

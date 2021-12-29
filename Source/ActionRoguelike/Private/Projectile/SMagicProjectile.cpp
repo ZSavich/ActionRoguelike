@@ -28,7 +28,8 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
     if(USGameplayFunctionLibrary::ApplyDirectionalDamage(OtherComp, OtherActor, DamageAmount, GetInstigator(), SweepResult))
     {
         SpawnImpactEffects();
-        if(ensure(BurningActionClass))
+        
+        if(ensure(BurningActionClass) && GetOwner()->HasAuthority())
         {
             const auto TargetActionComp = OtherActor->FindComponentByClass<USActionComponent>();
             if(TargetActionComp)
@@ -36,8 +37,6 @@ void ASMagicProjectile::OnActorOverlap(UPrimitiveComponent* OverlappedComponent,
                 TargetActionComp->AddAction(GetInstigator(),BurningActionClass);
             }
         }
-        
-            
     }
         
     Super::OnActorOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);

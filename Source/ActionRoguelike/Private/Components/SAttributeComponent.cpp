@@ -44,21 +44,26 @@ bool USAttributeComponent::ApplyHealthChange(AActor* InstigatorActor, const floa
 
     const auto OldHealth = CurrentHealth;
     const auto MultiDelta = CVarDamageMultiplier.GetValueOnGameThread() * Delta;
-    CurrentHealth = FMath::Clamp(CurrentHealth + MultiDelta, 0.f, MaxHealth);
-    const auto ActualDelta = CurrentHealth - OldHealth;
+    const auto NewHealth = FMath::Clamp(CurrentHealth + MultiDelta, 0.f, MaxHealth);
+    const auto ActualDelta = NewHealth - OldHealth;
+    
+    if(GetOwner()->HasAuthority())
+    {
+        CurrentHealth = NewHealth;
+        MulticastHealthChanged(InstigatorActor, NewHealth, ActualDelta);
 
+        if(!IsAlive())
+        {
+            OnDead.Broadcast(InstigatorActor, GetOwner());
+            const auto GM = GetWorld()->GetAuthGameMode<ASGameMode>();
+            if(GM)
+                GM->OnActorKilled(GetOwner(), InstigatorActor);
+        }
+    }
+    
     if(bRageActivate)
         ApplyRageChange(-ActualDelta);
     
-    MulticastHealthChanged(InstigatorActor, CurrentHealth, ActualDelta);
-
-    if(!IsAlive())
-    {
-        OnDead.Broadcast(InstigatorActor, GetOwner());
-        const auto GM = GetWorld()->GetAuthGameMode<ASGameMode>();
-        if(GM)
-            GM->OnActorKilled(GetOwner(), InstigatorActor);
-    }
     return true;
 }
 
@@ -90,8 +95,9 @@ bool USAttributeComponent::ApplyRageChange(const float Delta)
 
     if(CurrentRage + RageDelta < 0.f) return false;
     CurrentRage = FMath::Clamp(CurrentRage + RageDelta, 0.f, MaxRage);
+
+    MulticastRageChanged(CurrentRage, RageDelta);
     
-    OnRageChanged.Broadcast(this, CurrentRage, RageDelta);
     return true;
 }
 
@@ -100,10 +106,17 @@ void USAttributeComponent::MulticastHealthChanged_Implementation(AActor* Instiga
     OnHealthChanged.Broadcast(InstigatorActor, this, CurrentHealth, Delta);   
 }
 
+void USAttributeComponent::MulticastRageChanged_Implementation(float Rage, float Delta)
+{
+    OnRageChanged.Broadcast(this, Rage, Delta);
+}
+
 void USAttributeComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
     DOREPLIFETIME(USAttributeComponent, CurrentHealth);
     DOREPLIFETIME(USAttributeComponent, MaxHealth);
+    DOREPLIFETIME(USAttributeComponent, CurrentRage);
+    DOREPLIFETIME(USAttributeComponent, MaxRage);
 }

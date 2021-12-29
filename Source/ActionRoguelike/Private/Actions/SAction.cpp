@@ -10,7 +10,7 @@
 USAction::USAction()
 {
     bAutoStart = false;
-    bIsRunning = false;
+    RepData.bIsRunning = false;
 }
 
 void USAction::Initialize(USActionComponent* NewActionComp)
@@ -20,7 +20,6 @@ void USAction::Initialize(USActionComponent* NewActionComp)
 
 void USAction::StartAction_Implementation(AActor* InstigatorActor)
 {
-    //UE_LOG(LogTemp, Display, TEXT("Startup Action: %s"), *GetNameSafe(this));
     LogOnScreen(this, FString::Printf(TEXT("Started: %s"), *ActionName.ToString()), FColor::Green);
 
     if(GrandsTags.IsValid())
@@ -30,27 +29,24 @@ void USAction::StartAction_Implementation(AActor* InstigatorActor)
             OwnerComp->ActiveGameplayTags.AppendTags(GrandsTags);
     }
     
-    bIsRunning = true;
+    RepData.bIsRunning = true;
+    RepData.Instigator = InstigatorActor;
 }
 
 void USAction::StopAction_Implementation(AActor* InstigatorActor)
 {
-    //UE_LOG(LogTemp, Display, TEXT("Endup Action: %s"), *GetNameSafe(this));
     LogOnScreen(this, FString::Printf(TEXT("Stopped: %s"), *ActionName.ToString()), FColor::White);
     
     const auto OwnerComp = GetOwningComponent();
     if(OwnerComp)
         OwnerComp->ActiveGameplayTags.RemoveTags(GrandsTags);
     
-    bIsRunning = false;
+    RepData.bIsRunning = false;
+    RepData.Instigator = InstigatorActor;
 }
 
 UWorld* USAction::GetWorld() const
-{
-    // Outer is sets when creating action via NewObject<T>
-    /*const auto Comp = GetOwningComponent();
-    if(!Comp) return nullptr;*/
-    
+{    
     AActor* Actor = Cast<AActor>(GetOuter());
     return Actor ? Actor->GetWorld() : nullptr;
 }
@@ -75,19 +71,19 @@ bool USAction::CanStart_Implementation()
     return true;
 }
 
-void USAction::OnRep_IsRunning()
+void USAction::OnRep_RepData()
 {
-    if(bIsRunning)
-        StartAction(nullptr);
+    if(RepData.bIsRunning)
+        StartAction(RepData.Instigator);
     else
-        StopAction(nullptr);
+        StopAction(RepData.Instigator);
 }
 
 void USAction::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
 {
     Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-    DOREPLIFETIME(USAction, bIsRunning);
+    DOREPLIFETIME(USAction, RepData);
     DOREPLIFETIME(USAction, ActionComp);
 }
 

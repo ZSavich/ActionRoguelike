@@ -14,7 +14,7 @@ class ACTIONROGUELIKE_API ASPlayerState : public APlayerState
 {
 	GENERATED_BODY()
 
-public:
+public:    
     UPROPERTY(BlueprintAssignable)
     FOnCreditsChanged OnCreditsChanged;
     
@@ -26,5 +26,6 @@ public:
     FORCEINLINE bool CheckEnoughCredits(const float Amount) const { return Credits + Amount >= 0.f;};
 
 private:
+    UPROPERTY(Replicated)
     float Credits = 0;
 };

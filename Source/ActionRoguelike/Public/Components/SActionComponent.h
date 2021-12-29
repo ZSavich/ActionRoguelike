@@ -33,6 +33,9 @@ protected:
     UFUNCTION(Server, Reliable)
     void ServerStartAction(AActor* InstigatorActor, FName Action);
 
+    UFUNCTION(Server, Reliable)
+    void ServerStopAction(AActor* InstigatorActor, FName Action);
+    
 public:	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 

@@ -25,10 +25,10 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Rage")
     bool bRageActivate;
     
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Rage", meta = (EditCondition = "bRageActivate"))
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category="Rage", meta = (EditCondition = "bRageActivate"))
     float CurrentRage;
     
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Rage", meta = (EditCondition = "bRageActivate"))
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Replicated, Category="Rage", meta = (EditCondition = "bRageActivate"))
     float MaxRage;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="Rage", meta = (EditCondition = "bRageActivate"))
@@ -69,4 +69,7 @@ public:
 
     UFUNCTION(NetMulticast, Reliable)
     void MulticastHealthChanged(AActor* InstigatorActor, float Health, float Delta);
+
+    UFUNCTION(NetMulticast, Reliable)
+    void MulticastRageChanged(float Rage, float Delta);
 };

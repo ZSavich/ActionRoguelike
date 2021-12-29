@@ -22,15 +22,16 @@ void USAction_ProjectileAttack::StartAction_Implementation(AActor* InstigatorAct
     
     const auto Character = Cast<ACharacter>(InstigatorActor);
     if(!Character) return;
-    
-    if(GetWorld()->GetTimerManager().IsTimerActive(TimerHandle_ProjectileAttack)) return;
-    
+
     Character->PlayAnimMontage(ProjectileAttackMontage);
-
-    FTimerDelegate ProjectileAttackDelegate;
-    ProjectileAttackDelegate.BindUObject(this, &USAction_ProjectileAttack::ProjectileAttack_TimeElapsed, Character);
-
-    GetWorld()->GetTimerManager().SetTimer(TimerHandle_ProjectileAttack, ProjectileAttackDelegate, 0.2f, false);
+    
+    if(Character->HasAuthority())
+    {
+        if(GetWorld()->GetTimerManager().IsTimerActive(TimerHandle_ProjectileAttack)) return;
+        FTimerDelegate ProjectileAttackDelegate;
+        ProjectileAttackDelegate.BindUObject(this, &USAction_ProjectileAttack::ProjectileAttack_TimeElapsed, Character);
+        GetWorld()->GetTimerManager().SetTimer(TimerHandle_ProjectileAttack, ProjectileAttackDelegate, 0.2f, false);
+    }
 }
 
 void USAction_ProjectileAttack::ProjectileAttack_TimeElapsed(ACharacter* InstigatorCharacter)

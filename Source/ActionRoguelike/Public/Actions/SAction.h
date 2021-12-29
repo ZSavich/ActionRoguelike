@@ -8,6 +8,18 @@
 
 class USActionComponent;
 
+USTRUCT()
+struct FRepData
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    bool bIsRunning;
+
+    UPROPERTY()
+    AActor* Instigator;
+};
+
 UCLASS(Blueprintable)
 class ACTIONROGUELIKE_API USAction : public UObject
 {
@@ -20,8 +32,8 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Tags")
     FGameplayTagContainer BlockedTags;
 
-    UPROPERTY(ReplicatedUsing="OnRep_IsRunning")
-    bool bIsRunning;
+    UPROPERTY(ReplicatedUsing="OnRep_RepData")
+    FRepData RepData;
 
     UPROPERTY(Replicated)
     USActionComponent* ActionComp;
@@ -54,9 +66,9 @@ public:
     bool CanStart();
     
     UFUNCTION()
-    void OnRep_IsRunning();
+    void OnRep_RepData();
 
     virtual bool IsSupportedForNetworking() const override {return true;}
     
-    FORCEINLINE bool IsRunning() const { return bIsRunning; }
+    FORCEINLINE bool IsRunning() const { return RepData.bIsRunning; }
 };
