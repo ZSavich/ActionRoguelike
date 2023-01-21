@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "InputActionValue.h"
 #include "GameFramework/Character.h"
 #include "SCharacter.generated.h"
 
+class ASMagicProjectile;
 struct FInputActionValue;
 class UInputAction;
 class UInputMappingContext;
@@ -25,15 +27,29 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> CameraBoom;
 
+	/** General SCharacter's Properties */
+	UPROPERTY(EditAnywhere, Category = "Sockets", Meta = (AllowPrivateAccess = "true"))
+	FName HandSocketName;
+
 	/** Enhanced Input System */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, Category = "Input", Meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMapping;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, Category = "Input", Meta = (AllowPrivateAccess = "true"))
 	UInputAction* MoveAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input", Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, Category = "Input", Meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookMouseAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input", Meta = (AllowPrivateAccess = "true"))
+	UInputAction* JumpAction;
+
+	UPROPERTY(EditAnywhere, Category = "Input", Meta = (AllowPrivateAccess = "true"))
+	UInputAction* PrimaryAttackAction;
+
+	/** Projectiles */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile", Meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<ASMagicProjectile> MagicProjectileClass;
 
 public:
 	ASCharacter();
@@ -45,5 +61,6 @@ protected:
 	/** Enhanced Input Callbacks */
 	void Input_Move(const FInputActionValue& InputActionValue);
 	void Input_LookMouse(const FInputActionValue& InputActionValue);
+	void Input_PrimaryAttack(const FInputActionValue& InputActionValue);
 	
 };
