@@ -8,6 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Projectiles/SMagicProjectile.h"
+#include "Components/SInteractionComponent.h"
 
 ASCharacter::ASCharacter()
 {
@@ -32,6 +33,9 @@ ASCharacter::ASCharacter()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->bUsePawnControlRotation = false;
 	FollowCamera->SetupAttachment(CameraBoom);
+
+	// Create an interact component
+	InteractionComponent = CreateDefaultSubobject<USInteractionComponent>(TEXT("InteractComponent"));
 
 	// General SCharacter's Properties
 	HandSocketName = FName("Muzzle_01");
@@ -84,6 +88,12 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
 			EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 		}
+
+		// PrimaryInteract
+		if (PrimaryInteractAction)
+		{
+			EnhancedInputComponent->BindAction(PrimaryInteractAction, ETriggerEvent::Completed, this, &ASCharacter::Input_PrimaryInteract);
+		}
 	}
 }
 
@@ -125,6 +135,27 @@ void ASCharacter::Input_LookMouse(const FInputActionValue& InputActionValue)
 
 void ASCharacter::Input_PrimaryAttack(const FInputActionValue& InputActionValue)
 {
+	if (TimerHandle_PrimaryAttack.IsValid()) return;
+	
+	PlayAnimMontage(PrimaryAttackMontage);
+	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, 0.2f , false);
+}
+
+void ASCharacter::Input_PrimaryInteract(const FInputActionValue& InputActionValue)
+{
+	if (InteractionComponent)
+	{
+		InteractionComponent->PrimaryInteract();
+	}
+}
+
+void ASCharacter::PrimaryAttack_TimeElapsed()
+{
+	if (TimerHandle_PrimaryAttack.IsValid())
+	{
+		TimerHandle_PrimaryAttack.Invalidate();
+	}
+	
 	if (!GetMesh() || !IsValid(MagicProjectileClass) || !GetWorld()) return; 
 	
 	const FVector SpawnLocation = GetMesh()->GetSocketLocation(HandSocketName); // Get location of the character's muzzle socket 

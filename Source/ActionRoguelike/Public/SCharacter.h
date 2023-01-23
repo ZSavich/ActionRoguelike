@@ -7,8 +7,9 @@
 #include "GameFramework/Character.h"
 #include "SCharacter.generated.h"
 
-class ASMagicProjectile;
 struct FInputActionValue;
+class USInteractionComponent;
+class ASMagicProjectile;
 class UInputAction;
 class UInputMappingContext;
 class UCameraComponent;
@@ -27,30 +28,43 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USpringArmComponent> CameraBoom;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USInteractionComponent> InteractionComponent;
+
 	/** General SCharacter's Properties */
 	UPROPERTY(EditAnywhere, Category = "Sockets", Meta = (AllowPrivateAccess = "true"))
 	FName HandSocketName;
 
 	/** Enhanced Input System */
-	UPROPERTY(EditAnywhere, Category = "Input", Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMapping;
 
-	UPROPERTY(EditAnywhere, Category = "Input", Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess = "true"))
 	UInputAction* MoveAction;
 
-	UPROPERTY(EditAnywhere, Category = "Input", Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookMouseAction;
 
-	UPROPERTY(EditAnywhere, Category = "Input", Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess = "true"))
 	UInputAction* JumpAction;
 
-	UPROPERTY(EditAnywhere, Category = "Input", Meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess = "true"))
 	UInputAction* PrimaryAttackAction;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess = "true"))
+	UInputAction* PrimaryInteractAction;
 
 	/** Projectiles */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile", Meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<ASMagicProjectile> MagicProjectileClass;
 
+	/** Animation Montages */
+	UPROPERTY(EditAnywhere, Category = "Montages", Meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* PrimaryAttackMontage;
+
+	/** Timers */
+	FTimerHandle TimerHandle_PrimaryAttack;
+	
 public:
 	ASCharacter();
 	
@@ -62,5 +76,10 @@ protected:
 	void Input_Move(const FInputActionValue& InputActionValue);
 	void Input_LookMouse(const FInputActionValue& InputActionValue);
 	void Input_PrimaryAttack(const FInputActionValue& InputActionValue);
+	void Input_PrimaryInteract(const FInputActionValue& InputActionValue);
+
+private:
+	/** Timer's callbacks */
+	void PrimaryAttack_TimeElapsed();
 	
 };
