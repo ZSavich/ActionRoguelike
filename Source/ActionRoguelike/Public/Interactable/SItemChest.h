@@ -17,12 +17,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> BaseMesh;
 
-	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UStaticMeshComponent> LidMesh;
 
 	/** Chest's Properties*/
-	UPROPERTY(EditAnywhere, Category = "Properties")
-	float TargetPitch;
 	
 public:	
 	ASItemChest();

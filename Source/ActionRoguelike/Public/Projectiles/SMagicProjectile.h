@@ -21,8 +21,12 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", Meta = (AllowPrivateAccess = "true"))
+	/** Visual Effects */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effects", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UParticleSystemComponent> EffectComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effects", Meta = (AllowPrivateAccess = "true"))
+	UParticleSystem* HitEffect;
 	
 public:	
 	ASMagicProjectile();
@@ -30,4 +34,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	void OnHitEvent(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 };
