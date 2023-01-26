@@ -15,10 +15,12 @@ ASExplosiveBarrel::ASExplosiveBarrel()
 
 	// Create a radial force component to setup explosive strength
 	RadialForceComponent = CreateDefaultSubobject<URadialForceComponent>(TEXT("RadialForce"));
-	RadialForceComponent->Radius = 500.f;
-	RadialForceComponent->ImpulseStrength = 1000.f;
-	RadialForceComponent->bImpulseVelChange = true;
+	RadialForceComponent->Radius = 750.f;
+	RadialForceComponent->ImpulseStrength = 2500.f;
 	RadialForceComponent->ForceStrength = 1000.f;
+	RadialForceComponent->bImpulseVelChange = true;
+	RadialForceComponent->SetAutoActivate(false);
+	RadialForceComponent->AddCollisionChannelToAffect(ECC_WorldDynamic);
 	RadialForceComponent->SetupAttachment(GetRootComponent());
 }
 

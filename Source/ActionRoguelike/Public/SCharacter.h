@@ -5,11 +5,11 @@
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
 #include "GameFramework/Character.h"
+#include "Projectiles/SProjectileBase.h"
 #include "SCharacter.generated.h"
 
 struct FInputActionValue;
 class USInteractionComponent;
-class ASMagicProjectile;
 class UInputAction;
 class UInputMappingContext;
 class UCameraComponent;
@@ -56,7 +56,7 @@ private:
 
 	/** Projectiles */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile", Meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<ASMagicProjectile> MagicProjectileClass;
+	TSubclassOf<ASProjectileBase> PrimaryAttackClass;
 
 	/** Animation Montages */
 	UPROPERTY(EditAnywhere, Category = "Montages", Meta = (AllowPrivateAccess = "true"))

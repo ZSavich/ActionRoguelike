@@ -156,15 +156,30 @@ void ASCharacter::PrimaryAttack_TimeElapsed()
 		TimerHandle_PrimaryAttack.Invalidate();
 	}
 	
-	if (!GetMesh() || !IsValid(MagicProjectileClass) || !GetWorld()) return; 
+	if (!GetMesh() || !IsValid(PrimaryAttackClass) || !GetWorld() || !FollowCamera) return; 
+
+	// Find Rotation of a target
+	FHitResult HitResult;
 	
-	const FVector SpawnLocation = GetMesh()->GetSocketLocation(HandSocketName); // Get location of the character's muzzle socket 
+	const FVector StartTrace = FollowCamera->GetComponentLocation();
+	const FVector EndTrace = FollowCamera->GetComponentRotation().Vector() * 50000;
+	GetWorld()->LineTraceSingleByChannel(
+		HitResult,
+		StartTrace,
+		EndTrace,
+		ECC_Visibility);
+
+	const FVector TargetPoint = HitResult.bBlockingHit ? HitResult.ImpactPoint : HitResult.TraceEnd;
+
+	// Spawn Projectile
+	const FVector SpawnLocation = GetMesh()->GetSocketLocation(HandSocketName); // Get Location of the character's muzzle socket
+	const FRotator TargetRotation = FRotationMatrix::MakeFromX(TargetPoint - SpawnLocation).Rotator(); // Get Rotation to the Target 
 	
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Owner = this;
 	SpawnParams.Instigator = this;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	GetWorld()->SpawnActor<ASMagicProjectile>(MagicProjectileClass, SpawnLocation, GetControlRotation(), SpawnParams);
+	
+	GetWorld()->SpawnActor<ASProjectileBase>(PrimaryAttackClass, SpawnLocation, TargetRotation, SpawnParams);
 }
 
