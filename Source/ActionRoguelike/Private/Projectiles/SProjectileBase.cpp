@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Projectiles/SProjectileBase.h"
+
+#include "Components/SAttributeComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
 #include "Particles/ParticleSystemComponent.h"
@@ -29,6 +31,7 @@ ASProjectileBase::ASProjectileBase()
 
 	// Set default properties
 	LifeTime = 5.f;
+	Damage = 0.f;
 }
 
 void ASProjectileBase::BeginPlay()
@@ -52,5 +55,25 @@ void ASProjectileBase::OnHitEvent(UPrimitiveComponent* HitComponent, AActor* Oth
 	if (HitEffect)
 	{
 		UGameplayStatics::SpawnEmitterAtLocation(this, HitEffect, Hit.ImpactPoint);
+	}
+}
+
+void ASProjectileBase::OnBeginOverlapEvent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor == GetOwner()) return;
+	
+	if (HitEffect)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(this, HitEffect, SweepResult.ImpactPoint);
+	}
+
+	if (Damage > 0.f)
+	{
+		if (USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass())))
+		{
+			AttributeComponent->ApplyHealthChange(this, -Damage);
+			Destroy();
+		}
 	}
 }

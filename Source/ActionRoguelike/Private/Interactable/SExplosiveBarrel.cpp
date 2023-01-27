@@ -2,6 +2,8 @@
 
 #include "Interactable/SExplosiveBarrel.h"
 
+#include "Components/SAttributeComponent.h"
+
 ASExplosiveBarrel::ASExplosiveBarrel()
 {
  	PrimaryActorTick.bCanEverTick = false;
@@ -22,6 +24,10 @@ ASExplosiveBarrel::ASExplosiveBarrel()
 	RadialForceComponent->SetAutoActivate(false);
 	RadialForceComponent->AddCollisionChannelToAffect(ECC_WorldDynamic);
 	RadialForceComponent->SetupAttachment(GetRootComponent());
+
+	// Default properties
+	Damage = 50.f;
+	DamageRadius = 250.f;
 }
 
 void ASExplosiveBarrel::BeginPlay()
@@ -40,6 +46,27 @@ void ASExplosiveBarrel::OnBarrelHit(UPrimitiveComponent* HitComponent, AActor* O
 	if (RadialForceComponent)
 	{
 		RadialForceComponent->FireImpulse();
+	}
+
+	// Check if explosive overlap any actors with attribute component
+	if (Damage > 0)
+	{
+		TArray<FOverlapResult> OverlapResults;
+		
+		FCollisionShape Shape;
+		Shape.SetSphere(DamageRadius);
+		
+		GetWorld()->OverlapMultiByChannel(OverlapResults, GetActorLocation(), FQuat::Identity, ECC_Pawn, Shape);
+		for (const FOverlapResult& Result : OverlapResults)
+		{
+			if (const AActor* Target = Result.GetActor())
+			{
+				if (USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(Target->GetComponentByClass(USAttributeComponent::StaticClass())))
+				{
+					AttributeComponent->ApplyHealthChange(this, -Damage);
+				}
+			}
+		}
 	}
 }
 

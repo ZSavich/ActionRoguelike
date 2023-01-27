@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SCharacter.h"
-
+#include "Components/SAttributeComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
@@ -37,6 +37,9 @@ ASCharacter::ASCharacter()
 	// Create an interact component
 	InteractionComponent = CreateDefaultSubobject<USInteractionComponent>(TEXT("InteractComponent"));
 
+	// Create an attribute component
+	AttributeComponent = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComponent"));
+
 	// General SCharacter's Properties
 	HandSocketName = FName("Muzzle_01");
 }
@@ -56,6 +59,11 @@ void ASCharacter::BeginPlay()
 				Subsystem->AddMappingContext(DefaultMapping, 0);
 			}
 		}
+	}
+
+	if (AttributeComponent)
+	{
+		AttributeComponent->ApplyHealthChange(this, 0);
 	}
 }
 

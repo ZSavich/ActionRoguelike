@@ -12,6 +12,13 @@ class ACTIONROGUELIKE_API ASExplosiveBarrel : public AActor
 {
 	GENERATED_BODY()
 
+protected:
+	UPROPERTY(EditAnywhere, Category = "Properties")
+	float Damage;
+
+	UPROPERTY(EditAnywhere, Category = "Properties")
+	float DamageRadius;
+	
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UStaticMeshComponent> BarrelMesh;
