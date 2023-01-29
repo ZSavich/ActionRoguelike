@@ -8,8 +8,7 @@
 
 class USAttributeComponent;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChanged, AActor*, Instigator, USAttributeComponent*, OwningComp,
-                                              float, NewHealth, float, Delta);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChanged, AActor*, Instigator, USAttributeComponent*, OwningComp, float, NewHealth, float, Delta);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class ACTIONROGUELIKE_API USAttributeComponent : public UActorComponent
@@ -39,4 +38,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE float GetHealth() const { return Health; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE bool IsAlive() const { return Health > 0.f; }
 };

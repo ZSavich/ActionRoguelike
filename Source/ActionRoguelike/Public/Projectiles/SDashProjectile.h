@@ -25,9 +25,9 @@ public:
 	ASDashProjectile();
 	
 	virtual void BeginPlay() override;
-	virtual void OnHitEvent(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) override;
 	
 protected:
-	void Explode();
+	virtual void Explode() override;
+	
 	void Teleport();
 };

@@ -63,6 +63,7 @@ void ASCharacter::BeginPlay()
 
 	if (AttributeComponent)
 	{
+		AttributeComponent->OnHealthChanged.AddDynamic(this, &ASCharacter::OnHealthChanged);
 		AttributeComponent->ApplyHealthChange(this, 0);
 	}
 }
@@ -143,10 +144,10 @@ void ASCharacter::Input_LookMouse(const FInputActionValue& InputActionValue)
 
 void ASCharacter::Input_PrimaryAttack(const FInputActionValue& InputActionValue)
 {
-	if (TimerHandle_PrimaryAttack.IsValid()) return;
+	if (TimerHandle_SpawnProjectile.IsValid()) return;
 	
 	PlayAnimMontage(PrimaryAttackMontage);
-	GetWorldTimerManager().SetTimer(TimerHandle_PrimaryAttack, this, &ASCharacter::PrimaryAttack_TimeElapsed, 0.2f , false);
+	GetWorldTimerManager().SetTimer(TimerHandle_SpawnProjectile, this, &ASCharacter::SpawnProjectile_TimeElapsed, 0.2f , false);
 }
 
 void ASCharacter::Input_PrimaryInteract(const FInputActionValue& InputActionValue)
@@ -157,11 +158,22 @@ void ASCharacter::Input_PrimaryInteract(const FInputActionValue& InputActionValu
 	}
 }
 
-void ASCharacter::PrimaryAttack_TimeElapsed()
+void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComponent, float NewHealth,
+	float Delta)
 {
-	if (TimerHandle_PrimaryAttack.IsValid())
+	GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->GetTimeSeconds());
+	
+	if (FMath::IsNearlyZero(NewHealth))
 	{
-		TimerHandle_PrimaryAttack.Invalidate();
+		DisableInput(GetController<APlayerController>());
+	}
+}
+
+void ASCharacter::SpawnProjectile_TimeElapsed()
+{
+	if (TimerHandle_SpawnProjectile.IsValid())
+	{
+		TimerHandle_SpawnProjectile.Invalidate();
 	}
 	
 	if (!GetMesh() || !IsValid(PrimaryAttackClass) || !GetWorld() || !FollowCamera) return; 
@@ -170,7 +182,7 @@ void ASCharacter::PrimaryAttack_TimeElapsed()
 	FHitResult HitResult;
 	
 	const FVector StartTrace = FollowCamera->GetComponentLocation();
-	const FVector EndTrace = FollowCamera->GetComponentRotation().Vector() * 50000;
+	const FVector EndTrace = StartTrace + (FollowCamera->GetComponentRotation().Vector() * 50000);
 	GetWorld()->LineTraceSingleByChannel(
 		HitResult,
 		StartTrace,

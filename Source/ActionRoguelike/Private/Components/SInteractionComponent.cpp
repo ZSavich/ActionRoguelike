@@ -2,6 +2,7 @@
 
 #include "Components/SInteractionComponent.h"
 
+#include "Camera/CameraComponent.h"
 #include "Interfaces/SGameplayInterface.h"
 
 USInteractionComponent::USInteractionComponent()
@@ -11,7 +12,7 @@ USInteractionComponent::USInteractionComponent()
 
 	// Set general properties
 	TraceSphereRadius = 15.f;
-	TraceLength = 1000.f;
+	TraceLength = 5000.f;
 	TraceObjectType = ECC_WorldDynamic;
 
 	bDrawDebug = false;
@@ -21,6 +22,7 @@ void USInteractionComponent::PrimaryInteract()
 {
 	const UWorld* World = GetWorld();
 	APawn* Owner = GetOwner<APawn>();
+	UCameraComponent* FollowCamera = Cast<UCameraComponent>(Owner->GetComponentByClass(UCameraComponent::StaticClass()));
 	
 	if (World && Owner)
 	{
@@ -30,7 +32,16 @@ void USInteractionComponent::PrimaryInteract()
 		FRotator EyesRotation;
 		Owner->GetActorEyesViewPoint(EyesLocation, EyesRotation);
 
-		const FVector EndHit = EyesLocation + (EyesRotation.Vector() * TraceLength);
+		FVector EndHit;
+		if (FollowCamera)
+		{
+			EyesLocation = FollowCamera->GetComponentLocation();
+			EndHit = EyesLocation + (FollowCamera->GetComponentRotation().Vector() * TraceLength);
+		}
+		else
+		{
+			EndHit = EyesLocation + (EyesRotation.Vector() * TraceLength);
+		}
 
 		FCollisionObjectQueryParams QueryParams;
 		QueryParams.AddObjectTypesToQuery(TraceObjectType);

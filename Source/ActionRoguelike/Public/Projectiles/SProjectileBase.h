@@ -22,12 +22,25 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UProjectileMovementComponent> ProjectileMovementComponent;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UAudioComponent> FlightAudioComponent;
+
 	/** Visual Effects */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Effects")
 	TObjectPtr<UParticleSystemComponent> EffectComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effects")
 	UParticleSystem* HitEffect;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effects")
+	UParticleSystem* CastingEffect;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Effects")
+	TSubclassOf<UCameraShakeBase> ImpactCameraShake;
+
+	/** Sound Effects */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sounds")
+	USoundBase* ImpactSound; 
 
 	/** Base properties */
 	UPROPERTY(EditAnywhere, Category = "Properties")
@@ -42,9 +55,12 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	
+	virtual void Explode();
+	
 	UFUNCTION()
 	virtual void OnHitEvent(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	UFUNCTION()
 	virtual void OnBeginOverlapEvent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+
 };

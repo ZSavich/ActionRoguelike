@@ -20,12 +20,6 @@ void ASDashProjectile::BeginPlay()
 	GetWorldTimerManager().SetTimer(TimerHandle_AutoExplode, this, &ASDashProjectile::Explode, AutoExplodeTime, false);
 }
 
-void ASDashProjectile::OnHitEvent(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	FVector NormalImpulse, const FHitResult& Hit)
-{
-	Explode();
-}
-
 void ASDashProjectile::Teleport()
 {
 	if (TimerHandle_Teleport.IsValid())

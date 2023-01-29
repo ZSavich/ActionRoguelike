@@ -29,7 +29,7 @@ ASBlackholeProjectile::ASBlackholeProjectile()
 void ASBlackholeProjectile::OnBeginOverlapEvent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	// Destroy all 'simulating' actors an overlap
+	// Destroy all 'simulating' actors on overlap
 	if (OtherComp && OtherComp->IsSimulatingPhysics())
 	{
 		OtherActor->Destroy();

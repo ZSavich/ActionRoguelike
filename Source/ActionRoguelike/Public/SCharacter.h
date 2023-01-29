@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
+#include "Components/SAttributeComponent.h"
 #include "GameFramework/Character.h"
 #include "Projectiles/SProjectileBase.h"
 #include "SCharacter.generated.h"
@@ -21,6 +22,11 @@ class ACTIONROGUELIKE_API ASCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+public:
+	/** General SCharacter's Properties */
+	UPROPERTY(EditAnywhere, Category = "Sockets", Meta = (AllowPrivateAccess = "true"))
+	FName HandSocketName;
+	
 private:
 	/** General SCharacter's Components */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", Meta = (AllowPrivateAccess = "true"))
@@ -34,10 +40,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USAttributeComponent> AttributeComponent;
-
-	/** General SCharacter's Properties */
-	UPROPERTY(EditAnywhere, Category = "Sockets", Meta = (AllowPrivateAccess = "true"))
-	FName HandSocketName;
 
 	/** Enhanced Input System */
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess = "true"))
@@ -67,7 +69,7 @@ private:
 	UAnimMontage* PrimaryAttackMontage;
 
 	/** Timers */
-	FTimerHandle TimerHandle_PrimaryAttack;
+	FTimerHandle TimerHandle_SpawnProjectile;
 	
 public:
 	ASCharacter();
@@ -82,8 +84,12 @@ protected:
 	void Input_PrimaryAttack(const FInputActionValue& InputActionValue);
 	void Input_PrimaryInteract(const FInputActionValue& InputActionValue);
 
+	/** Attribute Component Callbacks */
+	UFUNCTION()
+	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComponent, float NewHealth, float Delta);
+
 private:
 	/** Timer's callbacks */
-	void PrimaryAttack_TimeElapsed();
+	void SpawnProjectile_TimeElapsed();
 	
 };

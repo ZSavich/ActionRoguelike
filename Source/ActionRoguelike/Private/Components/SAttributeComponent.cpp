@@ -13,7 +13,8 @@ USAttributeComponent::USAttributeComponent()
 
 bool USAttributeComponent::ApplyHealthChange(AActor* Instigator, const float Delta)
 {
-	if (Health <= 0)
+	// Make sure the owner is alive and can be cured
+	if (!IsAlive() || Health == MaxHealth && Delta > 0.f)
 	{
 		return false;
 	}
