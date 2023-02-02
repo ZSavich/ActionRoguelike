@@ -19,11 +19,4 @@ void ASAIController::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	// Set target for bots
-	AActor* TargetActor = UGameplayStatics::GetPlayerPawn(this, 0);
-	if (Blackboard && TargetActor)
-	{
-		Blackboard->SetValueAsVector("MoveToLocation", TargetActor->GetActorLocation());
-		Blackboard->SetValueAsObject("TargetActor", TargetActor);
-	}
 }

@@ -51,12 +51,9 @@ void ASProjectileBase::BeginPlay()
 		SphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ASProjectileBase::OnBeginOverlapEvent);
 	}
 
-	if (CastingEffect)
+	if (const ASCharacter* InstigatorSCharacter = GetInstigator<ASCharacter>())
 	{
-		if (const ASCharacter* InstigatorSCharacter = GetInstigator<ASCharacter>())
-		{
-			UGameplayStatics::SpawnEmitterAttached(CastingEffect, InstigatorSCharacter->GetMesh(), InstigatorSCharacter->HandSocketName);
-		}
+		UGameplayStatics::SpawnEmitterAttached(CastingEffect, InstigatorSCharacter->GetMesh(), InstigatorSCharacter->HandSocketName);
 	}
 
 	SetLifeSpan(LifeTime);
@@ -88,20 +85,9 @@ void ASProjectileBase::Explode()
 {
 	ensure(IsValid(this));
 	
-	if (HitEffect)
-	{
-		UGameplayStatics::SpawnEmitterAtLocation(this, HitEffect, GetActorLocation());
-	}
-
-	if (ImpactSound)
-	{
-		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
-	}
-
-	if (ImpactCameraShake)
-	{
-		UGameplayStatics::PlayWorldCameraShake(this, ImpactCameraShake, GetActorLocation(), 0.f, 500.f);
-	}
+	UGameplayStatics::SpawnEmitterAtLocation(this, HitEffect, GetActorLocation());
+	UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
+	UGameplayStatics::PlayWorldCameraShake(this, ImpactCameraShake, GetActorLocation(), 0.f, 500.f);
 	
 	Destroy();
 }

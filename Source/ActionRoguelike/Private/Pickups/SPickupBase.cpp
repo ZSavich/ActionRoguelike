@@ -33,15 +33,8 @@ void ASPickupBase::Interact_Implementation(APawn* InstigatorPawn)
 	
 	if (ActivatePickup(InstigatorPawn))
 	{
-		if (PickupSound)
-		{
-			UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
-		}
-
-		if (PickupEffect)
-		{
-			UGameplayStatics::SpawnEmitterAtLocation(this, PickupEffect, GetActorLocation());
-		}
+		UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
+		UGameplayStatics::SpawnEmitterAtLocation(this, PickupEffect, GetActorLocation());
 
 		// If pick-up can respawn we should hide the mesh and disable collision or destroy it
 		if (bCanRespawn)

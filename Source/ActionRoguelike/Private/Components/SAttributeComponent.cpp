@@ -14,12 +14,15 @@ USAttributeComponent::USAttributeComponent()
 bool USAttributeComponent::ApplyHealthChange(AActor* Instigator, const float Delta)
 {
 	// Make sure the owner is alive and can be cured
-	if (!IsAlive() || Health == MaxHealth && Delta > 0.f)
+	if (!IsAlive() || IsFullHealth() && Delta > 0.f)
 	{
 		return false;
 	}
-	
+
+	const float OldHealth = Health;
 	Health = FMath::Clamp(Health + Delta, 0.f, MaxHealth);
-	OnHealthChanged.Broadcast(Instigator, this, Health, Delta);
+	const float ActualDelta = Health - OldHealth;
+	
+	OnHealthChanged.Broadcast(Instigator, this, Health, ActualDelta);
 	return true;
 }

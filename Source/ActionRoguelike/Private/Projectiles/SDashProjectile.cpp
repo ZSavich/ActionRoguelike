@@ -47,10 +47,7 @@ void ASDashProjectile::Explode()
 	ProjectileMovementComponent->StopMovementImmediately();
 
 	// Spawn portal effect where the character will appear 
-	if (HitEffect)
-	{
-		UGameplayStatics::SpawnEmitterAtLocation(this, HitEffect, GetActorLocation());
-	}
+	UGameplayStatics::SpawnEmitterAtLocation(this, HitEffect, GetActorLocation());
 
 	// Hide a projectile effect while we wait for teleportation
 	if (EffectComponent)

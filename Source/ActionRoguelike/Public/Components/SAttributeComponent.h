@@ -41,4 +41,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool IsAlive() const { return Health > 0.f; }
+
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE bool IsFullHealth() const { return Health >= MaxHealth; }
 };
