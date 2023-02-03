@@ -18,10 +18,10 @@ void USBTService_CheckLowHealth::TickNode(UBehaviorTreeComponent& OwnerComp, uin
 	UBlackboardComponent* Blackboard = OwnerComp.GetBlackboardComponent();
 	if (ensure(AIController) && ensure(Blackboard))
 	{
-		const APawn* AICharacter = AIController->GetPawn();
+		APawn* AICharacter = AIController->GetPawn();
 		if (ensure(AICharacter))
 		{
-			const USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(AICharacter->GetComponentByClass(USAttributeComponent::StaticClass()));
+			const USAttributeComponent* AttributeComponent = USAttributeComponent::GetAttributes(AICharacter);
 			if (ensure(AttributeComponent))
 			{
 				const bool bNeedHeal = AttributeComponent->GetHealth() < LowHealthValue;

@@ -21,6 +21,13 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USAttributeComponent> AttributeComponent;
+
+	/** Bot's Properties */
+	UPROPERTY(EditAnywhere, Category = "Properties")
+	float LifeSpanTime;
+
+	UPROPERTY(EditAnywhere, Category = "Properties")
+	FName TimeToHitParamName;
 	
 public:
 	ASAICharacter();
@@ -30,6 +37,9 @@ public:
 protected:
 	UFUNCTION()
 	void HandleOnSeePawn(APawn* Pawn);
+
+	UFUNCTION()
+	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth, float Delta);
 
 	void SetTargetActor(AActor* NewTargetActor);
 	AActor* GetTargetActor();

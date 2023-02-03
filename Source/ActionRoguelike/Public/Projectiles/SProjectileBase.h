@@ -49,6 +49,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Prorepties")
 	float Damage;
 	
+	UPROPERTY(EditAnywhere, Category = "Properties|Spread")
+	bool bActivateSpread;
+	
 public:	
 	ASProjectileBase();
 

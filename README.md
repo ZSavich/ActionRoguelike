@@ -19,9 +19,13 @@ This project is part of the **[Professional Game Development in C++ and Unreal E
 ![Switcher](https://github.com/ZSavich/ActionRoguelike/blob/main/ImgForReadMe/04Switcher.gif)
 
 #### [25/01/23] Created SBlackholeProjectile and SDashProjectile. Adjust a projectile rotation
-![Switcher](https://github.com/ZSavich/ActionRoguelike/blob/main/ImgForReadMe/05Teleportandblackhole.gif)
+![Teleport](https://github.com/ZSavich/ActionRoguelike/blob/main/ImgForReadMe/05Teleportandblackhole.gif)
 
 #### [29/01/23] Created SPickupBase and added Widgets
-![Switcher](https://github.com/ZSavich/ActionRoguelike/blob/main/ImgForReadMe/06UMGandPickup.gif)
+![Pickup](https://github.com/ZSavich/ActionRoguelike/blob/main/ImgForReadMe/06UMGandPickup.gif)
+
+#### [03/02/23] Implemented AI logic by BehaviorTree, Blackboard and EQS.
+![AI](https://github.com/ZSavich/ActionRoguelike/blob/main/ImgForReadMe/07ArtificialIntelligence.gif)
+
 
 **Game Assets:** Licensed for use with the Unreal Engine only. Without a custom license you cannot use to create sequels, remasters, or otherwise emulate the original game or use the original game’s trademarks, character names, or other IP to advertise or name your game. (Unreal Engine EULA applies) (Please note this applies to the Game Assets that refer to Epic's Paragon, you can still use the project code and content to build your own Unreal Engine game)

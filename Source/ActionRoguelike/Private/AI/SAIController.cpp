@@ -14,9 +14,3 @@ void ASAIController::OnPossess(APawn* InPawn)
 		RunBehaviorTree(BehaviorTree);
 	}
 }
-
-void ASAIController::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}

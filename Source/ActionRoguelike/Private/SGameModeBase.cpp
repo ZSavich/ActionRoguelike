@@ -31,10 +31,9 @@ void ASGameModeBase::SpawnBotTimerElapsed()
 	int32 NumOfAliveBots = 0;
 	for (TObjectIterator<ASAICharacter> It; It; ++It)
 	{
-		if (const ASAICharacter* AICharacter = *It)
+		if (ASAICharacter* AICharacter = *It)
 		{
-			const USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(AICharacter->GetComponentByClass(USAttributeComponent::StaticClass()));
-			if (AttributeComponent && AttributeComponent->IsAlive())
+			if (USAttributeComponent::IsActorAlive(AICharacter))
 			{
 				NumOfAliveBots++;
 			}
@@ -57,7 +56,9 @@ void ASGameModeBase::SpawnBotTimerElapsed()
 
 void ASGameModeBase::HandleOnSpawnBotsFinished(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus)
 {
-	if (QueryStatus != EEnvQueryStatus::Success || !ensure(QueryInstance) || !BotClass)
+	QueryInstance->GetOnQueryFinishedEvent().Clear();
+	
+	if (QueryStatus != EEnvQueryStatus::Success || !BotClass)
 	{
 		UE_LOG(LogRogueAI, Warning, TEXT("EUD::SpawnBotQueue failed! We can't spawn new bots because of it."));
 		return;
@@ -65,7 +66,7 @@ void ASGameModeBase::HandleOnSpawnBotsFinished(UEnvQueryInstanceBlueprintWrapper
 
 	UWorld* World = GetWorld();
 	TArray<FVector> SpawnLocations = QueryInstance->GetResultsAsLocations();
-	if (SpawnLocations.IsValidIndex(0) && World)
+	if (World && SpawnLocations.IsValidIndex(0))
 	{
 		World->SpawnActor<ASAICharacter>(BotClass, SpawnLocations[0], FRotator::ZeroRotator);
 	}

@@ -2,6 +2,27 @@
 
 #include "Components/SAttributeComponent.h"
 
+USAttributeComponent* USAttributeComponent::GetAttributes(AActor* FromActor)
+{
+	if (ensure(FromActor))
+	{
+		return FromActor->FindComponentByClass<USAttributeComponent>();
+	}
+	return nullptr;
+}
+
+bool USAttributeComponent::IsActorAlive(AActor* Actor)
+{
+	if (ensure(Actor))
+	{
+		if (const USAttributeComponent* AttributeComponent = GetAttributes(Actor))
+		{
+			return AttributeComponent->IsAlive();
+		}
+	}
+	return false;
+}
+
 USAttributeComponent::USAttributeComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -24,5 +45,5 @@ bool USAttributeComponent::ApplyHealthChange(AActor* Instigator, const float Del
 	const float ActualDelta = Health - OldHealth;
 	
 	OnHealthChanged.Broadcast(Instigator, this, Health, ActualDelta);
-	return true;
+	return ActualDelta != 0;
 }

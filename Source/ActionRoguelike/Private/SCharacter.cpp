@@ -147,7 +147,9 @@ void ASCharacter::Input_PrimaryAttack(const FInputActionValue& InputActionValue)
 	if (TimerHandle_SpawnProjectile.IsValid()) return;
 	
 	PlayAnimMontage(PrimaryAttackMontage);
-	GetWorldTimerManager().SetTimer(TimerHandle_SpawnProjectile, this, &ASCharacter::SpawnProjectile_TimeElapsed, 0.2f , false);
+
+	const FTimerDelegate SpawnProjectileDelegate = FTimerDelegate::CreateUObject(this, &ASCharacter::SpawnProjectile_TimeElapsed, PrimaryAttackClass);
+	GetWorldTimerManager().SetTimer(TimerHandle_SpawnProjectile, SpawnProjectileDelegate, 0.2f , false);
 }
 
 void ASCharacter::Input_PrimaryInteract(const FInputActionValue& InputActionValue)
@@ -158,18 +160,34 @@ void ASCharacter::Input_PrimaryInteract(const FInputActionValue& InputActionValu
 	}
 }
 
-void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComponent, float NewHealth,
-	float Delta)
+void ASCharacter::Input_PrimaryAbility(const FInputActionValue& InputActionValue)
 {
-	GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->GetTimeSeconds());
+	if (TimerHandle_SpawnProjectile.IsValid()) return;
 	
+	PlayAnimMontage(PrimaryAttackMontage);
+	
+	const FTimerDelegate SpawnProjectileDelegate = FTimerDelegate::CreateUObject(this, &ASCharacter::SpawnProjectile_TimeElapsed, PrimaryAbilityClass);
+	GetWorldTimerManager().SetTimer(TimerHandle_SpawnProjectile, SpawnProjectileDelegate, 0.2f , false);
+}
+
+void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComponent, float NewHealth,
+                                  float Delta)
+{
+	// If the Player was killed, we need to disable inputs
 	if (FMath::IsNearlyZero(NewHealth))
 	{
 		DisableInput(GetController<APlayerController>());
+		return;
+	}
+
+	// Show the shining effect whenever the bot gets damage
+	if (Delta < 0.f)
+	{
+		GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->GetTimeSeconds());
 	}
 }
 
-void ASCharacter::SpawnProjectile_TimeElapsed()
+void ASCharacter::SpawnProjectile_TimeElapsed(TSubclassOf<ASProjectileBase> ProjectileClass)
 {
 	if (TimerHandle_SpawnProjectile.IsValid())
 	{
@@ -200,6 +218,6 @@ void ASCharacter::SpawnProjectile_TimeElapsed()
 	SpawnParams.Instigator = this;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	
-	GetWorld()->SpawnActor<ASProjectileBase>(PrimaryAttackClass, SpawnLocation, TargetRotation, SpawnParams);
+	GetWorld()->SpawnActor<ASProjectileBase>(ProjectileClass, SpawnLocation, TargetRotation, SpawnParams);
 }
 

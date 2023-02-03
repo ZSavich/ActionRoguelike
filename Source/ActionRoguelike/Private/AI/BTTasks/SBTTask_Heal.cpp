@@ -18,7 +18,7 @@ EBTNodeResult::Type USBTTask_Heal::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 		APawn* AICharacter = AIController->GetPawn();
 		if (ensure(AICharacter))
 		{
-			USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(AICharacter->GetComponentByClass(USAttributeComponent::StaticClass()));
+			USAttributeComponent* AttributeComponent = USAttributeComponent::GetAttributes(AICharacter);
 			if (ensure(AttributeComponent))
 			{
 				if (AttributeComponent->ApplyHealthChange(AICharacter, HealCount))

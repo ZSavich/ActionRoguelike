@@ -60,9 +60,15 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess = "true"))
 	UInputAction* PrimaryInteractAction;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess = "true"))
+	UInputAction* PrimaryAbilityAction;
+
 	/** Projectiles */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile", Meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<ASProjectileBase> PrimaryAttackClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile", Meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<ASProjectileBase> PrimaryAbilityClass;
 
 	/** Animation Montages */
 	UPROPERTY(EditAnywhere, Category = "Montages", Meta = (AllowPrivateAccess = "true"))
@@ -83,6 +89,7 @@ protected:
 	void Input_LookMouse(const FInputActionValue& InputActionValue);
 	void Input_PrimaryAttack(const FInputActionValue& InputActionValue);
 	void Input_PrimaryInteract(const FInputActionValue& InputActionValue);
+	void Input_PrimaryAbility(const FInputActionValue& InputActionValue);
 
 	/** Attribute Component Callbacks */
 	UFUNCTION()
@@ -90,6 +97,6 @@ protected:
 
 private:
 	/** Timer's callbacks */
-	void SpawnProjectile_TimeElapsed();
+	void SpawnProjectile_TimeElapsed(TSubclassOf<ASProjectileBase> ProjectileClass);
 	
 };

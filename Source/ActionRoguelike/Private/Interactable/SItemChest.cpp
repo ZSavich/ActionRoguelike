@@ -14,8 +14,3 @@ ASItemChest::ASItemChest()
 	LidMesh->SetupAttachment(GetRootComponent());
 
 }
-
-void ASItemChest::Interact_Implementation(APawn* InstigatorPawn)
-{
-	// Some C++ implementation
-}

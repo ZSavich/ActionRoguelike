@@ -18,6 +18,7 @@ ASProjectileBase::ASProjectileBase()
 	// Create a sphere component
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComponent"));
 	SphereComponent->SetCollisionProfileName("Projectile");
+	SphereComponent->IgnoreActorWhenMoving(GetInstigator(), true);
 	SetRootComponent(SphereComponent);
 	
 	// Create a particle system component
@@ -38,6 +39,8 @@ ASProjectileBase::ASProjectileBase()
 	// Set default properties
 	LifeTime = 5.f;
 	Damage = 0.f;
+
+	bActivateSpread = false;
 }
 
 void ASProjectileBase::BeginPlay()
@@ -54,6 +57,13 @@ void ASProjectileBase::BeginPlay()
 	if (const ASCharacter* InstigatorSCharacter = GetInstigator<ASCharacter>())
 	{
 		UGameplayStatics::SpawnEmitterAttached(CastingEffect, InstigatorSCharacter->GetMesh(), InstigatorSCharacter->HandSocketName);
+	}
+
+	// Spread functional
+	if (bActivateSpread && ProjectileMovementComponent)
+	{
+		const FVector RandSpread = FVector(1.f, FMath::RandRange(0.9,1.1), 1.f);
+		ProjectileMovementComponent->Velocity *= RandSpread;
 	}
 
 	SetLifeSpan(LifeTime);
@@ -74,9 +84,9 @@ void ASProjectileBase::OnBeginOverlapEvent(UPrimitiveComponent* OverlappedCompon
 
 	if (Damage > 0.f)
 	{
-		if (USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(OtherActor->GetComponentByClass(USAttributeComponent::StaticClass())))
+		if (USAttributeComponent* AttributeComponent = USAttributeComponent::GetAttributes(OtherActor))
 		{
-			AttributeComponent->ApplyHealthChange(this, -Damage);
+			AttributeComponent->ApplyHealthChange(GetInstigator(), -Damage);
 		}
 	}
 }

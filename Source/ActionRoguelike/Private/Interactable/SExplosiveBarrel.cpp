@@ -59,9 +59,9 @@ void ASExplosiveBarrel::OnBarrelHit(UPrimitiveComponent* HitComponent, AActor* O
 		GetWorld()->OverlapMultiByChannel(OverlapResults, GetActorLocation(), FQuat::Identity, ECC_Pawn, Shape);
 		for (const FOverlapResult& Result : OverlapResults)
 		{
-			if (const AActor* Target = Result.GetActor())
+			if (AActor* Target = Result.GetActor())
 			{
-				if (USAttributeComponent* AttributeComponent = Cast<USAttributeComponent>(Target->GetComponentByClass(USAttributeComponent::StaticClass())))
+				if (USAttributeComponent* AttributeComponent = USAttributeComponent::GetAttributes(Target))
 				{
 					AttributeComponent->ApplyHealthChange(this, -Damage);
 				}

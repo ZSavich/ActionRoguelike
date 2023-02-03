@@ -3,8 +3,8 @@
 #include "AI/BTTasks/SBTTask_RangedAttack.h"
 #include "AIController.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Components/SAttributeComponent.h"
 #include "GameFramework/Character.h"
-#include "Projectiles/SProjectileBase.h"
 
 USBTTask_RangedAttack::USBTTask_RangedAttack()
 {
@@ -16,29 +16,31 @@ EBTNodeResult::Type USBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent& O
 	if (ensureMsgf(ProjectileClass, TEXT("EUD::ProjectileClass is empty! Please set the ProjectileClass for %s"), *GetNameSafe(this)))
 	{
 		const AAIController* OwnerController = OwnerComp.GetAIOwner();
-		if (ensure(OwnerController))
+		const UBlackboardComponent* BlackboardComponent = OwnerComp.GetBlackboardComponent();
+		AActor* TargetActor = Cast<AActor>(BlackboardComponent->GetValueAsObject("TargetActor"));
+		
+		if (ensure(OwnerController) && ensure(TargetActor))
 		{
+			if (!USAttributeComponent::IsActorAlive(TargetActor))
+			{
+				return EBTNodeResult::Failed;
+			}
+			
 			if (ACharacter* OwnerCharacter = Cast<ACharacter>(OwnerController->GetPawn()))
 			{
 				const FVector MuzzleLocation = OwnerCharacter->GetMesh()->GetSocketLocation(MuzzleSocketName);
-
-				if (const UBlackboardComponent* BlackboardComponent = OwnerComp.GetBlackboardComponent())
+				
+				// Find direction from Bot's muzzle to the Target Actor's location
+				const FVector MuzzleDirection = TargetActor->GetActorLocation() - MuzzleLocation;
+				const FRotator MuzzleRotation = MuzzleDirection.Rotation();
+						
+				FActorSpawnParameters SpawnParameters;
+				SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+				SpawnParameters.Instigator = OwnerCharacter;
+						
+				if (GetWorld()->SpawnActor<AActor>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParameters))
 				{
-					if (const AActor* TargetActor = Cast<AActor>(BlackboardComponent->GetValueAsObject("TargetActor")))
-					{
-						// Find direction from Bot's muzzle to the Target Actor's location
-						const FVector MuzzleDirection = TargetActor->GetActorLocation() - MuzzleLocation;
-						const FRotator MuzzleRotation = MuzzleDirection.Rotation();
-						
-						FActorSpawnParameters SpawnParameters;
-						SpawnParameters.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-						SpawnParameters.Instigator = OwnerCharacter;
-						
-						if (GetWorld()->SpawnActor<AActor>(ProjectileClass, MuzzleLocation, MuzzleRotation, SpawnParameters))
-						{
-							return Super::ExecuteTask(OwnerComp, NodeMemory);
-						}
-					}
+					return Super::ExecuteTask(OwnerComp, NodeMemory);
 				}
 			}
 		}
