@@ -1,15 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "AI/SAICharacter.h"
-
 #include "AIController.h"
 #include "BrainComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Perception/PawnSensingComponent.h"
+#include "Widgets/SWorldUserWidget.h"
 
 ASAICharacter::ASAICharacter()
 {
- 	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	// Adjust character's properties
@@ -17,7 +17,7 @@ ASAICharacter::ASAICharacter()
 	BaseEyeHeight = 40.f;
 	LifeSpanTime = 3.f;
 	TimeToHitParamName = "TimeToHit";
-	
+
 	// Create a pawn sensing component
 	PawnSensingComponent = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComponeng"));
 	PawnSensingComponent->SetPeripheralVisionAngle(60);
@@ -68,7 +68,7 @@ AActor* ASAICharacter::GetTargetActor()
 			}
 		}
 	}
-	return nullptr; 
+	return nullptr;
 }
 
 void ASAICharacter::HandleOnSeePawn(APawn* Pawn)
@@ -80,11 +80,17 @@ void ASAICharacter::HandleOnSeePawn(APawn* Pawn)
 }
 
 void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComp, float NewHealth,
-	float Delta)
+                                    float Delta)
 {
 	// If the bot was killed, we must to stop the AI Logic and destroy it
 	if (FMath::IsNearlyZero(NewHealth))
 	{
+		// Remove health bar widget
+		if (HealthBarWidget)
+		{
+			HealthBarWidget->RemoveFromParent();
+		}
+
 		// Stop a Behavior Tree logic
 		const AAIController* AIController = GetController<AAIController>();
 		if (ensure(Controller))
@@ -110,6 +116,16 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
 		if (InstigatorActor->IsA(ACharacter::StaticClass()))
 		{
 			SetTargetActor(InstigatorActor);
+		}
+	}
+
+	if (!HealthBarWidget)
+	{
+		HealthBarWidget = CreateWidget<USWorldUserWidget>(GetWorld(), HealthBarWidgetClass);
+		if (HealthBarWidget)
+		{
+			HealthBarWidget->SetAttachedActor(this);
+			HealthBarWidget->AddToViewport();
 		}
 	}
 }

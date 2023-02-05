@@ -37,6 +37,10 @@ public:
 	
 	virtual void StartPlay() override;
 
+	/** Console Command Function */
+	UFUNCTION(Exec)
+	void KillAllBots() const;
+
 protected:
 	/** Spawn Bots functions */
 	UFUNCTION()

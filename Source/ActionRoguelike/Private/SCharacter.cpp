@@ -106,6 +106,14 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	}
 }
 
+void ASCharacter::HealSelf(const float Amount) const
+{
+	if (AttributeComponent)
+	{
+		AttributeComponent->ApplyHealthChange(nullptr, Amount);
+	}
+}
+
 void ASCharacter::Input_Move(const FInputActionValue& InputActionValue)
 {
 	if (Controller)

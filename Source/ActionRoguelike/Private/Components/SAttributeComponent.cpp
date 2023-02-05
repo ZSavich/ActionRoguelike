@@ -35,7 +35,7 @@ USAttributeComponent::USAttributeComponent()
 bool USAttributeComponent::ApplyHealthChange(AActor* Instigator, const float Delta)
 {
 	// Make sure the owner is alive and can be cured
-	if (!IsAlive() || IsFullHealth() && Delta > 0.f)
+	if (!GetOwner()->CanBeDamaged() || !IsAlive() || IsFullHealth() && Delta > 0.f)
 	{
 		return false;
 	}
@@ -46,4 +46,14 @@ bool USAttributeComponent::ApplyHealthChange(AActor* Instigator, const float Del
 	
 	OnHealthChanged.Broadcast(Instigator, this, Health, ActualDelta);
 	return ActualDelta != 0;
+}
+
+bool USAttributeComponent::KillSelf()
+{
+	if (IsAlive())
+	{
+		ApplyHealthChange(nullptr ,-MaxHealth);
+		return true;
+	}
+	return false;
 }

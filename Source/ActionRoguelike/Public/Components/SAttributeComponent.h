@@ -51,4 +51,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool IsFullHealth() const { return Health >= MaxHealth; }
+
+	/** Helper Functions */
+	UFUNCTION()
+	bool KillSelf();
 };

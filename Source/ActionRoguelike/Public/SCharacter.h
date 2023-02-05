@@ -83,6 +83,10 @@ public:
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	/** Console Command Functions */
+	UFUNCTION(Exec)
+	void HealSelf(const float Amount) const;
+
 protected:
 	/** Enhanced Input Callbacks */
 	void Input_Move(const FInputActionValue& InputActionValue);

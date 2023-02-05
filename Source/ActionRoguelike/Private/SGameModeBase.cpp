@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SGameModeBase.h"
+#include "EngineUtils.h"
 #include "ActionRoguelike/ActionRoguelike.h"
 #include "AI/SAICharacter.h"
 #include "Components/SAttributeComponent.h"
@@ -17,6 +18,17 @@ void ASGameModeBase::StartPlay()
 	Super::StartPlay();
 
 	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ASGameModeBase::SpawnBotTimerElapsed, SpawnTimerInterval, true);
+}
+
+void ASGameModeBase::KillAllBots() const
+{
+	for (TActorIterator<ASAICharacter> It(GetWorld()); It; ++It)
+	{
+		if (USAttributeComponent* Attributes = USAttributeComponent::GetAttributes(*It))
+		{
+			Attributes->KillSelf();
+		}
+	}
 }
 
 void ASGameModeBase::SpawnBotTimerElapsed()

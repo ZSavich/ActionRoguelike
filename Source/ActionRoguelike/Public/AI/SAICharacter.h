@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "SAICharacter.generated.h"
 
+class USWorldUserWidget;
 class UPawnSensingComponent;
 
 UCLASS()
@@ -28,6 +29,12 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Properties")
 	FName TimeToHitParamName;
+
+	UPROPERTY(EditAnywhere, Category = "Properties")
+	TSubclassOf<USWorldUserWidget> HealthBarWidgetClass;
+
+	UPROPERTY(Transient)
+	USWorldUserWidget* HealthBarWidget;
 	
 public:
 	ASAICharacter();
