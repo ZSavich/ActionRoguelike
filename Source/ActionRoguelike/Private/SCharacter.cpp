@@ -5,10 +5,11 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Projectiles/SMagicProjectile.h"
 #include "Components/SInteractionComponent.h"
+#include "Projectiles/SProjectileBase.h"
 
 ASCharacter::ASCharacter()
 {
@@ -103,6 +104,12 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		{
 			EnhancedInputComponent->BindAction(PrimaryInteractAction, ETriggerEvent::Completed, this, &ASCharacter::Input_PrimaryInteract);
 		}
+
+		// PrimaryAbility
+		if (PrimaryAbilityAction)
+		{
+			EnhancedInputComponent->BindAction(PrimaryAbilityAction, ETriggerEvent::Completed, this, &ASCharacter::Input_PrimaryAbility);
+		}
 	}
 }
 
@@ -185,6 +192,18 @@ void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent*
 	if (FMath::IsNearlyZero(NewHealth))
 	{
 		DisableInput(GetController<APlayerController>());
+		
+		if (GetCapsuleComponent())
+		{
+			GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		}
+
+		if (GetCharacterMovement())
+		{
+			GetCharacterMovement()->DisableMovement();
+		}
+		
+		SetLifeSpan(3.f);
 		return;
 	}
 

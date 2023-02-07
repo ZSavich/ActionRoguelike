@@ -17,7 +17,13 @@ bool ASHealthPotion::ActivatePickup(APawn* InstigatorPawn)
 	USAttributeComponent* AttributeComponent = USAttributeComponent::GetAttributes(InstigatorPawn);
 	if (AttributeComponent && AttributeComponent->IsAlive())
 	{
-		return AttributeComponent->ApplyHealthChange(InstigatorPawn, HealValue);
+		if (AttributeComponent->IsFullHealth()) return false;
+
+		if (Super::ActivatePickup(InstigatorPawn))
+		{
+			AttributeComponent->ApplyHealthChange(InstigatorPawn, HealValue);
+			return true;
+		}
 	}
 	return false;
 }

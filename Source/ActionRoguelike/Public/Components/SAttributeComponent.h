@@ -38,7 +38,7 @@ protected:
 public:
 	USAttributeComponent();
 
-	bool ApplyHealthChange(AActor* Instigator, const float Delta);
+	bool ApplyHealthChange(AActor* Instigator, float Delta);
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE float GetHealthPercentage() const { return Health / MaxHealth; }

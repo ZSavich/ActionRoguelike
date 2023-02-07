@@ -4,9 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "InputActionValue.h"
-#include "Components/SAttributeComponent.h"
 #include "GameFramework/Character.h"
-#include "Projectiles/SProjectileBase.h"
 #include "SCharacter.generated.h"
 
 struct FInputActionValue;
@@ -16,6 +14,7 @@ class UInputMappingContext;
 class UCameraComponent;
 class USpringArmComponent;
 class USAttributeComponent;
+class ASProjectileBase;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASCharacter : public ACharacter

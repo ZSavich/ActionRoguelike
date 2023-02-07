@@ -2,15 +2,19 @@
 
 #include "SGameModeBase.h"
 #include "EngineUtils.h"
+#include "SCharacter.h"
 #include "ActionRoguelike/ActionRoguelike.h"
 #include "AI/SAICharacter.h"
 #include "Components/SAttributeComponent.h"
 #include "EnvironmentQuery/EnvQuery.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 
+static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("su.SpawnBots"), true, TEXT("Enable spawning of bots via timer."), ECVF_Cheat);
+
 ASGameModeBase::ASGameModeBase()
 {
 	SpawnTimerInterval = 2.f;
+	RespawnPlayerDelay = 5.f;
 }
 
 void ASGameModeBase::StartPlay()
@@ -18,6 +22,16 @@ void ASGameModeBase::StartPlay()
 	Super::StartPlay();
 
 	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ASGameModeBase::SpawnBotTimerElapsed, SpawnTimerInterval, true);
+}
+
+void ASGameModeBase::OnActorKilled(AActor* VictimActor, AActor* InstigatorActor)
+{
+	if (VictimActor->IsA(ASCharacter::StaticClass()))
+	{
+		FTimerDelegate TimerDelegate;
+		TimerDelegate.BindUFunction(this, TEXT("RespawnPlayerElapsed"), VictimActor);
+		GetWorldTimerManager().SetTimer(TimerHandle_RespawnPlayer, TimerDelegate, RespawnPlayerDelay, false);
+	}
 }
 
 void ASGameModeBase::KillAllBots() const
@@ -31,8 +45,28 @@ void ASGameModeBase::KillAllBots() const
 	}
 }
 
+void ASGameModeBase::RespawnPlayerElapsed(AActor* PlayerActor)
+{
+	if (APlayerController* Controller = PlayerActor->GetInstigatorController<APlayerController>())
+	{
+		Controller->UnPossess();
+		RestartPlayer(Controller);
+
+		if (IsValid(PlayerActor))
+		{
+			PlayerActor->Destroy();
+		}
+	}
+}
+
 void ASGameModeBase::SpawnBotTimerElapsed()
 {
+	const bool bCanSpawnBots = CVarSpawnBots.GetValueOnGameThread();
+	if (!bCanSpawnBots)
+	{
+		return;
+	}
+	
 	if (!DifficultyCurve)
 	{
 		UE_LOG(LogRogueAI, Error, TEXT("EUD::DifficultyCurve is nullptr. Please set this for current game mode!"));

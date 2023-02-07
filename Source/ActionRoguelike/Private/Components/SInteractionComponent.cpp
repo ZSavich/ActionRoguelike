@@ -5,6 +5,8 @@
 #include "Camera/CameraComponent.h"
 #include "Interfaces/SGameplayInterface.h"
 
+static TAutoConsoleVariable<bool> CVarInteractionDebugDraw(TEXT("su.InteractionDebugDraw"), false, TEXT("Enable Debug Lines for Interact Component."), ECVF_Cheat);
+
 USInteractionComponent::USInteractionComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -14,8 +16,6 @@ USInteractionComponent::USInteractionComponent()
 	TraceSphereRadius = 15.f;
 	TraceLength = 5000.f;
 	TraceObjectType = ECC_WorldDynamic;
-
-	bDrawDebug = false;
 }
 
 void USInteractionComponent::PrimaryInteract()
@@ -26,6 +26,8 @@ void USInteractionComponent::PrimaryInteract()
 	
 	if (World && Owner)
 	{
+		const bool bDrawDebug = CVarInteractionDebugDraw.GetValueOnGameThread();
+		
 		TArray<FHitResult> HitResults;
 		
 		FVector EyesLocation;

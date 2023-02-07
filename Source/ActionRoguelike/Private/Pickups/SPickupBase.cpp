@@ -2,6 +2,7 @@
 
 #include "Pickups/SPickupBase.h"
 
+#include "SPlayerState.h"
 #include "Kismet/GameplayStatics.h"
 
 ASPickupBase::ASPickupBase()
@@ -25,6 +26,7 @@ ASPickupBase::ASPickupBase()
 	// General Properties
 	bCanRespawn = false;
 	RespawnTime = 10.f;
+	CostCredits = 0.f;
 }
 
 void ASPickupBase::Interact_Implementation(APawn* InstigatorPawn)
@@ -64,5 +66,14 @@ void ASPickupBase::Respawn()
 
 bool ASPickupBase::ActivatePickup(APawn* InstigatorPawn)
 {
-	return true;
+	if (CostCredits == 0.f) return true;
+	
+	if (InstigatorPawn)
+	{
+		if (ASPlayerState* PlayerState = InstigatorPawn->GetPlayerState<ASPlayerState>())
+		{
+			return PlayerState->ApplyCreditChange(-CostCredits);
+		}
+	}
+	return false;
 }

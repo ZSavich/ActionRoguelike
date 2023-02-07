@@ -36,6 +36,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Properties|Spawn", Meta = (EditCondition = "bCanRespawn"))
 	float RespawnTime;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties|Cost")
+	float CostCredits;
+
 	/** Pickup Timers */
 	FTimerHandle TimerHandle_Respawn;
 	

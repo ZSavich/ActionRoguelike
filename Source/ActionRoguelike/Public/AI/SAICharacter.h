@@ -3,10 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/SAttributeComponent.h"
 #include "GameFramework/Character.h"
 #include "SAICharacter.generated.h"
 
+class USAttributeComponent;
 class USWorldUserWidget;
 class UPawnSensingComponent;
 
@@ -36,10 +36,15 @@ protected:
 	UPROPERTY(Transient)
 	USWorldUserWidget* HealthBarWidget;
 	
+	UPROPERTY(EditAnywhere, Category = "Properties|Drop")
+	float RewardCredits;
+	
 public:
 	ASAICharacter();
 	
 	virtual void BeginPlay() override;
+
+	FORCEINLINE float GetRewardCredits() const { return RewardCredits; }
 
 protected:
 	UFUNCTION()

@@ -16,4 +16,9 @@ class ACTIONROGUELIKE_API USCreditsWidget : public UUserWidget
 protected:
 	UPROPERTY(Transient, Meta = (BindWidget))
 	UTextBlock* CreditsCounterText = nullptr;
+
+protected:
+	virtual void NativeConstruct() override;
+
+	void UpdateCredits(float Credits) const;
 };

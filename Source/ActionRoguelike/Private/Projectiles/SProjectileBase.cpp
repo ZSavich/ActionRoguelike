@@ -1,10 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Projectiles/SProjectileBase.h"
-
 #include "SCharacter.h"
+#include "SGameplayFunctionLibrary.h"
 #include "Components/AudioComponent.h"
-#include "Components/SAttributeComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
 #include "Particles/ParticleSystemComponent.h"
@@ -71,24 +70,17 @@ void ASProjectileBase::BeginPlay()
 
 void ASProjectileBase::OnHitEvent(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (OtherActor == GetOwner()) return;
+	if (OtherActor == GetInstigator()) return;
 	Explode();
 }
 
 void ASProjectileBase::OnBeginOverlapEvent(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor == GetOwner()) return;
+	if (OtherActor == GetInstigator()) return;
 	
 	Explode();
-
-	if (Damage > 0.f)
-	{
-		if (USAttributeComponent* AttributeComponent = USAttributeComponent::GetAttributes(OtherActor))
-		{
-			AttributeComponent->ApplyHealthChange(GetInstigator(), -Damage);
-		}
-	}
+	USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult);
 }
 
 void ASProjectileBase::Explode()
