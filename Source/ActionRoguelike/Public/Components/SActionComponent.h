@@ -1,0 +1,37 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Components/ActorComponent.h"
+#include "SActionComponent.generated.h"
+
+class USAction;
+
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class ACTIONROGUELIKE_API USActionComponent : public UActorComponent
+{
+	GENERATED_BODY()
+
+protected:
+	/** Action Component Properties */
+	UPROPERTY(BlueprintReadOnly, Category = "Properties")
+	TArray<USAction*> ActiveActions;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Properties")
+	TArray<TSubclassOf<USAction>> DefaultActions;
+	
+public:	
+	USActionComponent();
+	
+	virtual void BeginPlay() override;
+
+	void AddAction(TSubclassOf<USAction> ActionClass);
+
+	UFUNCTION(BlueprintCallable)
+	bool StartActionByName(AActor* Instigator, const FName& ActionName);
+
+	UFUNCTION(BlueprintCallable)
+	bool StopActionByName(AActor* Instigator, const FName& ActionName);
+		
+};

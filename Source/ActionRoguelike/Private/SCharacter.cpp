@@ -10,10 +10,11 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/SInteractionComponent.h"
 #include "Projectiles/SProjectileBase.h"
+#include "Components/SActionComponent.h"
 
 ASCharacter::ASCharacter()
 {
- 	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera
@@ -41,7 +42,9 @@ ASCharacter::ASCharacter()
 	// Create an attribute component
 	AttributeComponent = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComponent"));
 
-	// General SCharacter's Properties
+	// Create an action components
+	ActionComponent = CreateDefaultSubobject<USActionComponent>(TEXT("ActionComponent"));
+	
 	HandSocketName = FName("Muzzle_01");
 }
 
@@ -110,6 +113,12 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		{
 			EnhancedInputComponent->BindAction(PrimaryAbilityAction, ETriggerEvent::Completed, this, &ASCharacter::Input_PrimaryAbility);
 		}
+
+		// Sprint
+		if (SprintAction)
+		{
+			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &ASCharacter::Input_Sprint);
+		}
 	}
 }
 
@@ -159,12 +168,10 @@ void ASCharacter::Input_LookMouse(const FInputActionValue& InputActionValue)
 
 void ASCharacter::Input_PrimaryAttack(const FInputActionValue& InputActionValue)
 {
-	if (TimerHandle_SpawnProjectile.IsValid()) return;
-	
-	PlayAnimMontage(PrimaryAttackMontage);
-
-	const FTimerDelegate SpawnProjectileDelegate = FTimerDelegate::CreateUObject(this, &ASCharacter::SpawnProjectile_TimeElapsed, PrimaryAttackClass);
-	GetWorldTimerManager().SetTimer(TimerHandle_SpawnProjectile, SpawnProjectileDelegate, 0.2f , false);
+	if (ActionComponent)
+	{
+		ActionComponent->StartActionByName(this, "MagicProjectile");
+	}
 }
 
 void ASCharacter::Input_PrimaryInteract(const FInputActionValue& InputActionValue)
@@ -177,12 +184,25 @@ void ASCharacter::Input_PrimaryInteract(const FInputActionValue& InputActionValu
 
 void ASCharacter::Input_PrimaryAbility(const FInputActionValue& InputActionValue)
 {
-	if (TimerHandle_SpawnProjectile.IsValid()) return;
-	
-	PlayAnimMontage(PrimaryAttackMontage);
-	
-	const FTimerDelegate SpawnProjectileDelegate = FTimerDelegate::CreateUObject(this, &ASCharacter::SpawnProjectile_TimeElapsed, PrimaryAbilityClass);
-	GetWorldTimerManager().SetTimer(TimerHandle_SpawnProjectile, SpawnProjectileDelegate, 0.2f , false);
+	if (ActionComponent)
+	{
+		ActionComponent->StartActionByName(this, "DashProjectile");
+	}
+}
+
+void ASCharacter::Input_Sprint(const FInputActionValue& InputActionValue)
+{
+	if (ActionComponent)
+	{
+		if (const bool bIsSprinting = InputActionValue.Get<bool>())
+		{
+			ActionComponent->StartActionByName(this,"Sprint");
+		}
+		else
+		{
+			ActionComponent->StopActionByName(this,"Sprint");
+		}
+	}
 }
 
 void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComponent, float NewHealth,
@@ -213,38 +233,3 @@ void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent*
 		GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->GetTimeSeconds());
 	}
 }
-
-void ASCharacter::SpawnProjectile_TimeElapsed(TSubclassOf<ASProjectileBase> ProjectileClass)
-{
-	if (TimerHandle_SpawnProjectile.IsValid())
-	{
-		TimerHandle_SpawnProjectile.Invalidate();
-	}
-	
-	if (!GetMesh() || !IsValid(PrimaryAttackClass) || !GetWorld() || !FollowCamera) return; 
-
-	// Find Rotation of a target
-	FHitResult HitResult;
-	
-	const FVector StartTrace = FollowCamera->GetComponentLocation();
-	const FVector EndTrace = StartTrace + (FollowCamera->GetComponentRotation().Vector() * 50000);
-	GetWorld()->LineTraceSingleByChannel(
-		HitResult,
-		StartTrace,
-		EndTrace,
-		ECC_Visibility);
-
-	const FVector TargetPoint = HitResult.bBlockingHit ? HitResult.ImpactPoint : HitResult.TraceEnd;
-
-	// Spawn Projectile
-	const FVector SpawnLocation = GetMesh()->GetSocketLocation(HandSocketName); // Get Location of the character's muzzle socket
-	const FRotator TargetRotation = FRotationMatrix::MakeFromX(TargetPoint - SpawnLocation).Rotator(); // Get Rotation to the Target 
-	
-	FActorSpawnParameters SpawnParams;
-	SpawnParams.Owner = this;
-	SpawnParams.Instigator = this;
-	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	
-	GetWorld()->SpawnActor<ASProjectileBase>(ProjectileClass, SpawnLocation, TargetRotation, SpawnParams);
-}
-

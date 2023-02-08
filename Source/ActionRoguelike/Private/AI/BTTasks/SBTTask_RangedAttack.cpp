@@ -18,10 +18,10 @@ EBTNodeResult::Type USBTTask_RangedAttack::ExecuteTask(UBehaviorTreeComponent& O
 		const AAIController* OwnerController = OwnerComp.GetAIOwner();
 		const UBlackboardComponent* BlackboardComponent = OwnerComp.GetBlackboardComponent();
 		AActor* TargetActor = Cast<AActor>(BlackboardComponent->GetValueAsObject("TargetActor"));
-		
-		if (ensure(OwnerController) && ensure(TargetActor))
+
+		if (ensure(OwnerController))
 		{
-			if (!USAttributeComponent::IsActorAlive(TargetActor))
+			if (!TargetActor || !USAttributeComponent::IsActorAlive(TargetActor))
 			{
 				return EBTNodeResult::Failed;
 			}

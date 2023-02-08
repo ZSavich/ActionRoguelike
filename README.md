@@ -27,7 +27,7 @@ This project is part of the **[Professional Game Development in C++ and Unreal E
 #### [03/02/23] Implemented AI logic by BehaviorTree, Blackboard and EQS.
 ![AI](https://github.com/ZSavich/ActionRoguelike/blob/main/ImgForReadMe/07ArtificialIntelligence.gif)
 
-#### [03/02/23] Added Exec Functions, CVars and the Credits System.
+#### [07/02/23] Added Exec Functions, CVars and the Credits System.
 ![CVars](https://github.com/ZSavich/ActionRoguelike/blob/main/ImgForReadMe/08CVarsAndCredits.gif)
 
 

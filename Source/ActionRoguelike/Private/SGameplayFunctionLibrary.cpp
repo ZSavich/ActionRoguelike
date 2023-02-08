@@ -3,7 +3,7 @@
 #include "SGameplayFunctionLibrary.h"
 #include "Components/SAttributeComponent.h"
 
-static TAutoConsoleVariable<int> CVarHitImpulseStrength(TEXT("su.HitImpulseStrength"), 150000.f, TEXT("The strength of the impulse that throws an enemy when it gets hit."));
+static TAutoConsoleVariable<int> CVarHitImpulseStrength(TEXT("su.HitImpulseStrength"), 300000.f, TEXT("The strength of the impulse that throws an enemy when it gets hit."));
 
 bool USGameplayFunctionLibrary::ApplyDamage(AActor* DamageCauser, AActor* TargetActor, float DamageAmount)
 {
@@ -23,7 +23,10 @@ bool USGameplayFunctionLibrary::ApplyDirectionalDamage(AActor* DamageCauser, AAc
 		if (HitComponent && HitComponent->IsSimulatingPhysics(HitResult.BoneName))
 		{
 			const int32 HitImpulse = CVarHitImpulseStrength.GetValueOnGameThread();
-			HitComponent->AddImpulseAtLocation(-HitResult.ImpactNormal * HitImpulse, HitResult.ImpactPoint, HitResult.BoneName);
+			FVector Direction = HitResult.TraceEnd - HitResult.TraceStart;
+			Direction.Normalize();
+			
+			HitComponent->AddImpulseAtLocation(Direction * HitImpulse, HitResult.ImpactPoint, HitResult.BoneName);
 		}
 		return true;
 	}

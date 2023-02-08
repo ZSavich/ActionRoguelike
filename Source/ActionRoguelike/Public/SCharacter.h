@@ -15,6 +15,7 @@ class UCameraComponent;
 class USpringArmComponent;
 class USAttributeComponent;
 class ASProjectileBase;
+class USActionComponent;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASCharacter : public ACharacter
@@ -22,9 +23,6 @@ class ACTIONROGUELIKE_API ASCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-	/** General SCharacter's Properties */
-	UPROPERTY(EditAnywhere, Category = "Sockets", Meta = (AllowPrivateAccess = "true"))
-	FName HandSocketName;
 	
 private:
 	/** General SCharacter's Components */
@@ -39,6 +37,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", Meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<USAttributeComponent> AttributeComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components", Meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<USActionComponent> ActionComponent;
 
 	/** Enhanced Input System */
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess = "true"))
@@ -62,19 +63,17 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess = "true"))
 	UInputAction* PrimaryAbilityAction;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess = "true"))
+	UInputAction* SprintAction;
+
 	/** Projectiles */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile", Meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<ASProjectileBase> PrimaryAttackClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile", Meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<ASProjectileBase> PrimaryAbilityClass;
 
-	/** Animation Montages */
-	UPROPERTY(EditAnywhere, Category = "Montages", Meta = (AllowPrivateAccess = "true"))
-	UAnimMontage* PrimaryAttackMontage;
-
-	/** Timers */
-	FTimerHandle TimerHandle_SpawnProjectile;
+public:
+	UPROPERTY(EditAnywhere, Category = "Projectile")
+	FName HandSocketName;
 	
 public:
 	ASCharacter();
@@ -93,13 +92,10 @@ protected:
 	void Input_PrimaryAttack(const FInputActionValue& InputActionValue);
 	void Input_PrimaryInteract(const FInputActionValue& InputActionValue);
 	void Input_PrimaryAbility(const FInputActionValue& InputActionValue);
+	void Input_Sprint(const FInputActionValue& InputActionValue);
 
 	/** Attribute Component Callbacks */
 	UFUNCTION()
 	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComponent, float NewHealth, float Delta);
-
-private:
-	/** Timer's callbacks */
-	void SpawnProjectile_TimeElapsed(TSubclassOf<ASProjectileBase> ProjectileClass);
 	
 };
