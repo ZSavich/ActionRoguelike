@@ -10,6 +10,7 @@
 #include "Widgets/SWorldUserWidget.h"
 #include "Components/SAttributeComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/SActionComponent.h"
 
 ASAICharacter::ASAICharacter()
 {
@@ -33,6 +34,9 @@ ASAICharacter::ASAICharacter()
 
 	// Create an attribute component
 	AttributeComponent = CreateDefaultSubobject<USAttributeComponent>(TEXT("AttributeComponent"));
+
+	// Create an action component
+	ActionComponent = CreateDefaultSubobject<USActionComponent>(TEXT("ActionComponent"));
 }
 
 void ASAICharacter::BeginPlay()

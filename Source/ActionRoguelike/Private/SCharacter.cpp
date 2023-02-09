@@ -119,6 +119,12 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		{
 			EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &ASCharacter::Input_Sprint);
 		}
+
+		// Parry
+		if (ParryAction)
+		{
+			EnhancedInputComponent->BindAction(ParryAction, ETriggerEvent::Completed, this, &ASCharacter::Input_Parry);
+		}
 	}
 }
 
@@ -202,6 +208,14 @@ void ASCharacter::Input_Sprint(const FInputActionValue& InputActionValue)
 		{
 			ActionComponent->StopActionByName(this,"Sprint");
 		}
+	}
+}
+
+void ASCharacter::Input_Parry(const FInputActionValue& InputActionValue)
+{
+	if (ActionComponent)
+	{
+		ActionComponent->StartActionByName(this, "Parry");
 	}
 }
 

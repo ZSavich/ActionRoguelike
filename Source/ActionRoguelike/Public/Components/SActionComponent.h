@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Components/ActorComponent.h"
 #include "SActionComponent.generated.h"
 
@@ -13,6 +14,10 @@ class ACTIONROGUELIKE_API USActionComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+public:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Properties")
+	FGameplayTagContainer  ActiveGameplayTags;
+	
 protected:
 	/** Action Component Properties */
 	UPROPERTY(BlueprintReadOnly, Category = "Properties")
@@ -23,6 +28,8 @@ protected:
 	
 public:	
 	USActionComponent();
+
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 	virtual void BeginPlay() override;
 

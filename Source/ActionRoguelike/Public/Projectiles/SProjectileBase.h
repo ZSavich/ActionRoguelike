@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "GameplayTagContainer.h"
 #include "SProjectileBase.generated.h"
 
 class UProjectileMovementComponent;
@@ -51,6 +52,9 @@ protected:
 	
 	UPROPERTY(EditAnywhere, Category = "Properties|Spread")
 	bool bActivateSpread;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Tags")
+	FGameplayTagContainer ParryTags;
 	
 public:	
 	ASProjectileBase();

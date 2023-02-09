@@ -14,7 +14,7 @@ USAction_MagicProjectile::USAction_MagicProjectile()
 
 bool USAction_MagicProjectile::StartAction_Implementation(AActor* Instigator)
 {
-	if (Super::StartAction_Implementation(Instigator) && !TimerHandle_SpawnProjectile.IsValid())
+	if (Super::StartAction_Implementation(Instigator))
 	{
 		if (ACharacter* InstCharacter = Cast<ACharacter>(Instigator))
 		{

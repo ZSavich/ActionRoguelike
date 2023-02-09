@@ -10,7 +10,7 @@ UCLASS()
 class ACTIONROGUELIKE_API ASMagicProjectile : public ASProjectileBase
 {
 	GENERATED_BODY()
-
+	
 public:
 	ASMagicProjectile();
 	

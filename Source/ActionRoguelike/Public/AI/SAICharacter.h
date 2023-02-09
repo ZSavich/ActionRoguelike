@@ -9,6 +9,7 @@
 class USAttributeComponent;
 class USWorldUserWidget;
 class UPawnSensingComponent;
+class USActionComponent;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASAICharacter : public ACharacter
@@ -22,6 +23,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USAttributeComponent> AttributeComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	TObjectPtr<USActionComponent> ActionComponent;
 
 	/** Bot's Properties */
 	UPROPERTY(EditAnywhere, Category = "Properties")

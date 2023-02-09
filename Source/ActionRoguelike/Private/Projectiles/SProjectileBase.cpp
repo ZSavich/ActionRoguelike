@@ -4,6 +4,7 @@
 #include "SCharacter.h"
 #include "SGameplayFunctionLibrary.h"
 #include "Components/AudioComponent.h"
+#include "Components/SActionComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
 #include "Particles/ParticleSystemComponent.h"
@@ -78,6 +79,19 @@ void ASProjectileBase::OnBeginOverlapEvent(UPrimitiveComponent* OverlappedCompon
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor == GetInstigator()) return;
+
+	if (const USActionComponent* ActionComponent = Cast<USActionComponent>(OtherActor->GetComponentByClass(USActionComponent::StaticClass())))
+	{
+		if (ActionComponent->ActiveGameplayTags.HasAny(ParryTags))
+		{
+			SetInstigator(Cast<APawn>(OtherActor));
+			SetOwner(OtherActor);
+
+			ProjectileMovementComponent->Velocity = -ProjectileMovementComponent->Velocity;
+			
+			return;
+		}
+	}
 	
 	Explode();
 	USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult);

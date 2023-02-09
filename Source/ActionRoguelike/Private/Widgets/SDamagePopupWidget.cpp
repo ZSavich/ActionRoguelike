@@ -28,5 +28,5 @@ void USDamagePopupWidget::SetDamageText(float Damage)
 
 void USDamagePopupWidget::AnimationFinished()
 {
-	//RemoveFromParent();
+	RemoveFromParent();
 }

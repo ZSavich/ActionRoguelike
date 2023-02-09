@@ -3,12 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "SWorldUserWidget.h"
 #include "Components/TextBlock.h"
 #include "SDamagePopupWidget.generated.h"
 
 UCLASS()
-class ACTIONROGUELIKE_API USDamagePopupWidget : public UUserWidget
+class ACTIONROGUELIKE_API USDamagePopupWidget : public USWorldUserWidget
 {
 	GENERATED_BODY()
 
@@ -22,7 +22,7 @@ protected:
 	UWidgetAnimation* ShowDamageAnim = nullptr;
 
 	FWidgetAnimationDynamicEvent EndDelegate;
-	
+
 public:
 	virtual void NativeOnInitialized() override;
 
