@@ -89,6 +89,11 @@ void ASAICharacter::HandleOnSeePawn(APawn* Pawn)
 	if (GetTargetActor() != Pawn)
 	{
 		SetTargetActor(Pawn);
+		if (USWorldUserWidget* TargetSpottedWidget = CreateWidget<USWorldUserWidget>(GetWorld(), TargetSpottedWidgetClass))
+		{
+			TargetSpottedWidget->SetAttachedActor(this);
+			TargetSpottedWidget->AddToViewport();
+		}
 	}
 }
 

@@ -46,6 +46,7 @@ ASCharacter::ASCharacter()
 	ActionComponent = CreateDefaultSubobject<USActionComponent>(TEXT("ActionComponent"));
 	
 	HandSocketName = FName("Muzzle_01");
+	GrantActionName = FName("");
 }
 
 void ASCharacter::BeginPlay()
@@ -192,7 +193,7 @@ void ASCharacter::Input_PrimaryAbility(const FInputActionValue& InputActionValue
 {
 	if (ActionComponent)
 	{
-		ActionComponent->StartActionByName(this, "DashProjectile");
+		ActionComponent->StartActionByName(this, GrantActionName);
 	}
 }
 

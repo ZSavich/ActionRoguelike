@@ -14,8 +14,14 @@ class ACTIONROGUELIKE_API USAction : public UObject
 	GENERATED_BODY()
 	
 protected:
-	UPROPERTY(EditAnywhere, Category = "Properties")
+	UPROPERTY(EditDefaultsOnly, Category = "Properties")
 	FName ActionName;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Properties")
+	bool bAutoStart;
+
+	UPROPERTY(EditAnywhere, Category = "Projectile")
+	float RageCost;
 
 	/** Tags added to owning actor when activated, removed when action stopped */
 	UPROPERTY(EditDefaultsOnly, Category = "Tags")
@@ -41,6 +47,7 @@ public:
 	bool IsRunning() const { return bIsActive; }
 	
 	FORCEINLINE const FName& GetActionName() const { return ActionName; }
+	FORCEINLINE bool ShouldAutoStart() const { return bAutoStart; }
 	
 	FORCEINLINE bool operator()(const FName& Name) const { return ActionName == Name; }
 

@@ -4,6 +4,17 @@
 #include "ActionRoguelike/ActionRoguelike.h"
 #include "Actions/SAction.h"
 
+// Static Functions - Start
+USActionComponent* USActionComponent::GetActionComponent(AActor* FromActor)
+{
+	if (FromActor)
+	{
+		return FromActor->FindComponentByClass<USActionComponent>();
+	}
+	return nullptr;
+}
+// Static Functions - End
+
 USActionComponent::USActionComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -31,15 +42,29 @@ void USActionComponent::BeginPlay()
 	}
 }
 
-void USActionComponent::AddAction(TSubclassOf<USAction> ActionClass)
+USAction* USActionComponent::AddAction(TSubclassOf<USAction> ActionClass)
 {
 	if (ActionClass)
 	{
-		
 		if (USAction* NewAction = NewObject<USAction>(GetOwner(), ActionClass))
 		{
 			ActiveActions.AddUnique(NewAction);
+
+			if (NewAction->ShouldAutoStart())
+			{
+				NewAction->StartAction(GetOwner());
+			}
+			return NewAction;
 		}
+	}
+	return nullptr;
+}
+
+void USActionComponent::RemoveAction(USAction* Action)
+{
+	if (Action && !Action->IsRunning())
+	{
+		ActiveActions.Remove(Action);
 	}
 }
 

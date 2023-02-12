@@ -6,6 +6,7 @@
 
 static TAutoConsoleVariable<float> CVarDamageMultiplier(TEXT("su.DamageMultiplier"), 1.f, TEXT("Global Damage Modifier for Attribute Component."), ECVF_Cheat);
 
+// Static Functions - Start
 USAttributeComponent* USAttributeComponent::GetAttributes(AActor* FromActor)
 {
 	if (ensure(FromActor))
@@ -26,6 +27,7 @@ bool USAttributeComponent::IsActorAlive(AActor* Actor)
 	}
 	return false;
 }
+// Static Functions - End
 
 USAttributeComponent::USAttributeComponent()
 {
@@ -34,6 +36,8 @@ USAttributeComponent::USAttributeComponent()
 
 	Health = 100.f;
 	MaxHealth = 100.f;
+	Rage = 10.f;
+	MaxRage = 100.f;
 }
 
 bool USAttributeComponent::ApplyHealthChange(AActor* Instigator, float Delta)
@@ -52,16 +56,39 @@ bool USAttributeComponent::ApplyHealthChange(AActor* Instigator, float Delta)
 	Health = FMath::Clamp(Health + Delta, 0.f, MaxHealth);
 	const float ActualDelta = Health - OldHealth;
 
-	if (ActualDelta < 0.f && FMath::IsNearlyZero(Health))
+	if (ActualDelta < 0.f)
 	{
-		if (ASGameModeBase* GameMode = GetWorld()->GetAuthGameMode<ASGameModeBase>())
+		if (FMath::IsNearlyZero(Health))
 		{
-			GameMode->OnActorKilled(GetOwner(), Instigator);
+			if (ASGameModeBase* GameMode = GetWorld()->GetAuthGameMode<ASGameModeBase>())
+			{
+				GameMode->OnActorKilled(GetOwner(), Instigator);
+			}
+		}
+		else
+		{
+			ApplyRageChange(-ActualDelta);
 		}
 	}
 	
 	OnHealthChanged.Broadcast(Instigator, this, Health, ActualDelta);
 	return ActualDelta != 0;
+}
+
+bool USAttributeComponent::ApplyRageChange(float Delta)
+{
+	// Make sure the owner is alive
+	if (!IsAlive())
+	{
+		return false;
+	}
+
+	const float OldRage = Rage;
+	Rage = FMath::Clamp(Rage + Delta, 0.f, MaxRage);
+	const float ActualDelta = Rage - OldRage;
+
+	OnRageChanged.Broadcast(this, Rage, ActualDelta);
+	return ActualDelta != 0.f;
 }
 
 bool USAttributeComponent::KillSelf()

@@ -9,6 +9,7 @@
 #include "Components/SphereComponent.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Actions/SActionEffect.h"
 
 ASProjectileBase::ASProjectileBase()
 {
@@ -79,8 +80,9 @@ void ASProjectileBase::OnBeginOverlapEvent(UPrimitiveComponent* OverlappedCompon
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor == GetInstigator()) return;
-
-	if (const USActionComponent* ActionComponent = Cast<USActionComponent>(OtherActor->GetComponentByClass(USActionComponent::StaticClass())))
+	
+	USActionComponent* ActionComponent = Cast<USActionComponent>(OtherActor->GetComponentByClass(USActionComponent::StaticClass()));
+	if (ActionComponent)
 	{
 		if (ActionComponent->ActiveGameplayTags.HasAny(ParryTags))
 		{
@@ -93,8 +95,14 @@ void ASProjectileBase::OnBeginOverlapEvent(UPrimitiveComponent* OverlappedCompon
 		}
 	}
 	
-	Explode();
-	USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult);
+	if (USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult))
+	{
+		Explode();
+		if (ActionComponent && ActionEffect)
+		{
+			ActionComponent->AddAction(ActionEffect);
+		}
+	}
 }
 
 void ASProjectileBase::Explode()

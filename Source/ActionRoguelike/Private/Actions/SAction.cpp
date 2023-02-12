@@ -2,9 +2,13 @@
 
 #include "Actions/SAction.h"
 
+#include "Components/SAttributeComponent.h"
+
 USAction::USAction()
 {
 	bIsActive = false;
+	bAutoStart = false;
+	RageCost = 0.f;
 }
 
 USActionComponent* USAction::GetOwningComponent() const
@@ -23,7 +27,21 @@ bool USAction::CanStart() const
 		if (const USActionComponent* ActionComponent = GetOwningComponent())
 		{
 			const bool bHasBlockedTags = ActionComponent->ActiveGameplayTags.HasAny(BlockedTags);
-			return !bHasBlockedTags;
+			bool bCanAfford = true;
+			
+			if (RageCost > 0.f)
+			{
+				if (AActor* OuterActor = Cast<AActor>(GetOuter()))
+				{
+					if (USAttributeComponent* AttributeComponent = USAttributeComponent::GetAttributes(OuterActor))
+					{
+						bCanAfford = AttributeComponent->ApplyRageChange(-RageCost);
+					}
+				}
+			}
+
+			UE_LOG(LogTemp, Log, TEXT("EUD::Activating - %s :: Has Block Tags - %s :: Can Affors - %s"), *GetNameSafe(this), bHasBlockedTags ? TEXT("Yes") : TEXT("No"), bCanAfford ? TEXT("Yes") : TEXT("No"));
+			return !bHasBlockedTags && bCanAfford;
 		}
 	}
 	return false;

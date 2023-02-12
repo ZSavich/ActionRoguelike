@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Widgets/SWorldUserWidget.h"
 #include "SInteractionComponent.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -21,9 +22,22 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Properties", Meta = (AllowPrivateAccess = "true"))
 	TEnumAsByte<ECollisionChannel> TraceObjectType;
+
+protected:
+	UPROPERTY(Transient)
+	AActor* FocusedActor;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<USWorldUserWidget> DefaultWidgetClass;
+
+	UPROPERTY(Transient)
+	USWorldUserWidget* DefaultWidgetInstance;
 	
 public:	
 	USInteractionComponent();
 
-	void PrimaryInteract();
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	void FindBestInteractable();
+	void PrimaryInteract() const;
 };

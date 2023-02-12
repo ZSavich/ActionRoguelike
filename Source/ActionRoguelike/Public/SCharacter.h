@@ -43,10 +43,10 @@ private:
 
 	/** Enhanced Input System */
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess = "true"))
-	UInputMappingContext* DefaultMapping;
+	TObjectPtr<UInputMappingContext> DefaultMapping;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess = "true"))
-	UInputAction* MoveAction;
+	TObjectPtr<UInputAction> MoveAction;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookMouseAction;
@@ -70,13 +70,15 @@ private:
 	UInputAction* ParryAction;
 
 	/** Projectiles */
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile", Meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<ASProjectileBase> PrimaryAbilityClass;
 
 public:
 	UPROPERTY(EditAnywhere, Category = "Projectile")
 	FName HandSocketName;
+
+	UPROPERTY(VisibleAnywhere, Category = "Actions")
+	FName GrantActionName;
 	
 public:
 	ASCharacter();

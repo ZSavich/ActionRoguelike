@@ -30,10 +30,15 @@ public:
 	USActionComponent();
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
 	virtual void BeginPlay() override;
 
-	void AddAction(TSubclassOf<USAction> ActionClass);
+	/** Static Functions */
+	UFUNCTION(BlueprintCallable)
+	static USActionComponent* GetActionComponent(AActor* FromActor);
+	
+	/** Action Handlers */
+	USAction* AddAction(TSubclassOf<USAction> ActionClass);
+	void RemoveAction(USAction* Action);
 
 	UFUNCTION(BlueprintCallable)
 	bool StartActionByName(AActor* Instigator, const FName& ActionName);

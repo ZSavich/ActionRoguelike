@@ -15,7 +15,7 @@ class ACTIONROGUELIKE_API ASPlayerState : public APlayerState
 
 private:
 	float Credits;
-
+	
 public:
 	FOnCreditsChange OnCreditsChange;
 

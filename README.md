@@ -30,5 +30,7 @@ This project is part of the **[Professional Game Development in C++ and Unreal E
 #### [07/02/23] Added Exec Functions, CVars and the Credits System.
 ![CVars](https://github.com/ZSavich/ActionRoguelike/blob/main/ImgForReadMe/08CVarsAndCredits.gif)
 
+#### [12/02/23] Added Rage Attribute, Spotted UI, Thorns and Parry Actions and Grant Action Pickup
+![Rage](https://github.com/ZSavich/ActionRoguelike/blob/main/ImgForReadMe/09Rage.gif)
 
 **Game Assets:** Licensed for use with the Unreal Engine only. Without a custom license you cannot use to create sequels, remasters, or otherwise emulate the original game or use the original game’s trademarks, character names, or other IP to advertise or name your game. (Unreal Engine EULA applies) (Please note this applies to the Game Assets that refer to Epic's Paragon, you can still use the project code and content to build your own Unreal Engine game)

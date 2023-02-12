@@ -9,8 +9,8 @@ static TAutoConsoleVariable<bool> CVarInteractionDebugDraw(TEXT("su.InteractionD
 
 USInteractionComponent::USInteractionComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
-	PrimaryComponentTick.bStartWithTickEnabled = false;
+	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bStartWithTickEnabled = true;
 
 	// Set general properties
 	TraceSphereRadius = 15.f;
@@ -18,7 +18,15 @@ USInteractionComponent::USInteractionComponent()
 	TraceObjectType = ECC_WorldDynamic;
 }
 
-void USInteractionComponent::PrimaryInteract()
+void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+	FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	FindBestInteractable();
+}
+
+void USInteractionComponent::FindBestInteractable()
 {
 	const UWorld* World = GetWorld();
 	APawn* Owner = GetOwner<APawn>();
@@ -58,15 +66,16 @@ void USInteractionComponent::PrimaryInteract()
 			FQuat::Identity,
 			QueryParams,
 			CollisionShape);
-
+		
 		if (bIsHitActors)
 		{
+			FocusedActor = nullptr;
 			for (const FHitResult& HitResult : HitResults)
 			{
 				AActor* HitActor = HitResult.GetActor();
 				if (HitActor && HitActor->Implements<USGameplayInterface>())
 				{
-					ISGameplayInterface::Execute_Interact(HitActor, Owner);
+					FocusedActor = HitActor;
 					// Debug - Start
 					if (bDrawDebug)
 					{
@@ -78,6 +87,30 @@ void USInteractionComponent::PrimaryInteract()
 			}
 		}
 
+		// Display the Interact Widget Popup when we are looking at the interactable actor
+		if (FocusedActor)
+		{
+			if (!DefaultWidgetInstance && DefaultWidgetClass)
+			{
+				DefaultWidgetInstance = CreateWidget<USWorldUserWidget>(GetWorld(), DefaultWidgetClass);
+			}
+			if (DefaultWidgetInstance)
+			{
+				DefaultWidgetInstance->SetAttachedActor(FocusedActor);
+				if (!DefaultWidgetInstance->IsInViewport())
+				{
+					DefaultWidgetInstance->AddToViewport();
+				}
+			}
+		}
+		else
+		{
+			if (DefaultWidgetInstance)
+			{
+				DefaultWidgetInstance->RemoveFromParent();
+			}
+		}
+
 		// Debug - Start
 		if (bDrawDebug)
 		{
@@ -85,5 +118,14 @@ void USInteractionComponent::PrimaryInteract()
 			DrawDebugLine(World, EyesLocation, EndHit, DebugLineColor, false, 5.f, 0, 1.f);
 		}
 		// Debug - End
+	}
+}
+
+void USInteractionComponent::PrimaryInteract() const
+{
+	APawn* Owner = GetOwner<APawn>();
+	if (Owner && FocusedActor)
+	{
+		ISGameplayInterface::Execute_Interact(FocusedActor, Owner);
 	}
 }

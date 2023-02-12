@@ -27,18 +27,23 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	TObjectPtr<USActionComponent> ActionComponent;
 
+	/** Bot's Widgets */
+	UPROPERTY(EditAnywhere, Category = "Widgets")
+	TSubclassOf<USWorldUserWidget> HealthBarWidgetClass;
+
+	UPROPERTY(EditAnywhere, Category = "Widgets")
+	TSubclassOf<USWorldUserWidget> TargetSpottedWidgetClass;
+	
+	UPROPERTY(Transient)
+	USWorldUserWidget* HealthBarWidget;
+	
+
 	/** Bot's Properties */
 	UPROPERTY(EditAnywhere, Category = "Properties")
 	float LifeSpanTime;
 
 	UPROPERTY(EditAnywhere, Category = "Properties")
 	FName TimeToHitParamName;
-
-	UPROPERTY(EditAnywhere, Category = "Properties")
-	TSubclassOf<USWorldUserWidget> HealthBarWidgetClass;
-
-	UPROPERTY(Transient)
-	USWorldUserWidget* HealthBarWidget;
 	
 	UPROPERTY(EditAnywhere, Category = "Properties|Drop")
 	float RewardCredits;

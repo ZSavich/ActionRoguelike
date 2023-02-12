@@ -9,6 +9,7 @@
 
 class UProjectileMovementComponent;
 class USphereComponent;
+class USActionEffect;
 
 UCLASS(Abstract)
 class ACTIONROGUELIKE_API ASProjectileBase : public AActor
@@ -41,7 +42,11 @@ protected:
 
 	/** Sound Effects */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Sounds")
-	USoundBase* ImpactSound; 
+	USoundBase* ImpactSound;
+
+	/** Action's Effect */
+	UPROPERTY(EditDefaultsOnly, Category = "Effects")
+	TSubclassOf<USActionEffect> ActionEffect;
 
 	/** Base properties */
 	UPROPERTY(EditAnywhere, Category = "Properties")
