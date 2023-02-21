@@ -18,12 +18,22 @@ USInteractionComponent::USInteractionComponent()
 	TraceObjectType = ECC_WorldDynamic;
 }
 
+void USInteractionComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	OwnerPawn = Cast<APawn>(GetOwner());
+}
+
 void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	FindBestInteractable();
+	if (OwnerPawn && OwnerPawn->IsLocallyControlled())
+	{
+		FindBestInteractable();
+	}
 }
 
 void USInteractionComponent::FindBestInteractable()
@@ -67,9 +77,9 @@ void USInteractionComponent::FindBestInteractable()
 			QueryParams,
 			CollisionShape);
 		
+		FocusedActor = nullptr;
 		if (bIsHitActors)
 		{
-			FocusedActor = nullptr;
 			for (const FHitResult& HitResult : HitResults)
 			{
 				AActor* HitActor = HitResult.GetActor();
@@ -121,11 +131,17 @@ void USInteractionComponent::FindBestInteractable()
 	}
 }
 
-void USInteractionComponent::PrimaryInteract() const
+void USInteractionComponent::PrimaryInteract()
+{
+	ServerInteract(FocusedActor);
+}
+
+// RPC Functions
+void USInteractionComponent::ServerInteract_Implementation(AActor* InFocusActor)
 {
 	APawn* Owner = GetOwner<APawn>();
-	if (Owner && FocusedActor)
+	if (Owner && InFocusActor)
 	{
-		ISGameplayInterface::Execute_Interact(FocusedActor, Owner);
+		ISGameplayInterface::Execute_Interact(InFocusActor, Owner);
 	}
 }

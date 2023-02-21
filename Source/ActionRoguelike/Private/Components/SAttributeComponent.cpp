@@ -3,6 +3,7 @@
 #include "Components/SAttributeComponent.h"
 
 #include "SGameModeBase.h"
+#include "Net/UnrealNetwork.h"
 
 static TAutoConsoleVariable<float> CVarDamageMultiplier(TEXT("su.DamageMultiplier"), 1.f, TEXT("Global Damage Modifier for Attribute Component."), ECVF_Cheat);
 
@@ -38,6 +39,8 @@ USAttributeComponent::USAttributeComponent()
 	MaxHealth = 100.f;
 	Rage = 10.f;
 	MaxRage = 100.f;
+
+	SetIsReplicatedByDefault(true);
 }
 
 bool USAttributeComponent::ApplyHealthChange(AActor* Instigator, float Delta)
@@ -53,25 +56,32 @@ bool USAttributeComponent::ApplyHealthChange(AActor* Instigator, float Delta)
 	Delta *= DamageMultiplier;
 	
 	const float OldHealth = Health;
-	Health = FMath::Clamp(Health + Delta, 0.f, MaxHealth);
-	const float ActualDelta = Health - OldHealth;
+	const float NewHealth = FMath::Clamp(Health + Delta, 0.f, MaxHealth);
+	const float ActualDelta = NewHealth - OldHealth;
 
-	if (ActualDelta < 0.f)
+	// Only on the Server
+	if (GetOwnerRole() == ROLE_Authority)
 	{
-		if (FMath::IsNearlyZero(Health))
+		Health = NewHealth;
+
+		if (ActualDelta < 0.f)
 		{
-			if (ASGameModeBase* GameMode = GetWorld()->GetAuthGameMode<ASGameModeBase>())
+			if (FMath::IsNearlyZero(Health))
 			{
-				GameMode->OnActorKilled(GetOwner(), Instigator);
+				if (ASGameModeBase* GameMode = GetWorld()->GetAuthGameMode<ASGameModeBase>())
+				{
+					GameMode->OnActorKilled(GetOwner(), Instigator);
+				}
+			}
+			else
+			{
+				ApplyRageChange(-ActualDelta);
 			}
 		}
-		else
-		{
-			ApplyRageChange(-ActualDelta);
-		}
+		
+		MulticastOnHealthChanged(Instigator, Health, ActualDelta);
 	}
 	
-	OnHealthChanged.Broadcast(Instigator, this, Health, ActualDelta);
 	return ActualDelta != 0;
 }
 
@@ -84,10 +94,15 @@ bool USAttributeComponent::ApplyRageChange(float Delta)
 	}
 
 	const float OldRage = Rage;
-	Rage = FMath::Clamp(Rage + Delta, 0.f, MaxRage);
-	const float ActualDelta = Rage - OldRage;
+	const float NewRage = FMath::Clamp(Rage + Delta, 0.f, MaxRage);
+	const float ActualDelta = NewRage - OldRage;
 
-	OnRageChanged.Broadcast(this, Rage, ActualDelta);
+	if (GetOwnerRole() == ROLE_Authority)
+	{
+		Rage = NewRage;
+		MulticastOnRageChanged(Rage, ActualDelta);
+	}
+
 	return ActualDelta != 0.f;
 }
 
@@ -100,3 +115,27 @@ bool USAttributeComponent::KillSelf()
 	}
 	return false;
 }
+
+// Multiplayer Functions - START
+void USAttributeComponent::MulticastOnHealthChanged_Implementation(AActor* Instigator, float NewHealth, float Delta)
+{
+	OnHealthChanged.Broadcast(Instigator, this, NewHealth, Delta);
+}
+
+void USAttributeComponent::MulticastOnRageChanged_Implementation(float NewRage, float Delta)
+{
+	OnRageChanged.Broadcast(this, NewRage, Delta);
+}
+
+void USAttributeComponent::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// Replicate Health Attribute
+	DOREPLIFETIME(USAttributeComponent, Health);
+	DOREPLIFETIME(USAttributeComponent, MaxHealth);
+	// Replicate Rage Attribute
+	DOREPLIFETIME(USAttributeComponent, Rage);
+	DOREPLIFETIME(USAttributeComponent, MaxRage);
+}
+// Multiplayer Functions - END

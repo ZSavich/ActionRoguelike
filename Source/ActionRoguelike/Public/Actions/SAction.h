@@ -8,6 +8,19 @@
 #include "UObject/NoExportTypes.h"
 #include "SAction.generated.h"
 
+USTRUCT()
+struct FActionRepData
+{
+	GENERATED_BODY()
+
+public:
+	UPROPERTY()
+	bool bIsRunning;
+
+	UPROPERTY()
+	TObjectPtr<AActor> Instigator;
+};
+
 UCLASS(Blueprintable)
 class ACTIONROGUELIKE_API USAction : public UObject
 {
@@ -30,12 +43,18 @@ protected:
 	/** Action can only start if Owning Actor has none of these Tags applied */
 	UPROPERTY(EditDefaultsOnly, Category = "Tags")
 	FGameplayTagContainer BlockedTags;
-	
-	bool bIsActive;
+
+	UPROPERTY(ReplicatedUsing = "OnRep_ActionRepData");
+	FActionRepData ActionRepData;
+
+	UPROPERTY(Replicated)
+	TObjectPtr<USActionComponent> OwnActionComponent;
 
 public:
 	USAction();
 	USAction(const FName Name) : ActionName(Name) {};
+
+	void Initialize(USActionComponent* ActionComponent);
 	
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	bool StartAction(AActor* Instigator);
@@ -44,7 +63,7 @@ public:
 	bool StopAction(AActor* Instigator);
 
 	bool CanStart() const;
-	bool IsRunning() const { return bIsActive; }
+	bool IsRunning() const { return ActionRepData.bIsRunning; }
 	
 	FORCEINLINE const FName& GetActionName() const { return ActionName; }
 	FORCEINLINE bool ShouldAutoStart() const { return bAutoStart; }
@@ -54,4 +73,13 @@ public:
 protected:
 	UFUNCTION(BlueprintCallable)
 	USActionComponent* GetOwningComponent() const;
+
+	/** Multiplayer Functions */
+	virtual bool IsSupportedForNetworking() const override
+	{
+		return true;
+	}
+	
+	UFUNCTION()
+	void OnRep_ActionRepData();
 };

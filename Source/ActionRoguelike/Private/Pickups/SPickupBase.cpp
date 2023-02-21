@@ -27,6 +27,8 @@ ASPickupBase::ASPickupBase()
 	bCanRespawn = false;
 	RespawnTime = 10.f;
 	CostCredits = 0.f;
+
+	SetReplicates(true);
 }
 
 void ASPickupBase::Interact_Implementation(APawn* InstigatorPawn)
@@ -35,8 +37,7 @@ void ASPickupBase::Interact_Implementation(APawn* InstigatorPawn)
 	
 	if (ActivatePickup(InstigatorPawn))
 	{
-		UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
-		UGameplayStatics::SpawnEmitterAtLocation(this, PickupEffect, GetActorLocation());
+		MulticastDisplayInteractEffects();
 
 		// If pick-up can respawn we should hide the mesh and disable collision or destroy it
 		if (bCanRespawn)
@@ -76,4 +77,11 @@ bool ASPickupBase::ActivatePickup(APawn* InstigatorPawn)
 		}
 	}
 	return false;
+}
+
+// Multiplayer Functions
+void ASPickupBase::MulticastDisplayInteractEffects_Implementation()
+{
+	UGameplayStatics::PlaySoundAtLocation(this, PickupSound, GetActorLocation());
+	UGameplayStatics::SpawnEmitterAtLocation(this, PickupEffect, GetActorLocation());
 }

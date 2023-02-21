@@ -21,11 +21,17 @@ protected:
 	TObjectPtr<UStaticMeshComponent> LidMesh;
 
 	/** Chest's Properties*/
+	UPROPERTY(ReplicatedUsing = "OnRep_LidOpened", BlueprintReadWrite)
+	bool bLidOpened;
 	
 public:	
 	ASItemChest();
 
 	/** Override IGameplayInterface functions */
 	//virtual void Interact_Implementation(APawn* InstigatorPawn) override;
+
+protected:
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void OnRep_LidOpened();
 
 };

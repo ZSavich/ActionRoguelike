@@ -4,6 +4,7 @@
 #include "Components/SAttributeComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "SPlayerState.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -247,4 +248,11 @@ void ASCharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponent*
 	{
 		GetMesh()->SetScalarParameterValueOnMaterials("TimeToHit", GetWorld()->GetTimeSeconds());
 	}
+}
+
+// Multiplayer Functions
+void ASCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+	OnPlayerStateReady();
 }

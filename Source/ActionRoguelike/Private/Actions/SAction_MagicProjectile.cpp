@@ -19,13 +19,18 @@ bool USAction_MagicProjectile::StartAction_Implementation(AActor* Instigator)
 		if (ACharacter* InstCharacter = Cast<ACharacter>(Instigator))
 		{
 			InstCharacter->PlayAnimMontage(AttackMontage);
-			const FTimerDelegate SpawnProjectileDelegate = FTimerDelegate::CreateUObject(this, &USAction_MagicProjectile::AttackDelayElapsed, InstCharacter);
 
-			if (const UWorld* World = GetWorld())
+			// Only on the Server
+			if (Instigator->GetLocalRole() == ROLE_Authority)
 			{
-				World->GetTimerManager().SetTimer(TimerHandle_SpawnProjectile, SpawnProjectileDelegate, AttackDelay , false);
-				return true;
+				const FTimerDelegate SpawnProjectileDelegate = FTimerDelegate::CreateUObject(this, &USAction_MagicProjectile::AttackDelayElapsed, InstCharacter);
+
+				if (const UWorld* World = GetWorld())
+				{
+					World->GetTimerManager().SetTimer(TimerHandle_SpawnProjectile, SpawnProjectileDelegate, AttackDelay , false);
+				}
 			}
+			return true;
 		}
 	}
 	UE_LOG(LogTemp, Error, TEXT("EUD::Can't spawn projectile in %s"), *GetNameSafe(this));

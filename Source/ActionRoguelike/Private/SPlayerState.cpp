@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SPlayerState.h"
+#include "Net/UnrealNetwork.h"
 
 ASPlayerState::ASPlayerState()
 {
@@ -23,4 +24,18 @@ bool ASPlayerState::ApplyCreditChange(const float Amount)
 void ASPlayerState::SetCredits(const float Amount)
 {
 	ApplyCreditChange(Amount);
+}
+
+// Multiplayer Functions
+void ASPlayerState::OnRep_Credits()
+{
+	OnCreditsChange.Broadcast(Credits);
+}
+
+void ASPlayerState::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASPlayerState, Credits);
+	//DOREPLIFETIME_CONDITION(ASPlayerState, Credits, COND_OwnerOnly);
 }

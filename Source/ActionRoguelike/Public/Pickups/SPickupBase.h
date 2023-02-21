@@ -51,5 +51,8 @@ public:
 	virtual bool ActivatePickup(APawn* InstigatorPawn);
 	
 	virtual void Respawn();
-	
+
+protected:
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastDisplayInteractEffects();
 };

@@ -20,7 +20,7 @@ public:
 	
 protected:
 	/** Action Component Properties */
-	UPROPERTY(BlueprintReadOnly, Category = "Properties")
+	UPROPERTY(Replicated, BlueprintReadOnly, Category = "Properties")
 	TArray<USAction*> ActiveActions;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Properties")
@@ -31,6 +31,8 @@ public:
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	virtual void BeginPlay() override;
+	/* Replicates USAction objects because it's UObject */
+	virtual bool ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags) override;
 
 	/** Static Functions */
 	UFUNCTION(BlueprintCallable)
@@ -45,5 +47,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool StopActionByName(AActor* Instigator, const FName& ActionName);
-		
+
+protected:
+	/** Multiplayer Functions */
+	UFUNCTION(Server, Reliable)
+	void ServerStartAction(AActor* Instigator, const FName& ActionName);
+
+	UFUNCTION(Server, Reliable)
+	void ServerStopAction(AActor* Instigator, const FName& ActionName);
 };

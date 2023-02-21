@@ -24,7 +24,7 @@ private:
 	TEnumAsByte<ECollisionChannel> TraceObjectType;
 
 protected:
-	UPROPERTY(Transient)
+	UPROPERTY()
 	AActor* FocusedActor;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
@@ -32,12 +32,20 @@ protected:
 
 	UPROPERTY(Transient)
 	USWorldUserWidget* DefaultWidgetInstance;
+
+	UPROPERTY(Transient)
+	APawn* OwnerPawn;
 	
 public:	
 	USInteractionComponent();
-
+	
+	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void FindBestInteractable();
-	void PrimaryInteract() const;
+	void PrimaryInteract();
+
+private:
+	UFUNCTION(Server, Reliable)
+	void ServerInteract(AActor* InFocusActor);
 };

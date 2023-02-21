@@ -64,4 +64,8 @@ protected:
 
 	void SetTargetActor(AActor* NewTargetActor);
 	AActor* GetTargetActor();
+
+	/** Multiplayer Functions */
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastOnSeePawn();
 };

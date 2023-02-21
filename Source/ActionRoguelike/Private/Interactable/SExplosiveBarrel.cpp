@@ -28,6 +28,8 @@ ASExplosiveBarrel::ASExplosiveBarrel()
 	// Default properties
 	Damage = 50.f;
 	DamageRadius = 250.f;
+
+	SetReplicates(true);
 }
 
 void ASExplosiveBarrel::BeginPlay()
@@ -43,30 +45,41 @@ void ASExplosiveBarrel::BeginPlay()
 void ASExplosiveBarrel::OnBarrelHit(UPrimitiveComponent* HitComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		MulticastExplosive();
+		
+		// Check if explosive overlap any actors with attribute component
+		if (Damage > 0)
+		{
+			TArray<FOverlapResult> OverlapResults;
+		
+			FCollisionShape Shape;
+			Shape.SetSphere(DamageRadius);
+		
+			GetWorld()->OverlapMultiByChannel(OverlapResults, GetActorLocation(), FQuat::Identity, ECC_Pawn, Shape);
+			for (const FOverlapResult& Result : OverlapResults)
+			{
+				if (AActor* Target = Result.GetActor())
+				{
+					if (USAttributeComponent* AttributeComponent = USAttributeComponent::GetAttributes(Target))
+					{
+						AttributeComponent->ApplyHealthChange(this, -Damage);
+					}
+				}
+			}
+		}
+		SetLifeSpan(2.f);
+	}
+}
+
+void ASExplosiveBarrel::MulticastExplosive_Implementation()
+{
 	if (RadialForceComponent)
 	{
 		RadialForceComponent->FireImpulse();
 	}
 
-	// Check if explosive overlap any actors with attribute component
-	if (Damage > 0)
-	{
-		TArray<FOverlapResult> OverlapResults;
-		
-		FCollisionShape Shape;
-		Shape.SetSphere(DamageRadius);
-		
-		GetWorld()->OverlapMultiByChannel(OverlapResults, GetActorLocation(), FQuat::Identity, ECC_Pawn, Shape);
-		for (const FOverlapResult& Result : OverlapResults)
-		{
-			if (AActor* Target = Result.GetActor())
-			{
-				if (USAttributeComponent* AttributeComponent = USAttributeComponent::GetAttributes(Target))
-				{
-					AttributeComponent->ApplyHealthChange(this, -Damage);
-				}
-			}
-		}
-	}
+	BarrelMesh->SetVisibility(false);
 }
 

@@ -2,6 +2,8 @@
 
 #include "Interactable/SItemChest.h"
 
+#include "Net/UnrealNetwork.h"
+
 ASItemChest::ASItemChest()
 {
  	PrimaryActorTick.bCanEverTick = false;
@@ -13,4 +15,12 @@ ASItemChest::ASItemChest()
 	LidMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LidMesh"));
 	LidMesh->SetupAttachment(GetRootComponent());
 
+	SetReplicates(true);
+}
+
+void ASItemChest::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ASItemChest, bLidOpened);
 }

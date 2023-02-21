@@ -16,6 +16,7 @@ class USpringArmComponent;
 class USAttributeComponent;
 class ASProjectileBase;
 class USActionComponent;
+class ASPlayerState;
 
 UCLASS()
 class ACTIONROGUELIKE_API ASCharacter : public ACharacter
@@ -85,7 +86,11 @@ public:
 	
 	virtual void BeginPlay() override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void OnRep_PlayerState() override;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnPlayerStateReady();
+	
 	/** Console Command Functions */
 	UFUNCTION(Exec)
 	void HealSelf(const float Amount) const;
@@ -103,5 +108,4 @@ protected:
 	/** Attribute Component Callbacks */
 	UFUNCTION()
 	void OnHealthChanged(AActor* InstigatorActor, USAttributeComponent* OwningComponent, float NewHealth, float Delta);
-	
 };

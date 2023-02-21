@@ -40,8 +40,9 @@ ASProjectileBase::ASProjectileBase()
 	// Set default properties
 	LifeTime = 5.f;
 	Damage = 0.f;
-
 	bActivateSpread = false;
+
+	SetReplicates(true);
 }
 
 void ASProjectileBase::BeginPlay()
@@ -98,7 +99,9 @@ void ASProjectileBase::OnBeginOverlapEvent(UPrimitiveComponent* OverlappedCompon
 	if (USGameplayFunctionLibrary::ApplyDirectionalDamage(GetInstigator(), OtherActor, Damage, SweepResult))
 	{
 		Explode();
-		if (ActionComponent && ActionEffect)
+		
+		// Call only on the Server
+		if (ActionComponent && ActionEffect && OtherActor->GetLocalRole() == ROLE_Authority)
 		{
 			ActionComponent->AddAction(ActionEffect);
 		}

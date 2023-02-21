@@ -26,16 +26,16 @@ public:
 
 protected:
 	/** Attributes */
-	UPROPERTY(EditAnywhere, Category = "Attributes")
+	UPROPERTY(EditAnywhere, Replicated, Category = "Attributes")
 	float Health;
 
-	UPROPERTY(EditAnywhere, Category = "Attributes")
+	UPROPERTY(EditAnywhere, Replicated, Category = "Attributes")
 	float MaxHealth;
 
-	UPROPERTY(EditAnywhere, Category = "Attributes")
+	UPROPERTY(EditAnywhere, Replicated, Category = "Attributes")
 	float Rage;
 
-	UPROPERTY(EditAnywhere, Category = "Attributes")
+	UPROPERTY(EditAnywhere, Replicated, Category = "Attributes")
 	float MaxRage;
 
 public:
@@ -75,4 +75,12 @@ public:
 	/** Helper Functions */
 	UFUNCTION()
 	bool KillSelf();
+
+protected:
+	/** Multiplayer Functions */
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastOnHealthChanged(AActor* Instigator, float NewHealth, float Delta);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastOnRageChanged(float NewRage, float Delta);
 };

@@ -8,3 +8,4 @@ IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, ActionRoguelike, "ActionR
 // Defining custom logging categories
 DEFINE_LOG_CATEGORY(LogRogue);
 DEFINE_LOG_CATEGORY(LogRogueAI);
+

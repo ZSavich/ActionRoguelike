@@ -43,14 +43,17 @@ void ASAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (PawnSensingComponent)
+	if (GetLocalRole() == ROLE_Authority)
 	{
-		PawnSensingComponent->OnSeePawn.AddDynamic(this, &ASAICharacter::HandleOnSeePawn);
-	}
+		if (PawnSensingComponent)
+		{
+			PawnSensingComponent->OnSeePawn.AddDynamic(this, &ASAICharacter::HandleOnSeePawn);
+		}
 
-	if (AttributeComponent)
-	{
-		AttributeComponent->OnHealthChanged.AddDynamic(this, &ASAICharacter::OnHealthChanged);
+		if (AttributeComponent)
+		{
+			AttributeComponent->OnHealthChanged.AddDynamic(this, &ASAICharacter::OnHealthChanged);
+		}
 	}
 }
 
@@ -89,11 +92,7 @@ void ASAICharacter::HandleOnSeePawn(APawn* Pawn)
 	if (GetTargetActor() != Pawn)
 	{
 		SetTargetActor(Pawn);
-		if (USWorldUserWidget* TargetSpottedWidget = CreateWidget<USWorldUserWidget>(GetWorld(), TargetSpottedWidgetClass))
-		{
-			TargetSpottedWidget->SetAttachedActor(this);
-			TargetSpottedWidget->AddToViewport();
-		}
+		MulticastOnSeePawn();
 	}
 }
 
@@ -165,6 +164,19 @@ void ASAICharacter::OnHealthChanged(AActor* InstigatorActor, USAttributeComponen
 		{
 			HealthBarWidget->SetAttachedActor(this);
 			HealthBarWidget->AddToViewport();
+		}
+	}
+}
+
+// Multiplayer Functions
+void ASAICharacter::MulticastOnSeePawn_Implementation()
+{
+	if (IsLocallyControlled())
+	{
+		if (USWorldUserWidget* TargetSpottedWidget = CreateWidget<USWorldUserWidget>(GetWorld(), TargetSpottedWidgetClass))
+		{
+			TargetSpottedWidget->SetAttachedActor(this);
+			TargetSpottedWidget->AddToViewport();
 		}
 	}
 }

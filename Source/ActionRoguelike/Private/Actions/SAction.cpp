@@ -3,12 +3,18 @@
 #include "Actions/SAction.h"
 
 #include "Components/SAttributeComponent.h"
+#include "Net/UnrealNetwork.h"
 
 USAction::USAction()
 {
-	bIsActive = false;
+	ActionRepData.bIsRunning = false;
 	bAutoStart = false;
 	RageCost = 0.f;
+}
+
+void USAction::Initialize(USActionComponent* ActionComponent)
+{
+	OwnActionComponent = ActionComponent;
 }
 
 USActionComponent* USAction::GetOwningComponent() const
@@ -22,7 +28,7 @@ USActionComponent* USAction::GetOwningComponent() const
 
 bool USAction::CanStart() const
 {
-	if (!bIsActive)
+	if (!ActionRepData.bIsRunning)
 	{
 		if (const USActionComponent* ActionComponent = GetOwningComponent())
 		{
@@ -49,12 +55,13 @@ bool USAction::CanStart() const
 
 bool USAction::StartAction_Implementation(AActor* Instigator)
 {
-	if (!bIsActive && Instigator)
+	if (Instigator)
 	{
 		if (USActionComponent* ActionComponent = GetOwningComponent())
 		{
 			ActionComponent->ActiveGameplayTags.AppendTags(GrantsTags);
-			bIsActive = true;
+			ActionRepData.bIsRunning = true;
+			ActionRepData.Instigator = Instigator;
 			
 			UE_LOG(LogTemp, Log, TEXT("EUD::Started action %s"), *GetNameSafe(this));
 			return true;
@@ -65,16 +72,38 @@ bool USAction::StartAction_Implementation(AActor* Instigator)
 
 bool USAction::StopAction_Implementation(AActor* Instigator)
 {
-	if (bIsActive && Instigator)
+	if (Instigator)
 	{
 		if (USActionComponent* ActionComponent = GetOwningComponent())
 		{
 			ActionComponent->ActiveGameplayTags.RemoveTags(GrantsTags);
-			bIsActive = false;
+			ActionRepData.bIsRunning = false;
+			ActionRepData.Instigator = Instigator;
 			
 			UE_LOG(LogTemp, Log, TEXT("EUD::Stopped action %s"), *GetNameSafe(this));
 			return true;
 		}
 	}
 	return false;
+}
+
+// Multiplayer Functions
+void USAction::OnRep_ActionRepData()
+{
+	if (ActionRepData.bIsRunning)
+	{
+		StartAction(ActionRepData.Instigator);
+	}
+	else
+	{
+		StopAction(ActionRepData.Instigator);
+	}
+}
+
+void USAction::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(USAction, ActionRepData);
+	DOREPLIFETIME(USAction, OwnActionComponent)
 }

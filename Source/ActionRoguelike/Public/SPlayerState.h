@@ -14,6 +14,7 @@ class ACTIONROGUELIKE_API ASPlayerState : public APlayerState
 	GENERATED_BODY()
 
 private:
+	UPROPERTY(ReplicatedUsing = "OnRep_Credits")
 	float Credits;
 	
 public:
@@ -34,4 +35,9 @@ public:
 	/* Console Command Functions */
 	UFUNCTION(Exec)
 	void SetCredits(const float Amount);
+
+protected:
+	/** Multiplayer Functions */
+	UFUNCTION()
+	void OnRep_Credits();
 };

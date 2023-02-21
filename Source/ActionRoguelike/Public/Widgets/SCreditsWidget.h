@@ -18,7 +18,8 @@ protected:
 	UTextBlock* CreditsCounterText = nullptr;
 
 protected:
-	virtual void NativeConstruct() override;
+	UFUNCTION(BlueprintCallable)
+	void BindWidgetComponents();
 
 	void UpdateCredits(float Credits) const;
 };

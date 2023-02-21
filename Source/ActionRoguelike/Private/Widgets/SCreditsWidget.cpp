@@ -4,13 +4,14 @@
 #include "SPlayerState.h"
 #include "Components/TextBlock.h"
 
-void USCreditsWidget::NativeConstruct()
+void USCreditsWidget::BindWidgetComponents()
 {
-	Super::NativeConstruct();
-
 	if (ASPlayerState* PlayerState = GetOwningPlayer()->GetPlayerState<ASPlayerState>())
 	{
-		PlayerState->OnCreditsChange.AddUObject(this, &USCreditsWidget::UpdateCredits);	
+		if (!PlayerState->OnCreditsChange.IsBound())
+		{
+			PlayerState->OnCreditsChange.AddUObject(this, &USCreditsWidget::UpdateCredits);	
+		}
 	}
 }
 
