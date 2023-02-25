@@ -5,10 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Interfaces/SGameplayInterface.h"
+#include "SaveSystem/SSaveableActorInterface.h"
 #include "SItemChest.generated.h"
 
 UCLASS()
-class ACTIONROGUELIKE_API ASItemChest : public AActor, public ISGameplayInterface
+class ACTIONROGUELIKE_API ASItemChest : public AActor, public ISGameplayInterface, public ISSaveableActorInterface
 {
 	GENERATED_BODY()
 
@@ -21,17 +22,17 @@ protected:
 	TObjectPtr<UStaticMeshComponent> LidMesh;
 
 	/** Chest's Properties*/
-	UPROPERTY(ReplicatedUsing = "OnRep_LidOpened", BlueprintReadWrite)
+	UPROPERTY(ReplicatedUsing = "OnRep_LidOpened", BlueprintReadWrite, SaveGame)
 	bool bLidOpened;
 	
 public:	
 	ASItemChest();
-
-	/** Override IGameplayInterface functions */
-	//virtual void Interact_Implementation(APawn* InstigatorPawn) override;
-
+	virtual void BeginPlay() override;
+	
 protected:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void OnRep_LidOpened();
+
+	virtual void ActorSaveDataLoaded_Implementation() override;
 
 };

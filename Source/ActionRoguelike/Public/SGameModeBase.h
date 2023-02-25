@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "EnvironmentQuery/EnvQueryTypes.h"
 #include "GameFramework/GameModeBase.h"
+#include "SaveSystem/SSaveGame.h"
 #include "SGameModeBase.generated.h"
 
 class ASAICharacter;
@@ -36,10 +37,16 @@ protected:
 	FTimerHandle TimerHandle_SpawnBots;
 	FTimerHandle TimerHandle_RespawnPlayer;
 
+	/* Save Game Data */
+	TObjectPtr<USSaveGame> CurrentSaveData;
+	FString CurrentSlotName;
+
 public:
 	ASGameModeBase();
 	
+	virtual void InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage) override;
 	virtual void StartPlay() override;
+	virtual void HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer) override;
 
 	void OnActorKilled(AActor* VictimActor, AActor* InstigatorActor);
 	
@@ -56,4 +63,10 @@ protected:
 	void HandleOnSpawnBotsFinished(UEnvQueryInstanceBlueprintWrapper* QueryInstance, EEnvQueryStatus::Type QueryStatus);
 	
 	void SpawnBotTimerElapsed();
+
+	/* Save Game Data Functions */
+	UFUNCTION(BlueprintCallable)
+	void WriteSaveGame();
+	UFUNCTION(BlueprintCallable)
+	void LoadSaveGame();
 };

@@ -8,6 +8,8 @@
 
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnCreditsChange, float ActualCredits);
 
+class USSaveGame;
+
 UCLASS()
 class ACTIONROGUELIKE_API ASPlayerState : public APlayerState
 {
@@ -35,6 +37,11 @@ public:
 	/* Console Command Functions */
 	UFUNCTION(Exec)
 	void SetCredits(const float Amount);
+
+	/* Save and Load Functions */
+	void SavePlayerState(USSaveGame* SaveObject) const;
+	void LoadPlayerState(const USSaveGame* SaveObject);
+	void OverrideSpawnTransform(const USSaveGame* SaveObject);
 
 protected:
 	/** Multiplayer Functions */

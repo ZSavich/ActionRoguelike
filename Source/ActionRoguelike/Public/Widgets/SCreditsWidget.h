@@ -21,5 +21,6 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void BindWidgetComponents();
 
+	UFUNCTION(BlueprintCallable)
 	void UpdateCredits(float Credits) const;
 };

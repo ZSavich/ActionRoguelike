@@ -3,11 +3,16 @@
 #include "SGameModeBase.h"
 #include "EngineUtils.h"
 #include "SCharacter.h"
+#include "SPlayerState.h"
 #include "ActionRoguelike/ActionRoguelike.h"
 #include "AI/SAICharacter.h"
 #include "Components/SAttributeComponent.h"
 #include "EnvironmentQuery/EnvQuery.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
+#include "GameFramework/GameStateBase.h"
+#include "Kismet/GameplayStatics.h"
+#include "SaveSystem/SSaveableActorInterface.h"
+#include "SaveSystem/SSaveGame.h"
 
 static TAutoConsoleVariable<bool> CVarSpawnBots(TEXT("su.SpawnBots"), true, TEXT("Enable spawning of bots via timer."), ECVF_Cheat);
 
@@ -15,6 +20,18 @@ ASGameModeBase::ASGameModeBase()
 {
 	SpawnTimerInterval = 2.f;
 	RespawnPlayerDelay = 5.f;
+
+	/* Save Game Data */
+	CurrentSlotName = "SaveGameData";
+}
+
+void ASGameModeBase::InitGame(const FString& MapName, const FString& Options, FString& ErrorMessage)
+{
+	Super::InitGame(MapName, Options, ErrorMessage);
+
+	// Optional slot name (Fall back to slot specified in SaveGameSettings class/INI otherwise)
+	const FString SelectedSaveSlot = UGameplayStatics::ParseOption(Options, "SaveGame");
+	LoadSaveGame(); // LoadSaveGame(SelectedSaveSlot);
 }
 
 void ASGameModeBase::StartPlay()
@@ -22,6 +39,25 @@ void ASGameModeBase::StartPlay()
 	Super::StartPlay();
 
 	GetWorldTimerManager().SetTimer(TimerHandle_SpawnBots, this, &ASGameModeBase::SpawnBotTimerElapsed, SpawnTimerInterval, true);
+}
+
+void ASGameModeBase::HandleStartingNewPlayer_Implementation(APlayerController* NewPlayer)
+{
+	// Calling Before Super:: so we set variables before "BeginPlay" state is called in PlayerController (which is where we instantiate UI)
+	ASPlayerState* PlayerState = NewPlayer->GetPlayerState<ASPlayerState>();
+	if (ensure(PlayerState))
+	{
+		PlayerState->LoadPlayerState(CurrentSaveData);
+	}
+	
+	Super::HandleStartingNewPlayer_Implementation(NewPlayer);
+
+	// Now we're ready override spawn location
+	// Alternatively we could override code spawn location to use store locations immediately (skipping the whole 'find player start' logic)
+	if (PlayerState)
+	{
+		PlayerState->OverrideSpawnTransform(CurrentSaveData);
+	}
 }
 
 void ASGameModeBase::OnActorKilled(AActor* VictimActor, AActor* InstigatorActor)
@@ -116,4 +152,95 @@ void ASGameModeBase::HandleOnSpawnBotsFinished(UEnvQueryInstanceBlueprintWrapper
 	{
 		World->SpawnActor<ASAICharacter>(BotClass, SpawnLocations[0], FRotator::ZeroRotator);
 	}
+}
+
+void ASGameModeBase::WriteSaveGame()
+{
+	UE_LOG(LogTemp, Log, TEXT("EUD::Starting save data..."));
+	// Clear arrays, may contain data from previous loaded SaveGame
+	CurrentSaveData->SavedActors.Empty();
+	CurrentSaveData->SavedPlayers.Empty();
+
+	// Find actors with SaveablesActorInterface and write them into array
+	TArray<AActor*> Actors;
+	UGameplayStatics::GetAllActorsWithInterface(GetWorld(), USSaveableActorInterface::StaticClass(), Actors);
+
+	// Iterate the array of actors with SaveableActorInterface
+	for (AActor* Actor: Actors)
+	{
+		// Skip actors that are being destroyed
+		if (Actor->IsPendingKillPending()) continue;
+
+		// Record Actor's data
+		FActorSaveData ActorRecord;
+		ActorRecord.ActorName = *GetNameSafe(Actor);
+		ActorRecord.ActorTransform = Actor->GetTransform();
+
+		// Pass the array to fill with data from Actor
+		FMemoryWriter MemoryWriter(ActorRecord.ActorData);
+		FSaveGameArchive Ar(MemoryWriter);
+		// Converts Actor's SaveGame UPROPERTIES into binary array
+		Actor->Serialize(Ar);
+
+		CurrentSaveData->SavedActors.Add(ActorRecord);
+	}
+
+	// Iterate all player states, we don't have proper ID to match yet (requires Steam of EOS)
+	if (AGameStateBase* GS = GetWorld()->GetGameState())
+	{
+		ASPlayerState* PlayerState = Cast<ASPlayerState>(GS->PlayerArray[0]);
+		if (PlayerState)
+		{
+			PlayerState->SavePlayerState(CurrentSaveData);
+			UE_LOG(LogTemp, Log, TEXT("EUD::Saved Player State in Game Mode."));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Log, TEXT("EUD::Can't save Player State in Game Mode."));
+		}
+	}
+
+	const bool bIsSaved = UGameplayStatics::SaveGameToSlot(CurrentSaveData, CurrentSlotName, 0);
+	UE_LOG(LogTemp, Log, TEXT("EUD::SaveGame Data Result = %s"), bIsSaved ? TEXT("Successful") : TEXT("Failed"));
+}
+
+void ASGameModeBase::LoadSaveGame()
+{
+	if (UGameplayStatics::DoesSaveGameExist(CurrentSlotName, 0) == false)
+	{
+		CurrentSaveData = Cast<USSaveGame>(UGameplayStatics::CreateSaveGameObject(USSaveGame::StaticClass()));
+		UE_LOG(LogTemp, Log, TEXT("EUD::Created New SaveGame Data."))
+		return;
+	}
+
+	CurrentSaveData = Cast<USSaveGame>(UGameplayStatics::LoadGameFromSlot(CurrentSlotName, 0));
+	if (CurrentSaveData == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("EUD::Failed to load SaveGame Data."));
+		return;
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("Loaded SaveGame Data."));
+
+	// Find Actors that have SaveableActorInterface
+	TArray<AActor*> Actors;
+	UGameplayStatics::GetAllActorsWithInterface(GetWorld(), USSaveableActorInterface::StaticClass(), Actors);
+
+	for (AActor* Actor : Actors)
+	{
+		const FActorSaveData* FoundedActor = CurrentSaveData->SavedActors.FindByPredicate([&](const FActorSaveData& ActorData) { return *GetNameSafe(Actor) == ActorData.ActorName; });
+		if (FoundedActor)
+		{
+			Actor->SetActorTransform(FoundedActor->ActorTransform);
+			
+			FMemoryReader FromBinary = FMemoryReader(FoundedActor->ActorData);
+			FSaveGameArchive Ar(FromBinary);
+			// Convert Binary array back into Actor's variables
+			Actor->Serialize(Ar);
+
+			// Call SaveableActorInterface's function that will update actor's state
+			ISSaveableActorInterface::Execute_ActorSaveDataLoaded(Actor);
+		}
+	}
+	UE_LOG(LogTemp, Log, TEXT("Successful loaded SaveGame Data."));
 }

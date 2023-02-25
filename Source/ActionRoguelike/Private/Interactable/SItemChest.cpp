@@ -15,7 +15,22 @@ ASItemChest::ASItemChest()
 	LidMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LidMesh"));
 	LidMesh->SetupAttachment(GetRootComponent());
 
+	// Replication
 	SetReplicates(true);
+}
+
+void ASItemChest::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// Replication
+	SetReplicateMovement(true);
+}
+
+void ASItemChest::ActorSaveDataLoaded_Implementation()
+{
+	ISSaveableActorInterface::ActorSaveDataLoaded_Implementation();
+	OnRep_LidOpened();
 }
 
 void ASItemChest::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
