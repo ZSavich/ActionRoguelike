@@ -17,7 +17,23 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnPawnChanged OnPawnChanged;
 
+protected:
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UUserWidget> PauseMenuWidgetClass;
+
+	UPROPERTY(BlueprintReadOnly, Transient)
+	TObjectPtr<UUserWidget> PauseMenuWidgetInstance;
+
+private:
+	bool bIsPauseMenuVisible;
+
 public:
+	virtual void BeginPlay() override;
 	virtual void SetPawn(APawn* InPawn) override;
-	
+
+	UFUNCTION(BlueprintCallable)
+	void TogglePauseMenu();
+
+protected:
+	bool IsPauseMenuValid();
 };

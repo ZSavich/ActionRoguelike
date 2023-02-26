@@ -116,6 +116,12 @@ bool USAttributeComponent::KillSelf()
 	return false;
 }
 
+void USAttributeComponent::ActorSaveDataLoaded_Implementation()
+{
+	OnHealthChanged.Broadcast(nullptr, this, Health, 0);
+	OnRageChanged.Broadcast(this, Rage, 0);
+}
+
 // Multiplayer Functions - START
 void USAttributeComponent::MulticastOnHealthChanged_Implementation(AActor* Instigator, float NewHealth, float Delta)
 {

@@ -4,6 +4,7 @@
 #include "Components/SAttributeComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "SPlayerController.h"
 #include "SPlayerState.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -127,6 +128,12 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 		{
 			EnhancedInputComponent->BindAction(ParryAction, ETriggerEvent::Completed, this, &ASCharacter::Input_Parry);
 		}
+
+		// Pause Menu
+		if (PauseAction)
+		{
+			EnhancedInputComponent->BindAction(PauseAction, ETriggerEvent::Completed, this, &ASCharacter::Input_Pause);
+		}
 	}
 }
 
@@ -218,6 +225,14 @@ void ASCharacter::Input_Parry(const FInputActionValue& InputActionValue)
 	if (ActionComponent)
 	{
 		ActionComponent->StartActionByName(this, "Parry");
+	}
+}
+
+void ASCharacter::Input_Pause(const FInputActionValue& InputActionValue)
+{
+	if (ASPlayerController* PC = GetController<ASPlayerController>())
+	{
+		PC->TogglePauseMenu();
 	}
 }
 

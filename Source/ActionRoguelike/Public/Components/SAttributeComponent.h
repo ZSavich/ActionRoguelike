@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "SaveSystem/SSaveableActorInterface.h"
 #include "SAttributeComponent.generated.h"
 
 class USAttributeComponent;
@@ -12,7 +13,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHealthChanged, AActor*, Instiga
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnRageChanged, USAttributeComponent*, OwningComp, float, NewRage, float, Delta);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class ACTIONROGUELIKE_API USAttributeComponent : public UActorComponent
+class ACTIONROGUELIKE_API USAttributeComponent : public UActorComponent, public ISSaveableActorInterface
 {
 	GENERATED_BODY()
 
@@ -26,13 +27,13 @@ public:
 
 protected:
 	/** Attributes */
-	UPROPERTY(EditAnywhere, Replicated, Category = "Attributes")
+	UPROPERTY(EditAnywhere, Replicated, Category = "Attributes", SaveGame)
 	float Health;
 
 	UPROPERTY(EditAnywhere, Replicated, Category = "Attributes")
 	float MaxHealth;
 
-	UPROPERTY(EditAnywhere, Replicated, Category = "Attributes")
+	UPROPERTY(EditAnywhere, Replicated, Category = "Attributes", SaveGame)
 	float Rage;
 
 	UPROPERTY(EditAnywhere, Replicated, Category = "Attributes")
@@ -83,4 +84,6 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastOnRageChanged(float NewRage, float Delta);
+
+	virtual void ActorSaveDataLoaded_Implementation() override;
 };

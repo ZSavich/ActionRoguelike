@@ -70,6 +70,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess = "true"))
 	UInputAction* ParryAction;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Input", Meta = (AllowPrivateAccess = "true"))
+	UInputAction* PauseAction;
+	
 	/** Projectiles */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Projectile", Meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<ASProjectileBase> PrimaryAbilityClass;
@@ -104,6 +107,7 @@ protected:
 	void Input_PrimaryAbility(const FInputActionValue& InputActionValue);
 	void Input_Sprint(const FInputActionValue& InputActionValue);
 	void Input_Parry(const FInputActionValue& InputActionValue);
+	void Input_Pause(const FInputActionValue& InputActionValue);
 
 	/** Attribute Component Callbacks */
 	UFUNCTION()
