@@ -13,7 +13,7 @@ class ACTIONROGUELIKE_API USActionEffect : public USAction
 
 protected:
 	/** Effect's Properties*/
-	UPROPERTY(EditDefaultsOnly, Category = "Effect")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Effect")
 	float Duration;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Effect")
@@ -24,6 +24,9 @@ private:
 	FTimerHandle TimerHandle_Duration;
 	FTimerHandle TimerHandle_Period;
 
+	UPROPERTY(Replicated)
+	float TimeStarted;
+
 public:
 	USActionEffect();
 
@@ -32,6 +35,9 @@ public:
 	
 	UFUNCTION(BlueprintNativeEvent)
 	void ExecutePeriodEffect(AActor* Instigator);
+	
+	UFUNCTION(BlueprintCallable)
+	float GetTimeRemaining() const;
 	
 	
 };

@@ -9,6 +9,8 @@
 
 class USAction;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnActionStateChanged, class USActionComponent*, OwningComp, USAction*, Action);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ACTIONROGUELIKE_API USActionComponent : public UActorComponent
 {
@@ -17,6 +19,12 @@ class ACTIONROGUELIKE_API USActionComponent : public UActorComponent
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Properties")
 	FGameplayTagContainer  ActiveGameplayTags;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Events")
+	FOnActionStateChanged OnActionStarted;
+
+	UPROPERTY(BlueprintAssignable, BlueprintCallable, Category = "Events")
+	FOnActionStateChanged OnActionStopped;
 	
 protected:
 	/** Action Component Properties */

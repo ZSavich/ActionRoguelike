@@ -2,6 +2,9 @@
 
 #include "Actions/SActionEffect.h"
 
+#include "GameFramework/GameStateBase.h"
+#include "Net/UnrealNetwork.h"
+
 USActionEffect::USActionEffect()
 {
 	Duration = 3.f;
@@ -28,6 +31,11 @@ bool USActionEffect::StartAction_Implementation(AActor* Instigator)
 			TimerDelegate.BindUFunction(this, "ExecutePeriodEffect", Instigator);
 			World->GetTimerManager().SetTimer(TimerHandle_Period, TimerDelegate, Period, true);
 		}
+	}
+
+	if (GetOwningComponent()->GetOwner()->HasAuthority())
+	{
+		TimeStarted = GetWorld()->GetTimeSeconds();
 	}
 	
 	return true;
@@ -58,4 +66,21 @@ bool USActionEffect::StopAction_Implementation(AActor* Instigator)
 
 void USActionEffect::ExecutePeriodEffect_Implementation(AActor* Instigator)
 {
+}
+
+float USActionEffect::GetTimeRemaining() const
+{
+	if (const AGameStateBase* GameState = GetWorld()->GetGameState())
+	{
+		const float EndTime = TimeStarted + Duration;
+		return EndTime - GameState->GetServerWorldTimeSeconds();
+	}
+	return Duration;
+}
+
+void USActionEffect::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(USActionEffect, TimeStarted);
 }

@@ -30,6 +30,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Properties")
 	FName ActionName;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Properties")
+	TObjectPtr<UTexture2D> Icon;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Properties")
 	bool bAutoStart;
 

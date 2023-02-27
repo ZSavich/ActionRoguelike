@@ -63,6 +63,8 @@ bool USAction::StartAction_Implementation(AActor* Instigator)
 			ActionRepData.bIsRunning = true;
 			ActionRepData.Instigator = Instigator;
 			
+			ActionComponent->OnActionStarted.Broadcast(ActionComponent, this);
+			
 			UE_LOG(LogTemp, Log, TEXT("EUD::Started action %s"), *GetNameSafe(this));
 			return true;
 		}
@@ -79,6 +81,8 @@ bool USAction::StopAction_Implementation(AActor* Instigator)
 			ActionComponent->ActiveGameplayTags.RemoveTags(GrantsTags);
 			ActionRepData.bIsRunning = false;
 			ActionRepData.Instigator = Instigator;
+
+			ActionComponent->OnActionStopped.Broadcast(ActionComponent, this);
 			
 			UE_LOG(LogTemp, Log, TEXT("EUD::Stopped action %s"), *GetNameSafe(this));
 			return true;
