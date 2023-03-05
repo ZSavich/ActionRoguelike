@@ -19,4 +19,7 @@ public:
 	ASHealthPotion();
 	
 	virtual bool ActivatePickup(APawn* InstigatorPawn) override;
+
+	/** Gameplay Interface's Functions */
+	virtual FText GetInteractText(APawn* InstigatorPawn) override;
 };

@@ -54,6 +54,11 @@ void ASPickupBase::Interact_Implementation(APawn* InstigatorPawn)
 	}
 }
 
+FText ASPickupBase::GetInteractText(APawn* InstigatorPawn)
+{
+	return FText::GetEmpty();
+}
+
 void ASPickupBase::Respawn()
 {
 	if (TimerHandle_Respawn.IsValid())

@@ -31,7 +31,7 @@ protected:
 	FName ActionName;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Properties")
-	TObjectPtr<UTexture2D> Icon;
+	TSoftObjectPtr<UTexture2D> Icon;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Properties")
 	bool bAutoStart;

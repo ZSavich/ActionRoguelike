@@ -45,7 +45,11 @@ protected:
 public:	
 	ASPickupBase();
 
+	/** Gameplay Interface's Functions */
 	virtual void Interact_Implementation(APawn* InstigatorPawn) override;
+
+	UFUNCTION(BlueprintCallable)
+	virtual FText GetInteractText(APawn* InstigatorPawn) override;
 
 	UFUNCTION(BlueprintCallable)
 	virtual bool ActivatePickup(APawn* InstigatorPawn);

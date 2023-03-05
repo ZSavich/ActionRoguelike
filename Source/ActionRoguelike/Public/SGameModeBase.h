@@ -3,14 +3,40 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DataAssets/SMonsterDataAsset.h"
+#include "Engine/DataTable.h"
 #include "EnvironmentQuery/EnvQueryTypes.h"
 #include "GameFramework/GameModeBase.h"
 #include "SaveSystem/SSaveGame.h"
 #include "SGameModeBase.generated.h"
 
-class ASAICharacter;
 class UEnvQuery;
 class UEnvQueryInstanceBlueprintWrapper;
+
+USTRUCT(BlueprintType)
+struct FBotInfoRow : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	FBotInfoRow() : Weight(1.f), SpawnCost(5.f), KillReward(20.f) {};
+
+	/** Data asset with information about a bot */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	FPrimaryAssetId BotDataAsset;
+	
+	/** Relative chance to pick this bot */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float Weight;
+
+	/** Points required by gamemode to spawn this unit */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float SpawnCost;
+
+	/** Amount of credits awarded to killer of this unit */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float KillReward;
+	
+};
 
 UCLASS()
 class ACTIONROGUELIKE_API ASGameModeBase : public AGameModeBase
@@ -23,8 +49,8 @@ protected:
 	UEnvQuery* SpawnBotQuery;
 
 	UPROPERTY(EditAnywhere, Category = "Properties|BotSpawner")
-	TSubclassOf<ASAICharacter> BotClass;
-
+	UDataTable* BotsTable;
+	
 	UPROPERTY(EditAnywhere, Category = "Properties|BotSpawner")
 	UCurveFloat* DifficultyCurve;
 	
@@ -64,9 +90,13 @@ protected:
 	
 	void SpawnBotTimerElapsed();
 
-	/* Save Game Data Functions */
+	/** Save Game Data Functions */
 	UFUNCTION(BlueprintCallable)
 	void WriteSaveGame();
 	UFUNCTION(BlueprintCallable)
 	void LoadSaveGame();
+
+	/** Async Loading Callback */
+	UFUNCTION()
+	void OnBotLoaded(FPrimaryAssetId LoadedPrimaryAssetId, FVector SpawnLocation);
 };

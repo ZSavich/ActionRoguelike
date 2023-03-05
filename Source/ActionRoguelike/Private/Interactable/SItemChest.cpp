@@ -33,6 +33,11 @@ void ASItemChest::ActorSaveDataLoaded_Implementation()
 	OnRep_LidOpened();
 }
 
+FText ASItemChest::GetInteractText(APawn* InstigatorPawn)
+{
+	return FText::GetEmpty();
+}
+
 void ASItemChest::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

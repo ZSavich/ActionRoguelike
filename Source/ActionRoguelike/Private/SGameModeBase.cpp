@@ -7,6 +7,7 @@
 #include "ActionRoguelike/ActionRoguelike.h"
 #include "AI/SAICharacter.h"
 #include "Components/SAttributeComponent.h"
+#include "Engine/AssetManager.h"
 #include "EnvironmentQuery/EnvQuery.h"
 #include "EnvironmentQuery/EnvQueryManager.h"
 #include "GameFramework/GameStateBase.h"
@@ -140,17 +141,28 @@ void ASGameModeBase::HandleOnSpawnBotsFinished(UEnvQueryInstanceBlueprintWrapper
 {
 	QueryInstance->GetOnQueryFinishedEvent().Clear();
 	
-	if (QueryStatus != EEnvQueryStatus::Success || !BotClass)
+	if (QueryStatus != EEnvQueryStatus::Success)
 	{
 		UE_LOG(LogRogueAI, Warning, TEXT("EUD::SpawnBotQueue failed! We can't spawn new bots because of it."));
 		return;
 	}
-
+	
 	UWorld* World = GetWorld();
 	TArray<FVector> SpawnLocations = QueryInstance->GetResultsAsLocations();
 	if (World && SpawnLocations.IsValidIndex(0))
 	{
-		World->SpawnActor<ASAICharacter>(BotClass, SpawnLocations[0], FRotator::ZeroRotator);
+		TArray<FBotInfoRow*> BotInfoRows;
+		BotsTable->GetAllRows("", BotInfoRows);
+
+		const uint8 RandomNum = FMath::RandRange(0, BotInfoRows.Num() - 1);
+		const FPrimaryAssetId& SelectedBotData = BotInfoRows[RandomNum]->BotDataAsset;
+		if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
+		{
+			const TArray<FName> Bundles;
+			const FStreamableDelegate Delegate = FStreamableDelegate::CreateUObject(this, &ASGameModeBase::OnBotLoaded, SelectedBotData, SpawnLocations[0]);
+
+			AssetManager->LoadPrimaryAsset(SelectedBotData, Bundles, Delegate);
+		}
 	}
 }
 
@@ -243,4 +255,33 @@ void ASGameModeBase::LoadSaveGame()
 		}
 	}
 	UE_LOG(LogTemp, Log, TEXT("Successful loaded SaveGame Data."));
+}
+
+void ASGameModeBase::OnBotLoaded(FPrimaryAssetId LoadedPrimaryAssetId, FVector SpawnLocation)
+{
+	if (const UAssetManager* AssetManager = UAssetManager::GetIfValid())
+	{
+		const USMonsterDataAsset* MonsterData = AssetManager->GetPrimaryAssetObject<USMonsterDataAsset>(LoadedPrimaryAssetId);
+
+		if (!MonsterData)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("EUD::Can't load MonsterData"));
+			return;
+		}
+		
+		ASAICharacter* SpawnedBot = GetWorld()->SpawnActor<ASAICharacter>(MonsterData->BotClass, SpawnLocation, FRotator::ZeroRotator);
+
+		if (SpawnedBot)
+		{
+			UE_LOG(LogTemp, Log, TEXT("EUD::Spawned enemy: %s (%s)"), *GetNameSafe(SpawnedBot), *GetNameSafe(MonsterData));
+				
+			if (USActionComponent* ActionComponent = USActionComponent::GetActionComponent(SpawnedBot))
+			{
+				for (const TSubclassOf<USAction>& Action : MonsterData->Actions)
+				{
+					ActionComponent->AddAction(Action);
+				}
+			}
+		}
+	}
 }

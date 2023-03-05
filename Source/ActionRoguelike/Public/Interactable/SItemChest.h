@@ -35,4 +35,6 @@ protected:
 
 	virtual void ActorSaveDataLoaded_Implementation() override;
 
+	virtual FText GetInteractText(APawn* InstigatorPawn) override;
+
 };
