@@ -6,6 +6,7 @@
 #include "SPlayerState.h"
 #include "ActionRoguelike/ActionRoguelike.h"
 #include "AI/SAICharacter.h"
+#include "Components/SActionComponent.h"
 #include "Components/SAttributeComponent.h"
 #include "Engine/AssetManager.h"
 #include "EnvironmentQuery/EnvQuery.h"
@@ -184,9 +185,7 @@ void ASGameModeBase::WriteSaveGame()
 		if (Actor->IsPendingKillPending()) continue;
 
 		// Record Actor's data
-		FActorSaveData ActorRecord;
-		ActorRecord.ActorName = *GetNameSafe(Actor);
-		ActorRecord.ActorTransform = Actor->GetTransform();
+		FActorSaveData ActorRecord {*GetNameSafe(Actor), Actor->GetTransform()};
 
 		// Pass the array to fill with data from Actor
 		FMemoryWriter MemoryWriter(ActorRecord.ActorData);

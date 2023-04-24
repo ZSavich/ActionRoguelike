@@ -4,8 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
-#include "Components/SActionComponent.h"
-#include "UObject/NoExportTypes.h"
 #include "SAction.generated.h"
 
 USTRUCT()

@@ -9,10 +9,10 @@ ASItemChest::ASItemChest()
  	PrimaryActorTick.bCanEverTick = false;
 	PrimaryActorTick.bStartWithTickEnabled = false;
 
-	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BaseMesh"));
+	BaseMesh = CreateDefaultSubobject<UStaticMeshComponent>("BaseMesh");
 	SetRootComponent(BaseMesh);
 
-	LidMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LidMesh"));
+	LidMesh = CreateDefaultSubobject<UStaticMeshComponent>("LidMesh");
 	LidMesh->SetupAttachment(GetRootComponent());
 
 	// Replication

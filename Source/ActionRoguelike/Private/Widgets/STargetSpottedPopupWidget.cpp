@@ -12,9 +12,6 @@ void USTargetSpottedPopupWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 	// Auto Remove the widget after a certain time
-	if (const UWorld* World = GetWorld())
-	{
-		FTimerHandle TimerHandle_AutoRemove;
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle_AutoRemove, this, &UUserWidget::RemoveFromParent, AutoDestroyTime, false);
-	}
+	FTimerHandle TimerHandle_AutoRemove;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle_AutoRemove, this, &UUserWidget::RemoveFromParent, AutoDestroyTime, false);
 }

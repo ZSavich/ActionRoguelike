@@ -21,7 +21,8 @@ USInteractionComponent::USInteractionComponent()
 void USInteractionComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
+	ensure(DefaultWidgetClass);
+	
 	OwnerPawn = Cast<APawn>(GetOwner());
 }
 
@@ -39,96 +40,95 @@ void USInteractionComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 void USInteractionComponent::FindBestInteractable()
 {
 	const UWorld* World = GetWorld();
-	APawn* Owner = GetOwner<APawn>();
-	UCameraComponent* FollowCamera = Cast<UCameraComponent>(Owner->GetComponentByClass(UCameraComponent::StaticClass()));
+	const APawn* Owner = GetOwner<APawn>();
+	if (!ensure(Owner) || !ensure(World)) return;
 	
-	if (World && Owner)
+	const UCameraComponent* FollowCamera = Cast<UCameraComponent>(Owner->GetComponentByClass(UCameraComponent::StaticClass()));
+	
+	const bool bDrawDebug = CVarInteractionDebugDraw.GetValueOnGameThread();
+		
+	TArray<FHitResult> HitResults;
+	
+	FVector EyesLocation;
+	FRotator EyesRotation;
+	Owner->GetActorEyesViewPoint(EyesLocation, EyesRotation);
+
+	FVector EndHit;
+	if (FollowCamera)
 	{
-		const bool bDrawDebug = CVarInteractionDebugDraw.GetValueOnGameThread();
-		
-		TArray<FHitResult> HitResults;
-		
-		FVector EyesLocation;
-		FRotator EyesRotation;
-		Owner->GetActorEyesViewPoint(EyesLocation, EyesRotation);
-
-		FVector EndHit;
-		if (FollowCamera)
-		{
-			EyesLocation = FollowCamera->GetComponentLocation();
-			EndHit = EyesLocation + (FollowCamera->GetComponentRotation().Vector() * TraceLength);
-		}
-		else
-		{
-			EndHit = EyesLocation + (EyesRotation.Vector() * TraceLength);
-		}
-
-		FCollisionObjectQueryParams QueryParams;
-		QueryParams.AddObjectTypesToQuery(TraceObjectType);
-
-		FCollisionShape CollisionShape;
-		CollisionShape.SetSphere(TraceSphereRadius);
-		
-		const bool bIsHitActors = World->SweepMultiByObjectType(
-			HitResults,
-			EyesLocation,
-			EndHit,
-			FQuat::Identity,
-			QueryParams,
-			CollisionShape);
-		
-		FocusedActor = nullptr;
-		if (bIsHitActors)
-		{
-			for (const FHitResult& HitResult : HitResults)
-			{
-				AActor* HitActor = HitResult.GetActor();
-				if (HitActor && HitActor->Implements<USGameplayInterface>())
-				{
-					FocusedActor = HitActor;
-					// Debug - Start
-					if (bDrawDebug)
-					{
-						DrawDebugSphere(World, HitResult.ImpactPoint, TraceSphereRadius, 12, FColor::Green, false, 5.f, 0, 1.f);
-					}
-					// Debug - End
-					break;
-				}
-			}
-		}
-
-		// Display the Interact Widget Popup when we are looking at the interactable actor
-		if (FocusedActor)
-		{
-			if (!DefaultWidgetInstance && DefaultWidgetClass)
-			{
-				DefaultWidgetInstance = CreateWidget<USWorldUserWidget>(GetWorld(), DefaultWidgetClass);
-			}
-			if (DefaultWidgetInstance)
-			{
-				DefaultWidgetInstance->SetAttachedActor(FocusedActor);
-				if (!DefaultWidgetInstance->IsInViewport())
-				{
-					DefaultWidgetInstance->AddToViewport();
-				}
-			}
-		}
-		else
-		{
-			if (DefaultWidgetInstance)
-			{
-				DefaultWidgetInstance->RemoveFromParent();
-			}
-		}
-
-		// Debug - Start
-		if (bDrawDebug)
-		{
-			const FColor DebugLineColor = bIsHitActors ? FColor::Green : FColor::Red;
-			DrawDebugLine(World, EyesLocation, EndHit, DebugLineColor, false, 5.f, 0, 1.f);
-		}
-		// Debug - End
+		EyesLocation = FollowCamera->GetComponentLocation();
+		EndHit = EyesLocation + (FollowCamera->GetComponentRotation().Vector() * TraceLength);
 	}
+	else
+	{
+		EndHit = EyesLocation + (EyesRotation.Vector() * TraceLength);
+	}
+
+	FCollisionObjectQueryParams QueryParams;
+	QueryParams.AddObjectTypesToQuery(TraceObjectType);
+
+	FCollisionShape CollisionShape;
+	CollisionShape.SetSphere(TraceSphereRadius);
+	
+	const bool bIsHitActors = World->SweepMultiByObjectType(
+		HitResults,
+		EyesLocation,
+		EndHit,
+		FQuat::Identity,
+		QueryParams,
+		CollisionShape);
+	
+	FocusedActor = nullptr;
+	if (bIsHitActors)
+	{
+		for (const FHitResult& HitResult : HitResults)
+		{
+			AActor* HitActor = HitResult.GetActor();
+			if (HitActor && HitActor->Implements<USGameplayInterface>())
+			{
+				FocusedActor = HitActor;
+				// Debug - Start
+				if (bDrawDebug)
+				{
+					DrawDebugSphere(World, HitResult.ImpactPoint, TraceSphereRadius, 12, FColor::Green, false, 5.f, 0, 1.f);
+				}
+				// Debug - End
+				break;
+			}
+		}
+	}
+
+	// Display the Interact Widget Popup when we are looking at the interactable actor
+	if (FocusedActor)
+	{
+		if (!DefaultWidgetInstance)
+		{
+			DefaultWidgetInstance = CreateWidget<USWorldUserWidget>(GetWorld(), DefaultWidgetClass);
+		}
+		if (DefaultWidgetInstance)
+		{
+			DefaultWidgetInstance->SetAttachedActor(FocusedActor);
+			if (!DefaultWidgetInstance->IsInViewport())
+			{
+				DefaultWidgetInstance->AddToViewport();
+			}
+		}
+	}
+	else
+	{
+		if (DefaultWidgetInstance)
+		{
+			DefaultWidgetInstance->RemoveFromParent();
+		}
+	}
+
+	// Debug - Start
+	if (bDrawDebug)
+	{
+		const FColor DebugLineColor = bIsHitActors ? FColor::Green : FColor::Red;
+		DrawDebugLine(World, EyesLocation, EndHit, DebugLineColor, false, 5.f, 0, 1.f);
+	}
+	// Debug - End
 }
 
 void USInteractionComponent::PrimaryInteract()

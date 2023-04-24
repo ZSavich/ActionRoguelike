@@ -24,9 +24,6 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Transient)
 	TObjectPtr<UUserWidget> PauseMenuWidgetInstance;
 
-private:
-	bool bIsPauseMenuVisible;
-
 public:
 	virtual void BeginPlay() override;
 	virtual void SetPawn(APawn* InPawn) override;
@@ -36,4 +33,8 @@ public:
 
 protected:
 	bool IsPauseMenuValid();
+
+private:
+	bool bInPause = false;
+	UUserWidget* CreatePauseWidget();
 };

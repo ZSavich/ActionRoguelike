@@ -55,9 +55,8 @@ bool USAttributeComponent::ApplyHealthChange(AActor* Instigator, float Delta)
 	const float DamageMultiplier = CVarDamageMultiplier.GetValueOnGameThread();
 	Delta *= DamageMultiplier;
 	
-	const float OldHealth = Health;
 	const float NewHealth = FMath::Clamp(Health + Delta, 0.f, MaxHealth);
-	const float ActualDelta = NewHealth - OldHealth;
+	const float ActualDelta = NewHealth - Health;
 
 	// Only on the Server
 	if (GetOwnerRole() == ROLE_Authority)
@@ -82,7 +81,7 @@ bool USAttributeComponent::ApplyHealthChange(AActor* Instigator, float Delta)
 		MulticastOnHealthChanged(Instigator, Health, ActualDelta);
 	}
 	
-	return ActualDelta != 0;
+	return ActualDelta != 0.f;
 }
 
 bool USAttributeComponent::ApplyRageChange(float Delta)

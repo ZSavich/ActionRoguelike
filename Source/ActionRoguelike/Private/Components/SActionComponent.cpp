@@ -133,6 +133,18 @@ bool USActionComponent::StopActionByName(AActor* Instigator, const FName& Action
 	return false;
 }
 
+void USActionComponent::HandleActionStart(const FGameplayTagContainer& GrantsTags, USAction* Action)
+{
+	ActiveGameplayTags.AppendTags(GrantsTags);
+	OnActionStarted.Broadcast(this, Action);
+}
+
+void USActionComponent::HandleActionStop(const FGameplayTagContainer& GrantsTags, USAction* Action)
+{
+	ActiveGameplayTags.RemoveTags(GrantsTags);
+	OnActionStopped.Broadcast(this, Action);
+}
+
 // Multiplayer Functions
 bool USActionComponent::ReplicateSubobjects(UActorChannel* Channel, FOutBunch* Bunch, FReplicationFlags* RepFlags)
 {

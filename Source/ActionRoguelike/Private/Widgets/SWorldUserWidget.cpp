@@ -5,6 +5,8 @@
 #include "Components/SizeBox.h"
 #include "Kismet/GameplayStatics.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogWorldUserWidget, All, All);
+
 void USWorldUserWidget::SetAttachedActor_Implementation(AActor* Actor)
 {
 	if (Actor)
@@ -20,6 +22,8 @@ void USWorldUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 	if ((!AttachedActor || !ensure(ParentSizeBox)) && IsValid(this))
 	{
 		RemoveFromParent();
+
+		UE_LOG(LogWorldUserWidget, Display, TEXT("AttachedActor no longer valid."))
 		return;
 	}
 
@@ -27,6 +31,8 @@ void USWorldUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 	if (UGameplayStatics::ProjectWorldToScreen(GetOwningPlayer(), AttachedActor->GetActorLocation() + VerticalOffset, ScreenPosition))
 	{
 		const float ViewportScale = UWidgetLayoutLibrary::GetViewportScale(GetWorld());
+		check(ViewportScale); // Zero divide protection
+		
 		ParentSizeBox->SetRenderTranslation(ScreenPosition / ViewportScale);
 	}
 }

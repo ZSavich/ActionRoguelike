@@ -6,12 +6,10 @@
 void ASPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
+	ensure(PauseMenuWidgetClass);
+	
 	SetShowMouseCursor(false);
 	SetInputMode(FInputModeGameOnly());
-
-	// Create Pause Menu Widget
-	
 }
 
 void ASPlayerController::SetPawn(APawn* InPawn)
@@ -22,48 +20,37 @@ void ASPlayerController::SetPawn(APawn* InPawn)
 
 void ASPlayerController::TogglePauseMenu()
 {
+	bInPause = !bInPause;
+	SetPause(bInPause);
 	if (IsPauseMenuValid())
 	{
-		if (bIsPauseMenuVisible) // Hide the Pause Menu
+		PauseMenuWidgetInstance->SetVisibility(bInPause ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+		SetShowMouseCursor(bInPause);
+		if (bInPause)
 		{
-			// Hide the Pause Menu Widget
-			PauseMenuWidgetInstance->SetVisibility(ESlateVisibility::Hidden);
-			SetShowMouseCursor(false);
-			SetInputMode(FInputModeGameOnly());
-			
-			bIsPauseMenuVisible = false;
-		}
-		else // Show the Pause Menu
-		{
-			// Show the Pause Menu Widget and make enable to interact with it
-			PauseMenuWidgetInstance->SetVisibility(ESlateVisibility::Visible);
-			SetShowMouseCursor(true);
 			SetInputMode(FInputModeUIOnly());
-			
-			bIsPauseMenuVisible = true;
+		}
+		else
+		{
+			SetInputMode(FInputModeGameOnly());
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("EUD::Can't open PauseMenu."))
+		UE_LOG(LogPlayerController, Warning, TEXT("Can't open PauseMenu."))
 	}
 }
 
 bool ASPlayerController::IsPauseMenuValid()
 {
-	if (!PauseMenuWidgetClass)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("EUD::Need setup PauseMenuWidgetClass variable."))
-		return nullptr;
-	}
-
-	if (!PauseMenuWidgetInstance)
-	{
-		// First call should create the PauseMenu widget
-		PauseMenuWidgetInstance = CreateWidget(this, PauseMenuWidgetClass, "PauseMenuWidget");
-		PauseMenuWidgetInstance->AddToViewport(2);
-		PauseMenuWidgetInstance->SetVisibility(ESlateVisibility::Hidden);
-	}
-	
+	PauseMenuWidgetInstance = PauseMenuWidgetInstance ? PauseMenuWidgetInstance : CreatePauseWidget();
 	return IsValid(PauseMenuWidgetInstance);
+}
+
+UUserWidget* ASPlayerController::CreatePauseWidget()
+{
+	UUserWidget* PauseWidget = CreateWidget(this, PauseMenuWidgetClass, "PauseMenuWidget");
+	PauseWidget->AddToViewport(2);
+	PauseWidget->SetVisibility(ESlateVisibility::Hidden);
+	return PauseWidget;
 }

@@ -56,6 +56,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool StopActionByName(AActor* Instigator, const FName& ActionName);
 
+	void HandleActionStart(const FGameplayTagContainer& GrantsTags, USAction* Action);
+	void HandleActionStop(const FGameplayTagContainer& GrantsTags, USAction* Action);
+
 protected:
 	/** Multiplayer Functions */
 	UFUNCTION(Server, Reliable)

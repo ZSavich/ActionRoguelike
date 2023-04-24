@@ -5,6 +5,8 @@
 #include "SGameplayFunctionLibrary.h"
 #include "Components/SAttributeComponent.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogActionEffect, All, All);
+
 USActionEffect_Thorns::USActionEffect_Thorns()
 {
 	bAutoStart = true;
@@ -41,7 +43,7 @@ void USActionEffect_Thorns::ExecuteThornEffect(AActor* Instigator, USAttributeCo
 	
 	if (Instigator == OwningComp->GetOwner())
 	{
-		UE_LOG(LogTemp, Log, TEXT("EUD::Thorn Action Effect can't reflect damage caused to yourself."))
+		UE_LOG(LogActionEffect, Display, TEXT("Thorn Action Effect can't reflect damage caused to yourself."))
 		return;
 	}
 

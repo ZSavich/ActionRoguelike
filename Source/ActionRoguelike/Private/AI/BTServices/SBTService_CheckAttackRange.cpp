@@ -17,9 +17,11 @@ void USBTService_CheckAttackRange::TickNode(UBehaviorTreeComponent& OwnerComp, u
 	{
 		const AActor* TargetActor = Cast<AActor>(BlackboardComponent->GetValueAsObject("TargetActor"));
 		const AAIController* BotController = OwnerComp.GetAIOwner();
+		if (!ensure(BotController)) return;
+		
 		const AActor* BotActor = BotController->GetPawn();
 		
-		if (TargetActor && BotController && BotActor)
+		if (TargetActor && BotActor)
 		{
 			const float Distance = FVector::Distance(TargetActor->GetActorLocation(), BotActor->GetActorLocation());
 			const bool bWithinRange = Distance < MaxAttackRange;

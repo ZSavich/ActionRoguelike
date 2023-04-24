@@ -209,7 +209,7 @@ void ASCharacter::Input_Sprint(const FInputActionValue& InputActionValue)
 {
 	if (ActionComponent)
 	{
-		if (const bool bIsSprinting = InputActionValue.Get<bool>())
+		if (InputActionValue.Get<bool>())
 		{
 			ActionComponent->StartActionByName(this,"Sprint");
 		}
